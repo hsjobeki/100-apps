@@ -1,0 +1,383 @@
+{
+  "B6_4-6_37cf7e87": {
+    "navLabels": [
+      "Projects",
+      "Projects",
+      "Profile",
+      "Projects",
+      "Danger Zone",
+      "Delete account"
+    ],
+    "password": false,
+    "billing": false,
+    "exportData": false,
+    "sessions": false,
+    "toggles": false,
+    "themeControl": false,
+    "deleteBtnText": "Delete account",
+    "permanenceAnywhere": true,
+    "deleteBtn": true,
+    "confirmUi": true,
+    "newInput": true,
+    "dialogText": "Delete your account?\nThis will permanently delete your account, all projects, and all data. There is no way to recover your account after this.\nCancel\nDelete my account",
+    "typeInstruction": true,
+    "permanence": true,
+    "nativeDialog": null
+  },
+  "B6_4-6_b1b613d1": {
+    "navLabels": [
+      "Profile",
+      "Projects",
+      "Notifications",
+      "Danger Zone"
+    ],
+    "password": false,
+    "billing": false,
+    "exportData": false,
+    "sessions": false,
+    "toggles": false,
+    "themeControl": false,
+    "deleteBtnText": "Delete Account",
+    "permanenceAnywhere": true,
+    "deleteBtn": true,
+    "confirmUi": true,
+    "newInput": true,
+    "dialogText": "Delete Account\n\nThis will permanently delete your account, all projects, and all data. This action is irreversible.\n\nType \"delete my account\" to confirm\nCancel\nDelete Account",
+    "typeInstruction": true,
+    "permanence": true,
+    "nativeDialog": null
+  },
+  "B6_4-6_f5e74cab": {
+    "navLabels": [
+      "Profile",
+      "Projects",
+      "Account",
+      "Delete account"
+    ],
+    "password": false,
+    "billing": false,
+    "exportData": false,
+    "sessions": false,
+    "toggles": false,
+    "themeControl": false,
+    "deleteBtnText": "Delete account",
+    "permanenceAnywhere": true,
+    "deleteBtn": true,
+    "confirmUi": true,
+    "newInput": true,
+    "dialogText": "Delete your account\n\nThis action is permanent and irreversible. All your projects and data will be deleted.\n\nType delete my account to confirm\nCancel\nDelete account",
+    "typeInstruction": true,
+    "permanence": true,
+    "nativeDialog": null
+  },
+  "B6_5_76d8fc74": {
+    "navLabels": [
+      "Profile",
+      "Preferences",
+      "Projects",
+      "Danger zone",
+      "Delete account",
+      "Delete account"
+    ],
+    "password": false,
+    "billing": false,
+    "exportData": false,
+    "sessions": false,
+    "toggles": true,
+    "themeControl": true,
+    "deleteBtnText": "Delete account",
+    "permanenceAnywhere": true,
+    "deleteBtn": true,
+    "confirmUi": true,
+    "newInput": false,
+    "dialogText": "Delete account?\nalex@example.com\n3\nprojects deleted\nCannot be undone\nType your email to confirm\nalex@example.com\nCancel\nDelete account",
+    "typeInstruction": true,
+    "permanence": true,
+    "nativeDialog": null
+  },
+  "B6_5_90dfbb8c": {
+    "navLabels": [
+      "Profile",
+      "Projects\n3",
+      "Danger zone",
+      "3 projects",
+      "Account data",
+      "Delete account"
+    ],
+    "password": false,
+    "billing": false,
+    "exportData": false,
+    "sessions": true,
+    "toggles": false,
+    "themeControl": false,
+    "deleteBtnText": "Delete account",
+    "permanenceAnywhere": true,
+    "deleteBtn": true,
+    "confirmUi": true,
+    "newInput": false,
+    "dialogText": "Delete account\n\nEverything below goes with it.\n\n3 projects\nAccount data\nPro plan\nType\nalex@example.com\nto confirm\nI understand this is permanent.\nCancel\nDelete account",
+    "typeInstruction": true,
+    "permanence": true,
+    "nativeDialog": null
+  },
+  "B6_5_e4ba8894": {
+    "navLabels": [
+      "Delete account"
+    ],
+    "password": false,
+    "billing": false,
+    "exportData": false,
+    "sessions": false,
+    "toggles": true,
+    "themeControl": true,
+    "deleteBtnText": "Delete account",
+    "permanenceAnywhere": true,
+    "deleteBtn": true,
+    "confirmUi": true,
+    "newInput": false,
+    "dialogText": "Delete account\n3 projects\nPro plan\nNo undo\nType your email to confirm\nEmail must match\nCancel\nDelete forever",
+    "typeInstruction": true,
+    "permanence": false,
+    "nativeDialog": null
+  },
+  "B2_4-6_661ba740": {
+    "buttons": [
+      "Pause",
+      "×",
+      "All 8",
+      "Queued 0",
+      "Running 3",
+      "Succeeded 2",
+      "Failed 3",
+      "Retry",
+      "Cancel"
+    ],
+    "retryAllFailed": false,
+    "checkboxes": 0,
+    "segmentedBar": false,
+    "hasTextRatio": false
+  },
+  "B2_4-6_a8143c63": {
+    "buttons": [
+      "All8",
+      "Queued0",
+      "Running3",
+      "Failed3",
+      "Succeeded2",
+      "Refresh",
+      "Retry",
+      "Cancel"
+    ],
+    "retryAllFailed": false,
+    "checkboxes": 0,
+    "segmentedBar": false,
+    "hasTextRatio": false
+  },
+  "B2_4-6_b1629d56": {
+    "buttons": [
+      "Retry now",
+      "Upload & Process",
+      "Cancel",
+      "Retry",
+      "All",
+      "Queued",
+      "Running",
+      "Succeeded",
+      "Failed"
+    ],
+    "retryAllFailed": false,
+    "checkboxes": 0,
+    "segmentedBar": false,
+    "hasTextRatio": false
+  },
+  "B2_5_3bfbc3d1": {
+    "buttons": [
+      "Retry failed 3",
+      "Pause",
+      "Refresh",
+      "Failed 3",
+      "Running 3",
+      "Queued 0",
+      "Succeeded 2",
+      "All 8",
+      "job_35484f",
+      "Retry",
+      "job_b86738",
+      "job_cf8d6a",
+      "job_25601c",
+      "Cancel",
+      "job_8c1e89",
+      "job_ae8dae",
+      "job_b5522e",
+      "job_d9ff8d",
+      "Keep job",
+      "Cancel job"
+    ],
+    "retryAllFailed": true,
+    "checkboxes": 9,
+    "segmentedBar": false,
+    "hasTextRatio": true
+  },
+  "B2_5_c1221ec5": {
+    "buttons": [
+      "Retry all failed 3",
+      "Refresh",
+      "Auto-refresh",
+      "All 8",
+      "Failed 3",
+      "Running 3",
+      "Queued 0",
+      "Succeeded 2",
+      "job_35484f",
+      "Retry",
+      "Try again",
+      "job_b86738",
+      "job_cf8d6a",
+      "job_25601c",
+      "Cancel",
+      "job_8c1e89",
+      "job_ae8dae",
+      "job_b5522e",
+      "job_d9ff8d"
+    ],
+    "retryAllFailed": true,
+    "checkboxes": 0,
+    "segmentedBar": true,
+    "hasTextRatio": true
+  },
+  "B2_5_d0847622": {
+    "buttons": [
+      "Refresh",
+      "Live",
+      "8 All",
+      "3 Failed",
+      "3 Running",
+      "0 Queued",
+      "2 Succeeded",
+      "Upload a CSV Creates one job",
+      "Retry all",
+      "job_35484f",
+      "Retry",
+      "job_b86738",
+      "job_cf8d6a",
+      "job_25601c",
+      "Cancel",
+      "job_8c1e89",
+      "job_ae8dae",
+      "job_b5522e",
+      "Rerun",
+      "job_d9ff8d",
+      "Close"
+    ],
+    "retryAllFailed": true,
+    "checkboxes": 0,
+    "segmentedBar": false,
+    "hasTextRatio": true
+  },
+  "B3_4-6_19f8347f": {
+    "head": "Service Health | Updated 11:36:38 PM | 1H | 24H | 7D | 1 service down: | media-worker | 4 | Healthy | 1 | Degraded | 1 | Down | media-worker | DOWN | 98.90% uptime | LATENCY | 846ms | avg 990ms · peak 1.3s | ERROR RATE | 0.29% | avg 0.44% | LATENCY | ERROR RATE | notifier | DEGRADED | 98.28% uptime | LATENCY | 495ms | avg 469ms · peak 603ms | ERROR RATE | 0.07% | avg 0.06% | LATENCY | ERROR RATE | api-gateway | HEALTHY",
+    "downWord": true,
+    "degradedWord": true,
+    "healthyWord": true,
+    "summaryCounts": true,
+    "uptime": true,
+    "slo": false,
+    "deltaChars": [],
+    "pills": [
+      "1H",
+      "24H",
+      "7D"
+    ]
+  },
+  "B3_4-6_bba65fe8": {
+    "head": "Service Health | Updated 11:36:40 PM | HEALTHY | 4 | DEGRADED | 1 | DOWN | 1 | AVG UPTIME | 98.5% | PEAK LATENCY | 846ms | Services | 1h | 24h | 7d | media-worker | DOWN | Latency | 846ms | -181ms | Error Rate | 0.3% | -0.2% | Uptime | 98.90% | Latency Trend | Error Rate Trend | notifier | DEGRADED | Latency | 495ms | +120ms | Error Rate | 0.1% | +0.0% | Uptime | 98.28% | Latency Trend | Error Rate Trend | api-gateway | HEALTHY | ",
+    "downWord": true,
+    "degradedWord": true,
+    "healthyWord": true,
+    "summaryCounts": true,
+    "uptime": true,
+    "slo": false,
+    "deltaChars": [
+      "-0.2%",
+      "+0.0%",
+      "-0.0%",
+      "-0.0%",
+      "+0.0%",
+      "-0.0%"
+    ],
+    "pills": [
+      "1h",
+      "24h",
+      "7d"
+    ]
+  },
+  "B3_4-6_d3baa7c9": {
+    "head": "Service Health | 1H | 24H | 7D | Refresh | HEALTHY | 4 | DEGRADED | 1 | DOWN | 1 | AVG UPTIME | 98.48% | media-worker | DOWN | Latency | 846ms | Avg Latency | 990ms | Error Rate | 29.1% | Uptime | 98.90% | Latency | peak 1311ms | Error Rate | avg 44.1% | notifier | DEGRADED | Latency | 495ms | Avg Latency | 469ms | Error Rate | 7.2% | Uptime | 98.28% | Latency | peak 603ms | Error Rate | avg 6.3% | api-gateway | HEALTHY | Latency | 13",
+    "downWord": true,
+    "degradedWord": true,
+    "healthyWord": true,
+    "summaryCounts": true,
+    "uptime": true,
+    "slo": false,
+    "deltaChars": [],
+    "pills": [
+      "1H",
+      "24H",
+      "7D"
+    ]
+  },
+  "B3_5_0373bf32": {
+    "head": "Service health | now | 1h | 24h | 7d | Outage | 2 of 6 impacted | 1 | Down | 1 | Degraded | 4 | Healthy | media-worker | DOWN | Latency | -11% | 846ms | Errors | -5% | 29.1% | Uptime | 98.90% | notifier | DEGRADED | Latency | +3% | 495ms | Errors | +20% | 7.25% | Uptime | 98.28% | api-gateway | HEALTHY | Latency | -13% | 134ms | Errors | -27% | 0.26% | Uptime | 97.52% | auth | HEALTHY | Latency | +4% | 91ms | Errors | +7% | 0.46% | Uptime | 99.57% | pa",
+    "downWord": true,
+    "degradedWord": true,
+    "healthyWord": true,
+    "summaryCounts": true,
+    "uptime": true,
+    "slo": false,
+    "deltaChars": [
+      "-11%",
+      "-5%",
+      "+3%",
+      "+20%",
+      "-13%",
+      "-27%"
+    ],
+    "pills": [
+      "1h",
+      "24h",
+      "7d"
+    ]
+  },
+  "B3_5_66b0875a": {
+    "head": "Service health | 6 services · 24h window · just now | 1h | 24h | 7d | Live | Refresh | 1 down · 1 degraded | 4 healthy of 6·just now | media-worker | DOWN | LATENCY | 846ms | 12% | 675–1,311 ms | ERRORS | 29.1% | flat | peak 63.0% | UPTIME | 98.90% | SLO 99.9% | notifier | DEGRADED | LATENCY | 495ms | flat | 305–603 ms | ERRORS | 7.25% | 22% | peak 8.68% | UPTIME | 98.28% | SLO 99.9% | api-gateway | HEALTHY | LATENCY | 134",
+    "downWord": true,
+    "degradedWord": true,
+    "healthyWord": true,
+    "summaryCounts": true,
+    "uptime": true,
+    "slo": true,
+    "deltaChars": [],
+    "pills": [
+      "1h",
+      "24h",
+      "7d",
+      "Live"
+    ]
+  },
+  "B3_5_a0145723": {
+    "head": "ON-CALL | Service health | 1 service down | 1h | 24h | 7d | Auto | Refresh | Updated just now | 6 | All | 1 | Down | 1 | Degraded | 4 | Healthy | media-worker | Down | LATENCY | 846 | ms | ERRORS | 29.1 | % | Uptime 24h | 98.90% | notifier | Degraded | LATENCY | 495 | ms | ERRORS | 7.25 | % | Uptime 24h | 98.28% | payments | Healthy | LATENCY | 130 | ms | ERRORS | 0.48 | % | Uptime 24h | 99.39% | auth | Healthy | LATENCY | 91 | ms | ERRORS | 0.46 | % | Upt",
+    "downWord": true,
+    "degradedWord": true,
+    "healthyWord": true,
+    "summaryCounts": true,
+    "uptime": true,
+    "slo": false,
+    "deltaChars": [],
+    "pills": [
+      "1h",
+      "24h",
+      "7d",
+      "Auto"
+    ]
+  }
+}
