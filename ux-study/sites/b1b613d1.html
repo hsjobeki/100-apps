@@ -1,0 +1,1000 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Account Settings</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #f8f9fb;
+  --surface: #ffffff;
+  --border: #e2e5ea;
+  --border-hover: #c5c9d0;
+  --text-primary: #1a1d23;
+  --text-secondary: #5f6672;
+  --text-tertiary: #8b91a0;
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --accent-light: #eff4ff;
+  --danger: #dc2626;
+  --danger-hover: #b91c1c;
+  --danger-light: #fef2f2;
+  --danger-border: #fca5a5;
+  --success: #16a34a;
+  --success-light: #f0fdf4;
+  --warning: #d97706;
+  --warning-light: #fffbeb;
+  --radius-sm: 6px;
+  --radius: 8px;
+  --radius-lg: 12px;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-lg: 0 4px 12px rgba(0,0,0,0.1);
+  --transition: 150ms ease;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text-primary);
+  line-height: 1.5;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+.layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 240px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: 24px 0;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.sidebar-header {
+  padding: 0 20px 20px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 8px;
+}
+
+.sidebar-header h2 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.sidebar-header .user-email {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 20px;
+  font-size: 14px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  transition: background var(--transition), color var(--transition);
+  font-family: inherit;
+}
+
+.nav-item:hover { background: var(--bg); color: var(--text-primary); }
+
+.nav-item.active {
+  background: var(--accent-light);
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.nav-item svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+.main {
+  flex: 1;
+  padding: 32px 48px;
+  max-width: 780px;
+}
+
+.page-title {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.page-subtitle {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 32px;
+}
+
+.section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  margin-bottom: 24px;
+  overflow: hidden;
+}
+
+.section-header {
+  padding: 20px 24px 0;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.section-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.section-body { padding: 16px 24px 24px; }
+
+.field-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.field-group.full { grid-template-columns: 1fr; }
+
+.field label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 5px;
+}
+
+.field input, .field select {
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-family: inherit;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text-primary);
+  transition: border-color var(--transition), box-shadow var(--transition);
+  outline: none;
+}
+
+.field input:focus, .field select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.field input:disabled {
+  background: var(--bg);
+  color: var(--text-tertiary);
+  cursor: not-allowed;
+}
+
+.section-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 24px;
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all var(--transition);
+  white-space: nowrap;
+  position: relative;
+  min-height: 36px;
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
+.btn-primary:hover:not(:disabled) { background: var(--accent-hover); }
+
+.btn-secondary {
+  background: var(--surface);
+  color: var(--text-primary);
+  border-color: var(--border);
+}
+
+.btn-secondary:hover:not(:disabled) { border-color: var(--border-hover); background: var(--bg); }
+
+.btn-danger {
+  background: var(--danger);
+  color: white;
+  border-color: var(--danger);
+}
+
+.btn-danger:hover:not(:disabled) { background: var(--danger-hover); }
+
+.btn-ghost-danger {
+  background: transparent;
+  color: var(--danger);
+  border-color: var(--danger-border);
+}
+
+.btn-ghost-danger:hover:not(:disabled) { background: var(--danger-light); }
+
+.btn .spinner {
+  display: none;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+.btn-ghost-danger .spinner, .btn-secondary .spinner {
+  border-color: rgba(0,0,0,0.15);
+  border-top-color: currentColor;
+}
+
+.btn.loading .spinner { display: block; }
+.btn.loading .btn-text { visibility: hidden; }
+.btn.loading .spinner { position: absolute; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.toast-container {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: var(--shadow-lg);
+  animation: slideIn 0.2s ease;
+  max-width: 380px;
+}
+
+.toast-success { background: var(--success-light); color: var(--success); border: 1px solid #bbf7d0; }
+.toast-error { background: var(--danger-light); color: var(--danger); border: 1px solid var(--danger-border); }
+
+.toast svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+@keyframes slideIn { from { opacity: 0; transform: translateX(40px); } }
+
+.plan-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 100px;
+  background: var(--accent-light);
+  color: var(--accent);
+  vertical-align: middle;
+}
+
+.project-list { list-style: none; }
+
+.project-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.project-item:last-child { border-bottom: none; }
+
+.project-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.project-name {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.project-date {
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+.project-actions { display: flex; gap: 8px; }
+
+.empty-state {
+  text-align: center;
+  padding: 32px 16px;
+  color: var(--text-tertiary);
+}
+
+.empty-state svg {
+  width: 40px;
+  height: 40px;
+  margin-bottom: 10px;
+  opacity: 0.4;
+}
+
+.empty-state p { font-size: 14px; }
+
+.danger-zone {
+  border-color: var(--danger-border);
+}
+
+.danger-zone .section-header { padding-bottom: 0; }
+
+.danger-zone .section-title { color: var(--danger); }
+
+.danger-zone .section-footer {
+  background: var(--danger-light);
+  border-top-color: var(--danger-border);
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.15s ease;
+}
+
+@keyframes fadeIn { from { opacity: 0; } }
+
+.modal {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  width: 420px;
+  max-width: 92vw;
+  animation: scaleIn 0.15s ease;
+}
+
+@keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } }
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 24px 0;
+}
+
+.modal-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.modal-icon.danger { background: var(--danger-light); color: var(--danger); }
+
+.modal-icon svg { width: 20px; height: 20px; }
+
+.modal-header h3 { font-size: 16px; font-weight: 600; }
+
+.modal-body {
+  padding: 12px 24px 24px;
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.modal-body .confirm-input {
+  margin-top: 14px;
+}
+
+.modal-body .confirm-input label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 5px;
+}
+
+.modal-body .confirm-input input {
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-family: inherit;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  outline: none;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.modal-body .confirm-input input:focus {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 24px;
+  border-top: 1px solid var(--border);
+}
+
+.inline-error {
+  font-size: 13px;
+  color: var(--danger);
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.inline-error svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+.skeleton {
+  background: linear-gradient(90deg, #eee 25%, #f5f5f5 50%, #eee 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius-sm);
+  height: 16px;
+}
+
+.skeleton.wide { width: 70%; height: 18px; }
+.skeleton.medium { width: 50%; height: 14px; margin-top: 6px; }
+.skeleton.input-sk { height: 36px; width: 100%; margin-top: 5px; }
+
+@keyframes shimmer { to { background-position: -200% 0; } }
+
+.loading-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.loading-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+}
+
+.loading-section .skeleton + .skeleton { margin-top: 10px; }
+
+.notification-pref {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.notification-pref:last-child { border-bottom: none; }
+
+.notification-pref-label {
+  font-size: 14px;
+}
+
+.notification-pref-desc {
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+.toggle {
+  position: relative;
+  width: 40px;
+  height: 22px;
+  background: #d1d5db;
+  border-radius: 11px;
+  border: none;
+  cursor: pointer;
+  transition: background var(--transition);
+  flex-shrink: 0;
+}
+
+.toggle::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  background: white;
+  border-radius: 50%;
+  transition: transform var(--transition);
+  box-shadow: var(--shadow-sm);
+}
+
+.toggle.on { background: var(--accent); }
+.toggle.on::after { transform: translateX(18px); }
+
+.divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 20px 0;
+}
+
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  .main { padding: 20px 16px; }
+  .field-group { grid-template-columns: 1fr; }
+  .page-title { font-size: 20px; }
+}
+</style>
+</head>
+<body>
+
+<div class="layout">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <h2 id="sidebar-name">Account</h2>
+      <div class="user-email" id="sidebar-email"></div>
+    </div>
+    <button class="nav-item active" data-section="profile" onclick="switchSection('profile')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Profile
+    </button>
+    <button class="nav-item" data-section="projects" onclick="switchSection('projects')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+      Projects
+    </button>
+    <button class="nav-item" data-section="notifications" onclick="switchSection('notifications')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      Notifications
+    </button>
+    <button class="nav-item" data-section="danger" onclick="switchSection('danger')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      Danger Zone
+    </button>
+  </nav>
+
+  <main class="main" id="main-content"></main>
+</div>
+
+<div class="toast-container" id="toasts"></div>
+<div id="modal-root"></div>
+
+<script>
+(function() {
+  'use strict';
+
+  let user = null;
+  let settings = { emailNotifications: true, weeklyDigest: false, marketingEmails: false };
+  let currentSection = 'profile';
+  let pendingOps = new Set();
+
+  // --- Toast ---
+  function showToast(msg, type) {
+    const c = document.getElementById('toasts');
+    const icon = type === 'success'
+      ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>'
+      : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
+    const el = document.createElement('div');
+    el.className = 'toast toast-' + type;
+    el.innerHTML = icon + '<span>' + escHtml(msg) + '</span>';
+    c.appendChild(el);
+    setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity 0.3s'; setTimeout(() => el.remove(), 300); }, 3500);
+  }
+
+  function escHtml(s) {
+    const d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  // --- Modal ---
+  function showModal(cfg) {
+    const root = document.getElementById('modal-root');
+    root.innerHTML = '';
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    overlay.innerHTML = `
+      <div class="modal">
+        <div class="modal-header">
+          <div class="modal-icon danger">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <h3>${escHtml(cfg.title)}</h3>
+        </div>
+        <div class="modal-body">
+          <p>${cfg.body}</p>
+          ${cfg.confirmText ? `
+            <div class="confirm-input">
+              <label>${escHtml(cfg.confirmLabel || 'Type to confirm')}</label>
+              <input type="text" id="modal-confirm-input" placeholder="${escHtml(cfg.confirmText)}" autocomplete="off">
+            </div>` : ''}
+          <div id="modal-error"></div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" id="modal-cancel"><span class="btn-text">Cancel</span></button>
+          <button class="btn btn-danger" id="modal-confirm" ${cfg.confirmText ? 'disabled' : ''}>
+            <span class="spinner"></span>
+            <span class="btn-text">${escHtml(cfg.confirmBtnText || 'Confirm')}</span>
+          </button>
+        </div>
+      </div>`;
+    root.appendChild(overlay);
+
+    const cancelBtn = overlay.querySelector('#modal-cancel');
+    const confirmBtn = overlay.querySelector('#modal-confirm');
+    const confirmInput = overlay.querySelector('#modal-confirm-input');
+
+    function close() { root.innerHTML = ''; }
+
+    cancelBtn.onclick = close;
+    overlay.addEventListener('click', function(e) { if (e.target === overlay) close(); });
+
+    if (confirmInput) {
+      confirmInput.addEventListener('input', function() {
+        confirmBtn.disabled = confirmInput.value !== cfg.confirmText;
+      });
+    }
+
+    confirmBtn.onclick = async function() {
+      if (confirmBtn.disabled) return;
+      confirmBtn.classList.add('loading');
+      confirmBtn.disabled = true;
+      cancelBtn.disabled = true;
+      const errEl = overlay.querySelector('#modal-error');
+      errEl.innerHTML = '';
+      try {
+        await cfg.onConfirm();
+        close();
+      } catch (err) {
+        errEl.innerHTML = '<div class="inline-error"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>' + escHtml(err.message || 'Something went wrong') + '</div>';
+        confirmBtn.classList.remove('loading');
+        confirmBtn.disabled = !!cfg.confirmText && (confirmInput && confirmInput.value !== cfg.confirmText);
+        cancelBtn.disabled = false;
+      }
+    };
+  }
+
+  // --- Section switching ---
+  window.switchSection = function(name) {
+    currentSection = name;
+    document.querySelectorAll('.nav-item').forEach(n => {
+      n.classList.toggle('active', n.dataset.section === name);
+    });
+    render();
+  };
+
+  // --- Render ---
+  function render() {
+    const main = document.getElementById('main-content');
+    if (!user) {
+      main.innerHTML = renderLoading();
+      return;
+    }
+    switch (currentSection) {
+      case 'profile': main.innerHTML = renderProfile(); break;
+      case 'projects': main.innerHTML = renderProjects(); break;
+      case 'notifications': main.innerHTML = renderNotifications(); break;
+      case 'danger': main.innerHTML = renderDanger(); break;
+    }
+    attachHandlers();
+  }
+
+  function renderLoading() {
+    return `
+      <h1 class="page-title">Account Settings</h1>
+      <p class="page-subtitle">Loading your account...</p>
+      <div class="loading-page">
+        <div class="loading-section">
+          <div class="skeleton wide"></div>
+          <div class="skeleton medium"></div>
+          <div class="skeleton input-sk"></div>
+          <div class="skeleton input-sk"></div>
+        </div>
+        <div class="loading-section">
+          <div class="skeleton wide"></div>
+          <div class="skeleton medium"></div>
+          <div class="skeleton input-sk"></div>
+        </div>
+      </div>`;
+  }
+
+  function renderProfile() {
+    return `
+      <h1 class="page-title">Profile</h1>
+      <p class="page-subtitle">Manage your personal information</p>
+      <form id="profile-form" class="section">
+        <div class="section-header">
+          <div class="section-title">Personal Information</div>
+        </div>
+        <div class="section-body">
+          <div class="field-group">
+            <div class="field">
+              <label for="field-name">Full name</label>
+              <input type="text" id="field-name" value="${escHtml(user.name)}">
+            </div>
+            <div class="field">
+              <label for="field-email">Email</label>
+              <input type="email" id="field-email" value="${escHtml(user.email)}">
+            </div>
+          </div>
+          <div id="profile-error"></div>
+        </div>
+        <div class="section-footer">
+          <button type="submit" class="btn btn-primary" id="save-profile-btn">
+            <span class="spinner"></span>
+            <span class="btn-text">Save</span>
+          </button>
+        </div>
+      </form>
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">Plan</div>
+        </div>
+        <div class="section-body">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span style="font-size:14px;">Current plan:</span>
+            <span class="plan-badge">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2z"/></svg>
+              ${escHtml(user.plan)}
+            </span>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  function renderProjects() {
+    const projects = user.projects || [];
+    let listHtml;
+    if (projects.length === 0) {
+      listHtml = `
+        <div class="empty-state">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+          <p>No projects yet</p>
+        </div>`;
+    } else {
+      listHtml = '<ul class="project-list">' + projects.map(p => {
+        const d = new Date(p.createdAt);
+        const dateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        const isDeleting = pendingOps.has('del-proj-' + p.id);
+        return `
+          <li class="project-item" data-id="${escHtml(p.id)}">
+            <div class="project-info">
+              <span class="project-name">${escHtml(p.name)}</span>
+              <span class="project-date">Created ${dateStr}</span>
+            </div>
+            <div class="project-actions">
+              <button class="btn btn-ghost-danger btn-sm delete-project-btn" data-id="${escHtml(p.id)}" data-name="${escHtml(p.name)}" ${isDeleting ? 'disabled' : ''}>
+                <span class="spinner"></span>
+                <span class="btn-text">Delete</span>
+              </button>
+            </div>
+          </li>`;
+      }).join('') + '</ul>';
+    }
+
+    return `
+      <h1 class="page-title">Projects</h1>
+      <p class="page-subtitle">${projects.length} project${projects.length !== 1 ? 's' : ''}</p>
+      <div class="section">
+        <div class="section-body" style="padding-top:8px;">
+          ${listHtml}
+        </div>
+      </div>`;
+  }
+
+  function renderNotifications() {
+    const prefs = [
+      { key: 'emailNotifications', label: 'Email notifications', desc: 'Receive updates about your projects via email' },
+      { key: 'weeklyDigest', label: 'Weekly digest', desc: 'A summary of activity sent every Monday' },
+      { key: 'marketingEmails', label: 'Product updates', desc: 'News about features and improvements' },
+    ];
+    return `
+      <h1 class="page-title">Notifications</h1>
+      <p class="page-subtitle">Choose how you want to be notified</p>
+      <div class="section">
+        <div class="section-body">
+          ${prefs.map(p => `
+            <div class="notification-pref">
+              <div>
+                <div class="notification-pref-label">${escHtml(p.label)}</div>
+                <div class="notification-pref-desc">${escHtml(p.desc)}</div>
+              </div>
+              <button class="toggle ${settings[p.key] ? 'on' : ''}" data-pref="${p.key}" aria-label="${escHtml(p.label)} toggle" role="switch" aria-checked="${settings[p.key]}"></button>
+            </div>`).join('')}
+        </div>
+      </div>`;
+  }
+
+  function renderDanger() {
+    return `
+      <h1 class="page-title">Danger Zone</h1>
+      <p class="page-subtitle">Irreversible actions — proceed with caution</p>
+      <div class="section danger-zone">
+        <div class="section-header">
+          <div class="section-title">Delete Account</div>
+          <div class="section-desc">Permanently delete your account and all associated data. This action cannot be undone.</div>
+        </div>
+        <div class="section-footer">
+          <button class="btn btn-danger" id="delete-account-btn">
+            <span class="btn-text">Delete Account</span>
+          </button>
+        </div>
+      </div>`;
+  }
+
+  // --- Event handlers ---
+  function attachHandlers() {
+    const profileForm = document.getElementById('profile-form');
+    if (profileForm) {
+      profileForm.onsubmit = handleSaveProfile;
+    }
+
+    document.querySelectorAll('.delete-project-btn').forEach(btn => {
+      btn.onclick = function() { handleDeleteProject(btn.dataset.id, btn.dataset.name); };
+    });
+
+    document.querySelectorAll('.toggle').forEach(btn => {
+      btn.onclick = function() { handleTogglePref(btn.dataset.pref); };
+    });
+
+    const deleteAccountBtn = document.getElementById('delete-account-btn');
+    if (deleteAccountBtn) {
+      deleteAccountBtn.onclick = handleDeleteAccount;
+    }
+  }
+
+  let profileSaving = false;
+  async function handleSaveProfile(e) {
+    e.preventDefault();
+    if (profileSaving) return;
+    profileSaving = true;
+    const btn = document.getElementById('save-profile-btn');
+    const errEl = document.getElementById('profile-error');
+    btn.classList.add('loading');
+    btn.disabled = true;
+    errEl.innerHTML = '';
+    try {
+      const name = document.getElementById('field-name').value.trim();
+      const email = document.getElementById('field-email').value.trim();
+      await api.updateSettings({ name, email });
+      user.name = name;
+      user.email = email;
+      document.getElementById('sidebar-name').textContent = name;
+      document.getElementById('sidebar-email').textContent = email;
+      showToast('Profile updated', 'success');
+    } catch (err) {
+      const msg = err.code === 'NETWORK' ? 'Network error — check your connection and try again' : (err.message || 'Failed to save');
+      errEl.innerHTML = '<div class="inline-error"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>' + escHtml(msg) + '</div>';
+    } finally {
+      btn.classList.remove('loading');
+      btn.disabled = false;
+      profileSaving = false;
+    }
+  }
+
+  function handleDeleteProject(id, name) {
+    showModal({
+      title: 'Delete Project',
+      body: 'This will permanently delete <strong>' + escHtml(name) + '</strong> and all its data. This cannot be undone.',
+      confirmText: name,
+      confirmLabel: 'Type the project name to confirm',
+      confirmBtnText: 'Delete Project',
+      onConfirm: async function() {
+        pendingOps.add('del-proj-' + id);
+        render();
+        try {
+          await api.deleteProject(id);
+          user.projects = user.projects.filter(p => p.id !== id);
+          showToast('Project "' + name + '" deleted', 'success');
+        } catch (err) {
+          const msg = err.code === 'NETWORK' ? 'Network error — could not delete project' : (err.message || 'Failed to delete');
+          showToast(msg, 'error');
+          throw err;
+        } finally {
+          pendingOps.delete('del-proj-' + id);
+          render();
+        }
+      }
+    });
+  }
+
+  async function handleTogglePref(key) {
+    const prev = settings[key];
+    settings[key] = !prev;
+    render();
+    try {
+      await api.updateSettings({ [key]: settings[key] });
+    } catch (err) {
+      settings[key] = prev;
+      render();
+      const msg = err.code === 'NETWORK' ? 'Network error — setting reverted' : (err.message || 'Failed to update');
+      showToast(msg, 'error');
+    }
+  }
+
+  function handleDeleteAccount() {
+    showModal({
+      title: 'Delete Account',
+      body: 'This will permanently delete your account, all projects, and all data. <strong>This action is irreversible.</strong>',
+      confirmText: 'delete my account',
+      confirmLabel: 'Type "delete my account" to confirm',
+      confirmBtnText: 'Delete Account',
+      onConfirm: async function() {
+        await api.deleteAccount();
+        document.querySelector('.layout').innerHTML = `
+          <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;width:100%;text-align:center;padding:32px;">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            <h2 style="margin-top:16px;font-size:20px;font-weight:600;">Account Deleted</h2>
+            <p style="margin-top:8px;font-size:14px;color:#5f6672;">Your account and all associated data have been permanently removed.</p>
+          </div>`;
+        showToast('Account deleted', 'success');
+      }
+    });
+  }
+
+  // --- Init ---
+  async function init() {
+    render();
+    try {
+      user = await api.getUser();
+      document.getElementById('sidebar-name').textContent = user.name;
+      document.getElementById('sidebar-email').textContent = user.email;
+      render();
+    } catch (err) {
+      document.getElementById('main-content').innerHTML = `
+        <div style="text-align:center;padding:64px 16px;">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:12px"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+          <h2 style="font-size:18px;font-weight:600;">Failed to load account</h2>
+          <p style="font-size:14px;color:#5f6672;margin-top:6px;">${escHtml(err.message || 'An error occurred')}</p>
+          <button class="btn btn-primary" style="margin-top:16px;" onclick="location.reload()"><span class="btn-text">Retry</span></button>
+        </div>`;
+    }
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>

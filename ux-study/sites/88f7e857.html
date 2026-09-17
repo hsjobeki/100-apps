@@ -1,0 +1,827 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Checkout — Marigold &amp; Oak</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#faf5ed;
+    --card:#fffdf9;
+    --ink:#241f1a;
+    --ink-2:#6a6156;
+    --line:#e5dbcc;
+    --line-2:#d3c5b0;
+    --brand:#a83b18;
+    --brand-dark:#8a2f11;
+    --ok:#1f6b45;
+    --ok-bg:#e6f2ea;
+    --bad:#b3261e;
+    --bad-bg:#fbe9e7;
+    --warn-bg:#fdf1d8;
+    --radius:14px;
+    --shadow:0 1px 0 rgba(36,31,26,.04), 0 8px 24px -16px rgba(36,31,26,.35);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:
+      radial-gradient(1200px 400px at 85% -10%, #f3e6d3 0%, rgba(243,230,211,0) 60%),
+      var(--paper);
+    color:var(--ink);
+    font:400 15px/1.45 Inter, system-ui, -apple-system, Segoe UI, sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:22px 20px 64px}
+
+  header.top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:6px 0 20px;border-bottom:1px solid var(--line)}
+  .mark{display:flex;align-items:center;gap:10px}
+  .mark svg{display:block}
+  .shop{font:700 20px/1 Fraunces, Georgia, serif;letter-spacing:.2px}
+  .trust{display:flex;align-items:center;gap:6px;color:var(--ink-2);font-size:12.5px;font-weight:500}
+  .trust svg{display:block}
+
+  .cols{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(300px,.85fr);gap:28px;align-items:start;margin-top:24px}
+  @media (max-width:880px){ .cols{grid-template-columns:1fr;gap:20px} }
+
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+  fieldset{border:0;margin:0;padding:0;min-width:0}
+  fieldset[disabled] .field input,fieldset[disabled] .field select{background:#f6f1e9;color:var(--ink-2)}
+
+  section.block{padding:20px 22px;border-bottom:1px solid var(--line)}
+  .block-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+  .step{width:24px;height:24px;border-radius:50%;background:var(--ink);color:var(--paper);display:grid;place-items:center;font:600 12px/1 Inter;flex:none;transition:background .2s}
+  .step.done{background:var(--ok)}
+  h2{font:600 15px/1.2 Inter;margin:0;letter-spacing:.1px}
+  .who{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink-2)}
+  .avatar{width:22px;height:22px;border-radius:50%;background:#e8d9c2;color:#6b4a24;display:grid;place-items:center;font:600 10px/1 Inter;flex:none}
+  .skel{display:inline-block;height:11px;width:130px;border-radius:6px;background:linear-gradient(90deg,#ece3d6,#f7f1e7,#ece3d6);background-size:200% 100%;animation:sh 1.1s linear infinite}
+  @keyframes sh{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+  .grid{display:grid;gap:12px;grid-template-columns:repeat(6,1fr)}
+  .field{grid-column:span 6;display:flex;flex-direction:column;gap:5px;min-width:0}
+  .c3{grid-column:span 3}
+  @media (max-width:520px){ .c3{grid-column:span 6} }
+  label{font-size:12.5px;font-weight:500;color:var(--ink-2)}
+  .inp{position:relative;display:flex;align-items:center}
+  input,select{
+    width:100%;font:400 15px/1.2 Inter;color:var(--ink);background:#fff;
+    border:1px solid var(--line-2);border-radius:10px;padding:11px 12px;
+    transition:border-color .12s, box-shadow .12s;
+  }
+  select{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8'><path d='M1 1.5 6 6.5 11 1.5' fill='none' stroke='%236a6156' stroke-width='1.6' stroke-linecap='round'/></svg>");background-repeat:no-repeat;background-position:right 13px center;padding-right:36px}
+  input::placeholder{color:#b6a994}
+  input:focus,select:focus{outline:0;border-color:var(--brand);box-shadow:0 0 0 3px rgba(168,59,24,.14)}
+  .inp.has-icon input{padding-right:46px}
+  .tick{position:absolute;right:12px;display:none}
+  .field.valid .tick{display:block}
+  .field.bad input,.field.bad select{border-color:var(--bad);background:#fffafa}
+  .field.bad input:focus,.field.bad select:focus{box-shadow:0 0 0 3px rgba(179,38,30,.14)}
+  .field.bad .tick{display:none}
+  .msg{display:none;align-items:center;gap:6px;color:var(--bad);font-size:12.5px;font-weight:500}
+  .field.bad .msg{display:flex}
+  .msg svg{flex:none}
+  .brand-chip{position:absolute;right:10px;display:flex;align-items:center;gap:6px;pointer-events:none}
+  .brand-chip span{font:600 10.5px/1 Inter;letter-spacing:.6px;color:var(--ink-2)}
+
+  .actions{padding:18px 22px 22px;display:flex;flex-direction:column;gap:12px}
+  .pay{
+    appearance:none;border:0;cursor:pointer;width:100%;
+    background:linear-gradient(180deg,var(--brand),var(--brand-dark));color:#fff;
+    font:600 15.5px/1 Inter;padding:15px 18px;border-radius:12px;
+    display:flex;align-items:center;justify-content:center;gap:9px;
+    box-shadow:0 6px 18px -10px rgba(138,47,17,.9);
+  }
+  .pay:hover{filter:brightness(1.06)}
+  .pay:active{transform:translateY(1px)}
+  .pay:focus-visible{outline:3px solid rgba(168,59,24,.35);outline-offset:2px}
+  .pay[disabled]{cursor:progress;filter:saturate(.65)}
+  .ghost{
+    appearance:none;background:transparent;border:1px solid var(--line-2);color:var(--ink);
+    font:500 13.5px/1 Inter;padding:10px 14px;border-radius:10px;cursor:pointer;
+  }
+  .ghost:hover{background:#f6efe4}
+  .row-actions{display:flex;gap:10px;align-items:center;justify-content:center}
+  progress.bar{display:block;width:100%;height:6px;border:0;border-radius:99px;background:#efe6d8;overflow:hidden;appearance:none}
+  progress.bar::-webkit-progress-bar{background:#efe6d8;border-radius:99px}
+  progress.bar::-webkit-progress-value{background:var(--brand);border-radius:99px}
+  .spin{animation:spin .9s linear infinite;transform-origin:50% 50%}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .status{display:flex;align-items:center;gap:8px;justify-content:center;font-size:13px;color:var(--ink-2);min-height:18px}
+
+  .banner{display:none;gap:10px;align-items:flex-start;border-radius:12px;padding:12px 13px;font-size:13.5px;border:1px solid}
+  .banner.show{display:flex}
+  .banner svg{flex:none}
+  .b-body{display:flex;flex-direction:column;gap:9px;min-width:0}
+  .b-body strong{font-weight:600}
+  .banner.error{background:var(--bad-bg);border-color:#f0c4bf;color:#7d1d17}
+  .banner.net{background:var(--warn-bg);border-color:#ecd49a;color:#6d4700}
+  .banner.info{background:#eef1f5;border-color:#d6dce5;color:#3d4653}
+
+  aside.sum{position:sticky;top:20px;padding:20px 22px 22px;display:flex;flex-direction:column;gap:14px}
+  .sum-head{display:flex;align-items:center;justify-content:space-between}
+  .sum-head h2{font:700 16px/1 Fraunces, Georgia, serif}
+  .count{background:#efe6d8;color:var(--ink-2);border-radius:99px;padding:4px 9px;font:600 11.5px/1 Inter}
+  ul.items{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px}
+  li.item{display:grid;grid-template-columns:48px 1fr auto;gap:12px;align-items:center}
+  .thumb{width:48px;height:48px;border-radius:10px;display:grid;place-items:center;border:1px solid var(--line)}
+  .it-name{font-size:13.5px;font-weight:500;line-height:1.25}
+  .it-var{font-size:12px;color:var(--ink-2)}
+  .qty{display:flex;align-items:center;gap:2px;margin-top:6px}
+  .qty button{width:24px;height:24px;border-radius:7px;border:1px solid var(--line-2);background:#fff;color:var(--ink);cursor:pointer;display:grid;place-items:center;font:600 13px/1 Inter;padding:0}
+  .qty button:hover:not([disabled]){background:#f6efe4}
+  .qty button[disabled]{opacity:.4;cursor:not-allowed}
+  .qty output{min-width:24px;text-align:center;font:600 13px/1 Inter}
+  .it-price{font:600 13.5px/1 Inter;white-space:nowrap}
+  .rule{height:1px;background:var(--line)}
+  .totals{display:flex;flex-direction:column;gap:8px;font-size:13.5px}
+  .tl{display:flex;justify-content:space-between;gap:12px;color:var(--ink-2)}
+  .tl.free span:last-child{color:var(--ok);font-weight:600}
+  .tl.grand{color:var(--ink);font:700 18px/1.1 Fraunces, Georgia, serif;align-items:baseline}
+  .ship-meter{display:flex;flex-direction:column;gap:5px}
+  .ship-meter .lbl{display:flex;justify-content:space-between;gap:10px;font-size:11.5px;color:var(--ink-2)}
+  meter{width:100%;height:6px;appearance:none;border:0}
+  meter::-webkit-meter-bar{background:#efe6d8;border:0;border-radius:99px;height:6px}
+  meter::-webkit-meter-optimum-value{background:var(--ok);border-radius:99px}
+  meter::-webkit-meter-suboptimum-value{background:#c9a227;border-radius:99px}
+
+  .done-card{padding:38px 26px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:14px}
+  .done-ring{width:64px;height:64px;border-radius:50%;background:var(--ok-bg);display:grid;place-items:center}
+  .done-card h2{font:700 21px/1.2 Fraunces, Georgia, serif}
+  .ord{font:600 13px/1 Inter;letter-spacing:.4px;background:#f2ece1;border:1px solid var(--line);border-radius:8px;padding:9px 12px}
+  .done-list{width:100%;max-width:340px;display:flex;flex-direction:column;gap:7px;font-size:13.5px;text-align:left}
+  .done-list .tl.grand{font-size:16px}
+  .hidden{display:none !important}
+  .sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="mark">
+      <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true">
+        <circle cx="15" cy="15" r="14" fill="#a83b18"></circle>
+        <path d="M15 7c3.2 2.1 4.6 5 4.6 8 0 3.4-2.1 6-4.6 8-2.5-2-4.6-4.6-4.6-8 0-3 1.4-5.9 4.6-8z" fill="#faf5ed"></path>
+        <circle cx="15" cy="15.5" r="2.1" fill="#a83b18"></circle>
+      </svg>
+      <span class="shop">Marigold &amp; Oak</span>
+    </div>
+    <div class="trust">
+      <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true">
+        <path d="M8 1.5 3 3.5v4c0 3.2 2.1 5.9 5 7 2.9-1.1 5-3.8 5-7v-4L8 1.5z" fill="none" stroke="#6a6156" stroke-width="1.3" stroke-linejoin="round"></path>
+        <path d="M5.8 8.1 7.3 9.6l3-3.2" fill="none" stroke="#1f6b45" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+      </svg>
+      <span>Secure checkout</span>
+    </div>
+  </header>
+
+  <main class="cols">
+    <div class="panel">
+      <form id="form" novalidate autocomplete="on">
+        <fieldset id="fields">
+          <section class="block">
+            <div class="block-head">
+              <div class="step" data-step="1">1</div>
+              <h2>Contact</h2>
+              <div class="who" id="who"><span class="skel" aria-hidden="true"></span><span class="sr">Loading account</span></div>
+            </div>
+            <div class="grid">
+              <div class="field" data-f="email">
+                <label for="email">Email</label>
+                <div class="inp has-icon">
+                  <input id="email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com" aria-describedby="m-email">
+                  <span class="tick" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="8" fill="#e6f2ea"></circle><path d="M4.6 8.2 7 10.6l4.4-5" fill="none" stroke="#1f6b45" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>
+                </div>
+                <div class="msg" id="m-email" role="alert"></div>
+              </div>
+            </div>
+          </section>
+
+          <section class="block">
+            <div class="block-head">
+              <div class="step" data-step="2">2</div>
+              <h2>Shipping</h2>
+            </div>
+            <div class="grid">
+              <div class="field" data-f="name">
+                <label for="name">Full name</label>
+                <div class="inp has-icon">
+                  <input id="name" name="name" type="text" autocomplete="name" placeholder="Alex Rivera" aria-describedby="m-name">
+                  <span class="tick" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="8" fill="#e6f2ea"></circle><path d="M4.6 8.2 7 10.6l4.4-5" fill="none" stroke="#1f6b45" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>
+                </div>
+                <div class="msg" id="m-name" role="alert"></div>
+              </div>
+              <div class="field" data-f="address1">
+                <label for="address1">Street address</label>
+                <div class="inp has-icon">
+                  <input id="address1" name="address1" type="text" autocomplete="address-line1" placeholder="14 Kiln Road" aria-describedby="m-address1">
+                  <span class="tick" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="8" fill="#e6f2ea"></circle><path d="M4.6 8.2 7 10.6l4.4-5" fill="none" stroke="#1f6b45" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>
+                </div>
+                <div class="msg" id="m-address1" role="alert"></div>
+              </div>
+              <div class="field c3" data-f="city">
+                <label for="city">City</label>
+                <div class="inp has-icon">
+                  <input id="city" name="city" type="text" autocomplete="address-level2" placeholder="Portland" aria-describedby="m-city">
+                  <span class="tick" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="8" fill="#e6f2ea"></circle><path d="M4.6 8.2 7 10.6l4.4-5" fill="none" stroke="#1f6b45" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>
+                </div>
+                <div class="msg" id="m-city" role="alert"></div>
+              </div>
+              <div class="field c3" data-f="postalCode">
+                <label for="postalCode">Postal code</label>
+                <div class="inp has-icon">
+                  <input id="postalCode" name="postalCode" type="text" autocomplete="postal-code" placeholder="97209" aria-describedby="m-postalCode">
+                  <span class="tick" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="8" fill="#e6f2ea"></circle><path d="M4.6 8.2 7 10.6l4.4-5" fill="none" stroke="#1f6b45" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>
+                </div>
+                <div class="msg" id="m-postalCode" role="alert"></div>
+              </div>
+              <div class="field" data-f="country">
+                <label for="country">Country</label>
+                <div class="inp">
+                  <select id="country" name="country" autocomplete="country" aria-describedby="m-country">
+                    <option value="">Select</option>
+                    <option value="US">United States</option>
+                    <option value="CA">Canada</option>
+                    <option value="GB">United Kingdom</option>
+                    <option value="DE">Germany</option>
+                    <option value="AU">Australia</option>
+                  </select>
+                </div>
+                <div class="msg" id="m-country" role="alert"></div>
+              </div>
+            </div>
+          </section>
+
+          <section class="block">
+            <div class="block-head">
+              <div class="step" data-step="3">3</div>
+              <h2>Payment</h2>
+            </div>
+            <div class="grid">
+              <div class="field" data-f="cardNumber">
+                <label for="cardNumber">Card number</label>
+                <div class="inp has-icon">
+                  <input id="cardNumber" name="cardNumber" type="text" inputmode="numeric" autocomplete="cc-number" placeholder="4242 4242 4242 4242" maxlength="23" aria-describedby="m-cardNumber">
+                  <span class="brand-chip" aria-hidden="true">
+                    <svg width="26" height="17" viewBox="0 0 26 17"><rect x=".6" y=".6" width="24.8" height="15.8" rx="3" fill="#fff" stroke="#d3c5b0"></rect><rect id="brandStripe" x="1" y="4" width="24" height="3.2" fill="#c9bda9"></rect><rect x="4" y="10.5" width="7" height="2.2" rx="1.1" fill="#e0d6c6"></rect></svg>
+                    <span id="brandName"></span>
+                  </span>
+                </div>
+                <div class="msg" id="m-cardNumber" role="alert"></div>
+              </div>
+              <div class="field c3" data-f="cardExpiry">
+                <label for="cardExpiry">Expiry</label>
+                <div class="inp has-icon">
+                  <input id="cardExpiry" name="cardExpiry" type="text" inputmode="numeric" autocomplete="cc-exp" placeholder="MM/YY" maxlength="5" aria-describedby="m-cardExpiry">
+                  <span class="tick" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="8" fill="#e6f2ea"></circle><path d="M4.6 8.2 7 10.6l4.4-5" fill="none" stroke="#1f6b45" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>
+                </div>
+                <div class="msg" id="m-cardExpiry" role="alert"></div>
+              </div>
+              <div class="field c3" data-f="cardCvc">
+                <label for="cardCvc">CVC</label>
+                <div class="inp has-icon">
+                  <input id="cardCvc" name="cardCvc" type="text" inputmode="numeric" autocomplete="cc-csc" placeholder="123" maxlength="4" aria-describedby="m-cardCvc">
+                  <span class="tick" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="8" fill="#e6f2ea"></circle><path d="M4.6 8.2 7 10.6l4.4-5" fill="none" stroke="#1f6b45" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>
+                </div>
+                <div class="msg" id="m-cardCvc" role="alert"></div>
+              </div>
+            </div>
+          </section>
+        </fieldset>
+
+        <div class="actions">
+          <div class="banner" id="banner" role="alert" aria-live="assertive">
+            <span id="bannerIcon"></span>
+            <span class="b-body">
+              <strong id="bannerText"></strong>
+              <span class="row-actions hidden" id="bannerActions">
+                <button type="button" class="ghost" id="retryBtn">Retry payment</button>
+              </span>
+            </span>
+          </div>
+          <progress class="bar hidden" id="payBar" aria-label="Payment in progress"></progress>
+          <button class="pay" type="submit" id="payBtn">
+            <span id="paySpin" class="hidden" aria-hidden="true">
+              <svg width="17" height="17" viewBox="0 0 16 16" class="spin"><circle cx="8" cy="8" r="6.4" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="2"></circle><path d="M8 1.6a6.4 6.4 0 0 1 6.4 6.4" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"></path></svg>
+            </span>
+            <span id="payLabel">Pay</span>
+          </button>
+          <div class="row-actions">
+            <button type="button" class="ghost hidden" id="cancelBtn">Cancel payment</button>
+          </div>
+          <div class="status" id="status" role="status" aria-live="polite"></div>
+        </div>
+      </form>
+
+      <div class="done-card hidden" id="done">
+        <div class="done-ring">
+          <svg width="30" height="30" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.6 9.6 17.2 19 7.8" fill="none" stroke="#1f6b45" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        </div>
+        <h2>Order placed</h2>
+        <div class="ord" id="doneOrder"></div>
+        <div class="done-list" id="doneList"></div>
+        <button type="button" class="ghost" id="againBtn">New order</button>
+      </div>
+    </div>
+
+    <aside class="panel sum">
+      <div class="sum-head">
+        <h2>Your order</h2>
+        <span class="count" id="itemCount"></span>
+      </div>
+      <ul class="items" id="lines"></ul>
+      <div class="rule"></div>
+      <div class="ship-meter">
+        <span class="lbl"><span id="shipLabel"></span><span id="shipGap"></span></span>
+        <meter id="shipMeter" min="0" max="75" low="74" high="75" optimum="75" value="0"></meter>
+      </div>
+      <div class="rule"></div>
+      <div class="totals">
+        <div class="tl"><span>Subtotal</span><span id="tSub"></span></div>
+        <div class="tl" id="tShipRow"><span>Shipping</span><span id="tShip"></span></div>
+        <div class="tl grand"><span>Total</span><span id="tGrand"></span></div>
+      </div>
+    </aside>
+  </main>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var api = window.api;
+  var money = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
+  var FREE_SHIPPING_AT = 75;
+  var FLAT_SHIPPING = 6;
+
+  var cart = [
+    { id: "sku_kettle", name: "Stovetop kettle", variant: "Matte black, 1.2 L", price: 68, qty: 1, tint: "#2f2b27" },
+    { id: "sku_mug", name: "Stoneware mug", variant: "Oat glaze", price: 22, qty: 2, tint: "#c9b48f" },
+    { id: "sku_tea", name: "Leaf sampler", variant: "Six tins", price: 34, qty: 1, tint: "#6d8459" }
+  ];
+
+  var state = { pending: false, controller: null };
+
+  var el = {};
+  ["form","fields","who","banner","bannerIcon","bannerText","bannerActions","retryBtn",
+   "payBar","payBtn","paySpin","payLabel","cancelBtn","status","done","doneOrder","doneList",
+   "againBtn","lines","itemCount","tSub","tShip","tShipRow","tGrand","shipMeter","shipLabel",
+   "shipGap","brandName","brandStripe"].forEach(function (k) {
+    el[k] = document.getElementById(k);
+  });
+
+  var FIELDS = ["email","name","address1","city","postalCode","country","cardNumber","cardExpiry","cardCvc"];
+  var inputs = {}, wraps = {}, msgs = {};
+  FIELDS.forEach(function (f) {
+    inputs[f] = document.getElementById(f);
+    wraps[f] = document.querySelector('.field[data-f="' + f + '"]');
+    msgs[f] = document.getElementById("m-" + f);
+  });
+
+  var TICK = '<svg width="13" height="13" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7.2" fill="none" stroke="#b3261e" stroke-width="1.5"></circle><path d="M8 4.4v4.4" stroke="#b3261e" stroke-width="1.6" stroke-linecap="round"></path><circle cx="8" cy="11.4" r="1" fill="#b3261e"></circle></svg>';
+
+  /* ---------- cart + totals ---------- */
+
+  function subtotal() {
+    return cart.reduce(function (s, it) { return s + it.price * it.qty; }, 0);
+  }
+  function shipping(sub) {
+    return sub >= FREE_SHIPPING_AT ? 0 : FLAT_SHIPPING;
+  }
+  function total() {
+    var s = subtotal();
+    return s + shipping(s);
+  }
+
+  function renderCart() {
+    el.lines.innerHTML = "";
+    cart.forEach(function (it) {
+      var li = document.createElement("li");
+      li.className = "item";
+
+      var thumb = document.createElement("div");
+      thumb.className = "thumb";
+      thumb.style.background = "linear-gradient(140deg," + it.tint + "22," + it.tint + "55)";
+      thumb.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">' +
+        '<rect x="3.5" y="7.5" width="17" height="13" rx="2.5" fill="none" stroke="' + it.tint + '" stroke-width="1.6"></rect>' +
+        '<path d="M8.5 7.5V6a3.5 3.5 0 0 1 7 0v1.5" fill="none" stroke="' + it.tint + '" stroke-width="1.6" stroke-linecap="round"></path></svg>';
+
+      var mid = document.createElement("div");
+      var nm = document.createElement("div");
+      nm.className = "it-name";
+      nm.textContent = it.name;
+      var vr = document.createElement("div");
+      vr.className = "it-var";
+      vr.textContent = it.variant;
+
+      var qty = document.createElement("div");
+      qty.className = "qty";
+      var minus = document.createElement("button");
+      minus.type = "button";
+      minus.textContent = "\u2212";
+      minus.setAttribute("aria-label", "One fewer " + it.name);
+      minus.disabled = state.pending || it.qty <= 1;
+      minus.addEventListener("click", function () { bump(it, -1); });
+      var out = document.createElement("output");
+      out.textContent = String(it.qty);
+      var plus = document.createElement("button");
+      plus.type = "button";
+      plus.textContent = "+";
+      plus.setAttribute("aria-label", "One more " + it.name);
+      plus.disabled = state.pending || it.qty >= 9;
+      plus.addEventListener("click", function () { bump(it, 1); });
+      qty.appendChild(minus); qty.appendChild(out); qty.appendChild(plus);
+
+      mid.appendChild(nm); mid.appendChild(vr); mid.appendChild(qty);
+
+      var pr = document.createElement("div");
+      pr.className = "it-price";
+      pr.textContent = money.format(it.price * it.qty);
+
+      li.appendChild(thumb); li.appendChild(mid); li.appendChild(pr);
+      el.lines.appendChild(li);
+    });
+
+    var units = cart.reduce(function (s, it) { return s + it.qty; }, 0);
+    el.itemCount.textContent = units + (units === 1 ? " item" : " items");
+
+    var sub = subtotal();
+    var ship = shipping(sub);
+    el.tSub.textContent = money.format(sub);
+    el.tShip.textContent = ship === 0 ? "Free" : money.format(ship);
+    el.tShipRow.classList.toggle("free", ship === 0);
+    el.tGrand.textContent = money.format(sub + ship);
+    el.shipMeter.value = Math.min(sub, FREE_SHIPPING_AT);
+    if (ship === 0) {
+      el.shipLabel.textContent = "Free shipping";
+      el.shipGap.textContent = "Unlocked";
+    } else {
+      el.shipLabel.textContent = "Free over " + money.format(FREE_SHIPPING_AT);
+      el.shipGap.textContent = money.format(FREE_SHIPPING_AT - sub) + " to go";
+    }
+    if (!state.pending) el.payLabel.textContent = "Pay " + money.format(sub + ship);
+  }
+
+  function bump(it, d) {
+    if (state.pending) return;
+    it.qty = Math.max(1, Math.min(9, it.qty + d));
+    renderCart();
+  }
+
+  /* ---------- validation ---------- */
+
+  function digits(s) { return (s || "").replace(/\D+/g, ""); }
+
+  function luhn(num) {
+    var sum = 0, alt = false;
+    for (var i = num.length - 1; i >= 0; i--) {
+      var n = num.charCodeAt(i) - 48;
+      if (alt) { n *= 2; if (n > 9) n -= 9; }
+      sum += n; alt = !alt;
+    }
+    return num.length >= 13 && sum % 10 === 0;
+  }
+
+  function cardBrand(num) {
+    if (/^4/.test(num)) return { key: "visa", label: "VISA", color: "#1a1f71", cvc: 3 };
+    if (/^(5[1-5]|2[2-7])/.test(num)) return { key: "mc", label: "MASTERCARD", color: "#c8531f", cvc: 3 };
+    if (/^3[47]/.test(num)) return { key: "amex", label: "AMEX", color: "#0b6bb0", cvc: 4 };
+    if (/^6/.test(num)) return { key: "disc", label: "DISCOVER", color: "#c98a1f", cvc: 3 };
+    return null;
+  }
+
+  var rules = {
+    email: function (v) {
+      if (!v.trim()) return "Enter your email";
+      return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim()) ? "" : "Check this email address";
+    },
+    name: function (v) { return v.trim().length >= 2 ? "" : "Enter your name"; },
+    address1: function (v) { return v.trim().length >= 3 ? "" : "Enter your street address"; },
+    city: function (v) { return v.trim().length >= 2 ? "" : "Enter your city"; },
+    postalCode: function (v) {
+      if (!v.trim()) return "Enter your postal code";
+      if (inputs.country.value === "US" && !/^\d{5}(-\d{4})?$/.test(v.trim())) return "Use 5 digits";
+      return "";
+    },
+    country: function (v) { return v ? "" : "Pick a country"; },
+    cardNumber: function (v) {
+      var d = digits(v);
+      if (!d) return "Enter your card number";
+      if (d.length < 13) return "Card number is too short";
+      return luhn(d) ? "" : "Check the card number";
+    },
+    cardExpiry: function (v) {
+      var m = /^(\d{2})\/(\d{2})$/.exec(v.trim());
+      if (!m) return "Use MM/YY";
+      var mo = +m[1];
+      if (mo < 1 || mo > 12) return "Month must be 01-12";
+      var end = new Date(2000 + +m[2], mo, 1);
+      return end > new Date() ? "" : "This card has expired";
+    },
+    cardCvc: function (v) {
+      var want = (cardBrand(digits(inputs.cardNumber.value)) || { cvc: 3 }).cvc;
+      var d = digits(v);
+      if (!d) return "Enter the CVC";
+      return d.length === want ? "" : want + " digits for this card";
+    }
+  };
+
+  function setFieldError(f, message) {
+    var w = wraps[f];
+    if (message) {
+      w.classList.add("bad");
+      w.classList.remove("valid");
+      msgs[f].innerHTML = TICK;
+      msgs[f].appendChild(document.createTextNode(String(message)));
+      inputs[f].setAttribute("aria-invalid", "true");
+    } else {
+      w.classList.remove("bad");
+      msgs[f].textContent = "";
+      inputs[f].removeAttribute("aria-invalid");
+    }
+  }
+
+  function refreshTick(f) {
+    var v = inputs[f].value;
+    wraps[f].classList.toggle("valid", v.trim() !== "" && !rules[f](v));
+  }
+
+  function clearFieldErrors() {
+    FIELDS.forEach(function (f) { setFieldError(f, ""); });
+  }
+
+  function validateAll() {
+    var errs = {};
+    FIELDS.forEach(function (f) {
+      var bad = rules[f](inputs[f].value);
+      if (bad) errs[f] = bad;
+    });
+    return errs;
+  }
+
+  function showErrors(fieldMap) {
+    clearFieldErrors();
+    var first = null, n = 0;
+    FIELDS.forEach(function (f) {
+      if (fieldMap[f]) {
+        setFieldError(f, fieldMap[f]);
+        n++;
+        if (!first) first = f;
+      }
+    });
+    Object.keys(fieldMap).forEach(function (k) {
+      if (FIELDS.indexOf(k) === -1) console.warn("Server flagged an unknown field:", k, fieldMap[k]);
+    });
+    if (first) {
+      inputs[first].focus({ preventScroll: true });
+      inputs[first].scrollIntoView({ block: "center", behavior: "smooth" });
+    }
+    return n;
+  }
+
+  /* ---------- input behaviour ---------- */
+
+  FIELDS.forEach(function (f) {
+    var input = inputs[f];
+    input.addEventListener("blur", function () {
+      if (!input.value.trim() && !wraps[f].classList.contains("bad")) return;
+      setFieldError(f, rules[f](input.value));
+      refreshTick(f);
+    });
+    input.addEventListener("input", function () {
+      if (wraps[f].classList.contains("bad") && !rules[f](input.value)) setFieldError(f, "");
+      refreshTick(f);
+      if (el.banner.classList.contains("error")) hideBanner();
+    });
+    input.addEventListener("change", function () {
+      if (input.tagName === "SELECT") {
+        setFieldError(f, rules[f](input.value));
+        refreshTick(f);
+        refreshTick("postalCode");
+      }
+    });
+  });
+
+  inputs.cardNumber.addEventListener("input", function () {
+    var d = digits(this.value).slice(0, 19);
+    var b = cardBrand(d);
+    var groups = b && b.key === "amex" ? [4, 6, 5] : [4, 4, 4, 4, 3];
+    var out = [], i = 0;
+    groups.forEach(function (g) {
+      if (i < d.length) { out.push(d.substr(i, g)); i += g; }
+    });
+    this.value = out.join(" ");
+    el.brandName.textContent = b ? b.label : "";
+    el.brandStripe.setAttribute("fill", b ? b.color : "#c9bda9");
+    inputs.cardCvc.setAttribute("maxlength", b && b.cvc === 4 ? "4" : "3");
+    refreshTick("cardNumber");
+  });
+
+  inputs.cardExpiry.addEventListener("input", function () {
+    var d = digits(this.value).slice(0, 4);
+    if (d.length === 1 && +d > 1) d = "0" + d;
+    this.value = d.length > 2 ? d.slice(0, 2) + "/" + d.slice(2) : d;
+    refreshTick("cardExpiry");
+  });
+
+  inputs.cardCvc.addEventListener("input", function () {
+    this.value = digits(this.value).slice(0, +this.getAttribute("maxlength") || 4);
+    refreshTick("cardCvc");
+  });
+
+  inputs.postalCode.addEventListener("input", function () {
+    if (inputs.country.value === "US") this.value = this.value.replace(/[^\d-]/g, "").slice(0, 10);
+  });
+
+  /* ---------- banner + pending state ---------- */
+
+  var ICONS = {
+    error: '<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7.2" fill="none" stroke="#b3261e" stroke-width="1.5"></circle><path d="M8 4.2v4.6" stroke="#b3261e" stroke-width="1.7" stroke-linecap="round"></path><circle cx="8" cy="11.5" r="1" fill="#b3261e"></circle></svg>',
+    net: '<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M1.8 5.9a8.6 8.6 0 0 1 12.4 0M4.4 8.7a5 5 0 0 1 7.2 0" fill="none" stroke="#8a5a00" stroke-width="1.5" stroke-linecap="round"></path><circle cx="8" cy="12.2" r="1.2" fill="#8a5a00"></circle><path d="M2.4 13.6 13.6 2.4" stroke="#8a5a00" stroke-width="1.5" stroke-linecap="round"></path></svg>',
+    info: '<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7.2" fill="none" stroke="#3d4653" stroke-width="1.5"></circle><path d="M8 7.4v4" stroke="#3d4653" stroke-width="1.7" stroke-linecap="round"></path><circle cx="8" cy="4.8" r="1" fill="#3d4653"></circle></svg>'
+  };
+
+  function showBanner(kind, text, withRetry) {
+    el.banner.className = "banner show " + kind;
+    el.bannerIcon.innerHTML = ICONS[kind];
+    el.bannerText.textContent = text;
+    el.bannerActions.classList.toggle("hidden", !withRetry);
+  }
+  function hideBanner() {
+    el.banner.className = "banner";
+    el.bannerActions.classList.add("hidden");
+  }
+  function setStatus(text, spinning) {
+    el.status.innerHTML = spinning
+      ? '<svg width="13" height="13" viewBox="0 0 16 16" class="spin" aria-hidden="true"><circle cx="8" cy="8" r="6.4" fill="none" stroke="#e0d6c6" stroke-width="2"></circle><path d="M8 1.6a6.4 6.4 0 0 1 6.4 6.4" fill="none" stroke="#a83b18" stroke-width="2" stroke-linecap="round"></path></svg>'
+      : "";
+    if (text) el.status.appendChild(document.createTextNode(text));
+  }
+
+  function setPending(on) {
+    state.pending = on;
+    el.payBtn.disabled = on;
+    el.payBtn.setAttribute("aria-busy", on ? "true" : "false");
+    el.fields.disabled = on;
+    el.paySpin.classList.toggle("hidden", !on);
+    el.payBar.classList.toggle("hidden", !on);
+    el.cancelBtn.classList.toggle("hidden", !on);
+    if (on) el.payLabel.textContent = "Charging card";
+    renderCart();
+  }
+
+  /* ---------- submit ---------- */
+
+  function buildPayload() {
+    return {
+      email: inputs.email.value.trim(),
+      name: inputs.name.value.trim(),
+      address1: inputs.address1.value.trim(),
+      city: inputs.city.value.trim(),
+      postalCode: inputs.postalCode.value.trim(),
+      country: inputs.country.value,
+      cardNumber: digits(inputs.cardNumber.value),
+      cardExpiry: inputs.cardExpiry.value.trim(),
+      cardCvc: digits(inputs.cardCvc.value),
+      items: cart.map(function (it) {
+        return { id: it.id, name: it.name, qty: it.qty, price: it.price };
+      })
+    };
+  }
+
+  function pay() {
+    if (state.pending) return;
+    hideBanner();
+
+    var local = validateAll();
+    var bad = Object.keys(local).length;
+    if (bad) {
+      showErrors(local);
+      showBanner("error", bad === 1 ? "1 field needs fixing" : bad + " fields need fixing", false);
+      setStatus("", false);
+      return;
+    }
+
+    var ctrl = new AbortController();
+    state.controller = ctrl;
+    setPending(true);
+    setStatus("Charging your card", true);
+
+    api.submitOrder(buildPayload(), { signal: ctrl.signal }).then(function (res) {
+      state.controller = null;
+      setPending(false);
+      setStatus("", false);
+      showConfirmation(res && res.orderId);
+    }, function (err) {
+      state.controller = null;
+      setPending(false);
+      setStatus("", false);
+
+      if (err && (err.name === "AbortError" || err.code === 20)) {
+        showBanner("info", "Payment cancelled. Your card was not charged.", false);
+        return;
+      }
+      if (err && err.code === "VALIDATION" && err.fields) {
+        var n = showErrors(err.fields);
+        showBanner("error", n === 1 ? "Payment declined: 1 field to fix" : "Payment declined: " + n + " fields to fix", false);
+        return;
+      }
+      if (err && err.code === "NETWORK") {
+        showBanner("net", "No connection. Your card was not charged.", true);
+        return;
+      }
+      showBanner("error", (err && err.message) || "Payment failed", true);
+    });
+  }
+
+  el.form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    pay();
+  });
+  el.cancelBtn.addEventListener("click", function () {
+    if (!state.controller) return;
+    setStatus("Cancelling", true);
+    state.controller.abort();
+  });
+  el.retryBtn.addEventListener("click", pay);
+
+  /* ---------- confirmation ---------- */
+
+  function showConfirmation(orderId) {
+    el.doneOrder.textContent = orderId ? "Order " + orderId : "Order confirmed";
+    el.doneList.innerHTML = "";
+    cart.forEach(function (it) {
+      var row = document.createElement("div");
+      row.className = "tl";
+      var a = document.createElement("span");
+      a.textContent = it.qty + " \u00d7 " + it.name;
+      var b = document.createElement("span");
+      b.textContent = money.format(it.qty * it.price);
+      row.appendChild(a); row.appendChild(b);
+      el.doneList.appendChild(row);
+    });
+    var g = document.createElement("div");
+    g.className = "tl grand";
+    var ga = document.createElement("span"); ga.textContent = "Paid";
+    var gb = document.createElement("span"); gb.textContent = money.format(total());
+    g.appendChild(ga); g.appendChild(gb);
+    el.doneList.appendChild(g);
+
+    Array.prototype.forEach.call(document.querySelectorAll(".step"), function (s) { s.classList.add("done"); });
+    el.form.classList.add("hidden");
+    el.done.classList.remove("hidden");
+  }
+
+  el.againBtn.addEventListener("click", function () {
+    hideBanner();
+    setStatus("", false);
+    clearFieldErrors();
+    ["cardNumber", "cardExpiry", "cardCvc"].forEach(function (f) {
+      inputs[f].value = "";
+      wraps[f].classList.remove("valid");
+    });
+    el.brandName.textContent = "";
+    el.brandStripe.setAttribute("fill", "#c9bda9");
+    Array.prototype.forEach.call(document.querySelectorAll(".step"), function (s) { s.classList.remove("done"); });
+    el.done.classList.add("hidden");
+    el.form.classList.remove("hidden");
+    renderCart();
+    inputs.cardNumber.focus();
+  });
+
+  /* ---------- account ---------- */
+
+  function loadUser() {
+    el.who.innerHTML = '<span class="skel" aria-hidden="true"></span>';
+    api.getUser().then(function (user) {
+      el.who.innerHTML = "";
+      var av = document.createElement("span");
+      av.className = "avatar";
+      av.textContent = (user.name || "?").split(/\s+/).map(function (p) { return p.charAt(0); }).join("").slice(0, 2).toUpperCase();
+      var mail = document.createElement("span");
+      mail.textContent = user.email || "";
+      el.who.appendChild(av);
+      el.who.appendChild(mail);
+
+      if (!inputs.email.value && user.email) { inputs.email.value = user.email; refreshTick("email"); }
+      if (!inputs.name.value && user.name) { inputs.name.value = user.name; refreshTick("name"); }
+    }, function () {
+      el.who.innerHTML = "";
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "ghost";
+      b.textContent = "Reload account";
+      b.addEventListener("click", loadUser);
+      el.who.appendChild(b);
+    });
+  }
+
+  renderCart();
+  loadUser();
+})();
+</script>
+</body>
+</html>

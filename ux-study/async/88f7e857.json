@@ -1,0 +1,66 @@
+{
+  "id": "88f7e857",
+  "items": [
+    {
+      "n": 1,
+      "verdict": "PASS",
+      "reason": "At 250 ms after clicking Pay under slow latency, the submit button read 'Charging card', was disabled with aria-busy=true, and a role=status live region showed 'Charging your card'; the form dims and shows a shimmer bar while pending.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/88f7e857_1.png"
+    },
+    {
+      "n": 2,
+      "verdict": "PASS",
+      "reason": "While pending the Pay button is disabled ('Charging card') and quantity buttons are disabled; repeated clicks and two Enter presses in a field while pending produced no additional submitOrder in window.__apiLog (only a non-user programmatic form.requestSubmit() could add one).",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/88f7e857_2.png"
+    },
+    {
+      "n": 3,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief (checkout form; no upload or job progress API in use).",
+      "evidence": "Per task instructions: item 3 applies only to B1 and B2, not this checkout page."
+    },
+    {
+      "n": 4,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief per instructions (the page does in fact offer a working 'Cancel payment' button mid-charge, but the item is prescribed N/A).",
+      "evidence": "Per task instructions: item 4 applies only to B1 and B2; observed anyway: <button type=\"button\" id=\"cancelBtn\">Cancel payment</button> aborts cleanly."
+    },
+    {
+      "n": 5,
+      "verdict": "PASS",
+      "reason": "Under fail=1 a role=alert banner in the payment section directly above the Pay button reads 'No connection. Your card was not charged.'; API validation errors are even more specific and placed at the field ('This postal code does not exist in the selected country' under Postal code).",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/88f7e857_5.png"
+    },
+    {
+      "n": 6,
+      "verdict": "PASS",
+      "reason": "The failure banner contains a 'Retry payment' button; clicking it fired a second submitOrder in __apiLog without reload, and after a validation failure the form stays editable so the flagged field can be fixed and resubmitted.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/88f7e857_6.png"
+    },
+    {
+      "n": 7,
+      "verdict": "PASS",
+      "reason": "A submitOrder VALIDATION rejection on postalCode set aria-invalid=true on #postalCode, rendered the API's message in the adjacent #m-postalCode container with red field styling, and summarized it in the banner 'Payment declined: 1 field to fix'.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/88f7e857_7.png"
+    },
+    {
+      "n": 8,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief (no server-side state to poll on a checkout page).",
+      "evidence": "Per task instructions: item 8 applies only to B1, B2, and B3."
+    },
+    {
+      "n": 9,
+      "verdict": "PASS",
+      "reason": "Cancelling mid-charge (slow latency, cancelled at ~800 ms) returned the UI to a consistent state: banner 'Payment cancelled. Your card was not charged.', Pay re-enabled, fields editable, and no late 'Order placed' appeared even 9 s later; a forced concurrent double-submit also resolved to one clean success screen.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/88f7e857_9.png"
+    },
+    {
+      "n": 10,
+      "verdict": "PASS",
+      "reason": "The UI stays in the disabled 'Charging card' state for the full slow-latency call and only shows 'Order placed' with the server-issued order id (e.g. ord_edaa24) after submitOrder resolves; an aborted submit never produced a success state.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/88f7e857_10.png"
+    }
+  ],
+  "failCount": 0
+}

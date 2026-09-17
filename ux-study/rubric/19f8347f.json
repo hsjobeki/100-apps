@@ -1,0 +1,90 @@
+{
+  "id": "19f8347f",
+  "f1": {
+    "score": 4,
+    "observations": [
+      "Per-service health is triply graphical: colored status badge with dot ('.status-badge' + '.badge-dot'), status-colored 3px left border on each '.service-card', and the summary strip's green check / yellow bang / red X icons — text ('DOWN', 'DEGRADED', 'HEALTHY') supports rather than carries it.",
+      "Latency trend and error-rate trend are drawn as canvas sparklines (metrics count 12 canvas elements, 2 per service), stroke-colored by status (red for down, yellow for degraded, blue for healthy) with a gradient fill and last-point dot.",
+      "Uptime is rendered only as a colored number ('98.90% uptime', uptimeColor thresholds at 99.9/99) — no meter, bar, or chart, so the trend/level is carried by text with a color accent.",
+      "Graphical totals from metrics: svg 4, canvas 12, badges 43, total 59 graphical indicators on the desktop idle view, against only 132 visible words.",
+      "Raw ratio: 3/4 inventory items graphical+text, 1/4 text only."
+    ]
+  },
+  "f2": {
+    "score": 5,
+    "observations": [
+      "Desktop pageWords is 132 for a 6-service dashboard — the UI is numbers, labels, and charts, not prose; helperWords 0 and longLeafWords 0.",
+      "All 3 measured button labels ('1H', '24H', '7D') are 1 word; meanWords 1, maxWords 1, no longLabels.",
+      "No sentence restates what the UI shows: the only sentences are the alert '1 service down: media-worker', the error copy 'Failed to load service data' / 'Refresh failed — showing last known data', and 'Loading service data…', each carrying state the visuals alone could not.",
+      "Metric sublabels are maximally compressed: 'avg 990ms · peak 1.3s', 'avg 0.44%'."
+    ]
+  },
+  "f3": {
+    "score": 4,
+    "observations": [
+      "One issue found: the 'Updated <time>' header claims a fresh update the server never confirmed — render() stamps `new Date()` unconditionally, and the async rater verified the timestamp advanced from 'Updated 01:49:41 PM' to 'Updated 01:50:01 PM' while every getMetrics poll rejected, alongside the 'Refresh failed — showing last known data' banner.",
+      "Terminology is otherwise consistent: 'healthy/degraded/down' is used identically in badges, summary labels, and the alert bar; 'Latency'/'Error Rate' label both the metric boxes and their sparklines.",
+      "No filler, no marketing tone, no placeholder text anywhere in the 132 visible words; error copy is specific ('Failed to load service data', 'Refresh failed — showing last known data') and matches what actually happened."
+    ]
+  },
+  "f4": {
+    "score": 4,
+    "observations": [
+      "The information design is built for the on-call glance: render() sorts services down-first ([...down, ...degraded, ...healthy]), a red alert bar names the down service above everything else, and a Healthy/Degraded/Down triage strip gives counts before any card.",
+      "Status is encoded redundantly in color (left border, badge, latency value color, sparkline stroke) so a periphally-viewed dark screen reads correctly — dark theme suits a NOC/on-call context.",
+      "Freshness is treated as first-class: pulsing '.live-dot' titled 'Auto-refreshing', 'Updated HH:MM:SS' timestamp, and a stale-data banner on failed refresh.",
+      "The visual vocabulary itself is stock dark-SaaS-dashboard: Inter from Google Fonts, Tailwind default palette hexes (#34d399, #fbbf24, #f87171, #60a5fa), pill badges, rounded card grid — competent but recognizably template."
+    ]
+  },
+  "hierarchy": {
+    "score": 5,
+    "observations": [
+      "From the idle desktop screenshot alone, before source: purpose read instantly as a service health dashboard ('Service Health' h1, 6 metric cards with sparklines) — correct against the brief.",
+      "What needs attention was unmissable: red banner '⚠ 1 service down: media-worker', '1 Down' summary tile, red-edged media-worker card sorted into first position, amber 'notifier DEGRADED' second — exactly the at-a-glance answer the brief demands.",
+      "Primary action read as the 1H/24H/7D range toggle top-right (24H active), the correct and only meaningful action on a read-mostly monitoring page.",
+      "The empty bottom half of the 1440x900 viewport keeps all six services above the fold with zero scrolling."
+    ]
+  },
+  "f1Inventory": [
+    {
+      "item": "per-service health",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "latency trend",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "error-rate trend",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "uptime",
+      "classification": "text only"
+    }
+  ],
+  "f2Redundant": [],
+  "f3Issues": [
+    "'Updated <time>' header advances even when the refresh fails (render() stamps new Date() unconditionally), so the copy claims a fresh server update that never happened; verified by the async rater with getMetrics patched to always reject."
+  ],
+  "f4TaskDriven": [
+    "Down-first card sort order ([...down, ...degraded, ...healthy]) so the broken service is always top-left",
+    "Red alert bar naming the down service ('1 service down: media-worker') pinned directly under the header",
+    "Healthy/Degraded/Down summary triage strip with counts and colored icons before any detail",
+    "Status-colored 3px left borders on service cards for peripheral scanning",
+    "Latency value and sparkline stroke colored by service status (red/yellow/blue)",
+    "Error-rate value color thresholds (>5% red, >1% yellow) and uptime color thresholds (>=99.9 green, >=99 yellow, else red)",
+    "Dark theme suited to on-call/NOC viewing",
+    "Pulsing live-dot titled 'Auto-refreshing' plus 'Updated HH:MM:SS' timestamp and 10 s poll",
+    "'Refresh failed — showing last known data' banner that states the consequence for visible data",
+    "1H/24H/7D range toggle as the sole, single-word-label control",
+    "All six services fit above the fold at 1440x900 with no scrolling"
+  ],
+  "f4Template": [
+    "Inter from Google Fonts as the sole typeface",
+    "Tailwind default palette colors (#34d399, #fbbf24, #f87171, #60a5fa) on stock dark surface/border tokens",
+    "Uppercase pill status badges with dot, a ubiquitous dashboard idiom",
+    "Generic rounded-corner card grid (repeat(auto-fill, minmax(380px, 1fr)))",
+    "Standard centered spinner + 'Loading…' first-load state"
+  ]
+}

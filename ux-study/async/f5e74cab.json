@@ -1,0 +1,66 @@
+{
+  "id": "f5e74cab",
+  "items": [
+    {
+      "n": 1,
+      "verdict": "PASS",
+      "reason": "Under slow latency, 250 ms after clicking Save the button already showed a spinner and 'Saving…'; the delete-project and delete-account confirm buttons likewise showed a spinner and 'Deleting…' within 250 ms.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/f5e74cab_1.png"
+    },
+    {
+      "n": 2,
+      "verdict": "PASS",
+      "reason": "While pending the submit button is disabled (<button id=\"save-profile-btn\" disabled><span class=\"spinner\"></span> Saving…>); two extra clicks during the pending window produced exactly one updateSettings entry in __apiLog. Modal Delete/Cancel buttons are also disabled while pending.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/f5e74cab_2.png"
+    },
+    {
+      "n": 3,
+      "verdict": "N/A",
+      "reason": "Marked not applicable to this brief.",
+      "evidence": "N/A per task instructions; no upload or job-progress API is used by this page."
+    },
+    {
+      "n": 4,
+      "verdict": "N/A",
+      "reason": "Marked not applicable to this brief.",
+      "evidence": "N/A per task instructions; no long-running upload/processing action exists on this page."
+    },
+    {
+      "n": 5,
+      "verdict": "PASS",
+      "reason": "At fail=1, a failed profile save shows an inline error directly under the Save button, and a failed project delete shows the same message inside the confirmation modal next to the Delete button; the text names the actual cause (connection failure).",
+      "evidence": "<span class=\"error-inline\" id=\"profile-error\" style=\"display: flex;\">Connection failed. Please try again.</span> — see /home/johannes/git/failure/ux-study/async/evidence/f5e74cab_5.png"
+    },
+    {
+      "n": 6,
+      "verdict": "PASS",
+      "reason": "After a failed save the button re-enables and a second click issued a second updateSettings call without reload; after a failed delete the modal stays open with the error, Delete re-enabled ('Delete', disabled:false) and the project list intact, allowing retry in place.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/f5e74cab_6.png"
+    },
+    {
+      "n": 7,
+      "verdict": "N/A",
+      "reason": "Marked not applicable to this brief.",
+      "evidence": "N/A per task instructions; the page never calls submitOrder, so no field-level VALIDATION errors can occur."
+    },
+    {
+      "n": 8,
+      "verdict": "N/A",
+      "reason": "Marked not applicable to this brief.",
+      "evidence": "N/A per task instructions; this settings page has no server-advancing state to poll."
+    },
+    {
+      "n": 9,
+      "verdict": "PASS",
+      "reason": "With a slow deleteProject in flight I closed the modal via the overlay and switched to the Profile tab; when the call resolved the Projects list was correct (2 items), the modal stayed closed, and no spinners or disabled buttons were left behind ({spinners:0, disabledBtns:[]}).",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/f5e74cab_9b.png"
+    },
+    {
+      "n": 10,
+      "verdict": "PASS",
+      "reason": "During a slow pending delete the list still showed all 3 projects (no optimistic removal) and the row disappeared only after the promise resolved; the 'Account deleted' success screen appeared only after deleteAccount resolved, the button showing 'Deleting…' until then.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/f5e74cab_10b.png"
+    }
+  ],
+  "failCount": 0
+}

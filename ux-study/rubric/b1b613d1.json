@@ -1,0 +1,81 @@
+{
+  "id": "b1b613d1",
+  "hierarchy": {
+    "score": 5,
+    "observations": [
+      "Answered from idle desktop screenshot alone: the page is an account settings page — sidebar nav 'Profile / Projects / Notifications / Danger Zone' with the user 'Alex Rivera / alex@example.com' pinned at top, and a 'Personal Information' card with Full name and Email fields. Checked against the brief (account settings with project/account deletion): correct.",
+      "Primary action identified as the filled blue 'Save' button in the Personal Information card footer — it is the only high-emphasis control in the viewport, and it is the correct primary action for a settings view. Correct against the brief.",
+      "What needs attention: nothing urgent in the idle view; the 'Danger Zone' nav item with a warning-triangle icon clearly signposts where the destructive actions live, which matches the brief's deletion requirements. All three answers were correct and obvious from the screenshot alone."
+    ]
+  },
+  "f1": {
+    "score": 5,
+    "observations": [
+      "Raw ratio: 3/3 inventory items are graphical+text.",
+      "Save state: the Save button carries a CSS spinner while pending ('.btn.loading .spinner' with the 'Save' text hidden; async item 1 confirmed a disabled pending state at 250 ms), success is a green toast with a checkmark SVG ('Profile updated'), and failure is a red '.inline-error' with an X-circle SVG next to the text ('Network error — check your connection and try again' visible under the Email field in the error screenshot).",
+      "Destructive-action danger level: red is used systematically — '.danger-zone' card has a red border ('--danger-border: #fca5a5'), red section title, red-tinted footer ('--danger-light'), the Delete Account button is solid red ('.btn-danger'), per-project Delete is a red ghost button ('.btn-ghost-danger'), the sidebar 'Danger Zone' item and the modal header both carry a warning-triangle SVG in a red circular '.modal-icon.danger', and the confirm input focus ring is red (box-shadow rgba(220,38,38,.12)). Metrics corroborate: 5 svg + 3 badges = 8 graphical elements on a 23-word page.",
+      "Confirmation state: the delete modals gate the red confirm button behind a type-to-confirm input (button rendered 'disabled' until input matches the project name or 'delete my account'), so readiness is signalled graphically by the button's disabled/enabled state; during the pending confirm the button shows a spinner; the completed account deletion renders a full-screen green checkmark SVG with 'Account Deleted'."
+    ]
+  },
+  "f2": {
+    "score": 4,
+    "observations": [
+      "Measured copy is extremely lean: desktop viewportWords = 23, pageWords = 23, helperWords = 4, longLeafWords = 0, and all 5 desktop button labels average 1.2 words with a max of 2 ('Delete Account' is the longest label in the source at 2 words) — well under the ≤3-word anchor.",
+      "Two page subtitles restate what the UI already shows: 'Manage your personal information' sits under 'Profile' directly above a card titled 'Personal Information', and 'Choose how you want to be notified' sits under 'Notifications' above three self-describing toggles.",
+      "The rest of the prose earns its place: 'Irreversible actions — proceed with caution', 'Permanently delete your account and all associated data. This action cannot be undone.', and the modal body 'This will permanently delete <name> and all its data. This cannot be undone.' all add danger framing appropriate to destructive actions rather than narrating the UI."
+    ]
+  },
+  "f3": {
+    "score": 5,
+    "observations": [
+      "Terminology is consistent end to end: 'Delete Project' is the modal title, confirm-button label, and toast subject ('Project \"X\" deleted'); 'Delete Account' is the nav-adjacent section title, button label, modal title, and terminal screen heading ('Account Deleted').",
+      "Copy matches observed behavior: 'Network error — check your connection and try again' accompanies a re-enabled Save button (async item 6 confirmed retry works without reload), 'Type the project name to confirm' matches the input that actually gates the button, and 'Network error — setting reverted' matches the toggle rollback in handleTogglePref.",
+      "No filler, no marketing tone, no placeholder text found; the only generic string, 'Something went wrong', is an unreached fallback behind specific NETWORK/message branches."
+    ]
+  },
+  "f4": {
+    "score": 4,
+    "observations": [
+      "Task-driven: the danger apparatus is specifically built for this brief — a red-bordered Danger Zone card with tinted footer, two tiers of destructive emphasis (solid red 'Delete Account' vs ghost-red per-project 'Delete'), type-to-confirm gates using the actual project name and the literal phrase 'delete my account', a disabled Cancel during the in-flight delete, and a terminal 'Account Deleted' end state instead of returning to a now-meaningless settings page.",
+      "Template-like: the shell is the stock SaaS settings pattern — 240px white sidebar + card stack, Inter from Google Fonts, the ubiquitous blue #2563eb accent on a #f8f9fb gray background, pill plan badge, top-right slide-in toasts, and shimmer skeletons.",
+      "One layout choice actively works against the brief: at ≤768px the CSS is '.sidebar { display: none; }' with no replacement nav, so on mobile (idle_mobile screenshot shows only Profile; mobile metrics count exactly 1 button label) the Projects and Danger Zone views — the brief's core deletion features — are unreachable."
+    ]
+  },
+  "f1Inventory": [
+    {
+      "item": "save state",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "destructive-action danger level",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "confirmation state",
+      "classification": "graphical+text"
+    }
+  ],
+  "f2Redundant": [
+    "Manage your personal information (subtitle under 'Profile', restating the 'Personal Information' card it sits above)",
+    "Choose how you want to be notified (subtitle under 'Notifications', restating the heading and the visible toggles)"
+  ],
+  "f3Issues": [],
+  "f4TaskDriven": [
+    "Dedicated Danger Zone section: red-bordered card, red section title, red-tinted footer, warning-triangle icon in both the sidebar nav item and the modal header",
+    "Type-to-confirm deletion gates: project deletion requires typing the exact project name; account deletion requires typing 'delete my account'; the red confirm button stays disabled until the text matches",
+    "Two-tier destructive emphasis: solid red .btn-danger for Delete Account vs outlined .btn-ghost-danger for per-project Delete, encoding relative danger level",
+    "Cancel button disabled while a delete is in flight, preventing a mid-deletion dismiss",
+    "Terminal full-screen 'Account Deleted' state with green checkmark after account deletion, rather than leaving the settings UI up",
+    "Optimistic toggle with rollback and 'Network error — setting reverted' toast for notification preferences",
+    "Skeleton loading screen shaped like the settings cards ('Loading your account...' with card-shaped shimmer blocks)"
+  ],
+  "f4Template": [
+    "240px white sidebar + main card-stack layout, the standard SaaS settings shell",
+    "Inter from Google Fonts with the default weight ramp (400/500/600/700)",
+    "Blue #2563eb accent on #f8f9fb gray background — the ubiquitous Tailwind-palette look",
+    "Pill-shaped 'Pro' plan badge with star icon",
+    "Top-right slide-in toast notifications",
+    "Generic shimmer-gradient skeleton animation",
+    "Mobile media query that simply hides the sidebar (display:none) with no substitute navigation — a boilerplate responsive move that here severs access to Projects and Danger Zone"
+  ]
+}

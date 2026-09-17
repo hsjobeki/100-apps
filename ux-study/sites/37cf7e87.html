@@ -1,0 +1,887 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Account Settings</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f8f9fb;
+  --surface: #fff;
+  --border: #e2e5ea;
+  --border-focus: #4f6ef7;
+  --text: #1a1d23;
+  --text-secondary: #5f6775;
+  --text-muted: #8a91a0;
+  --primary: #4f6ef7;
+  --primary-hover: #3b5ce4;
+  --primary-text: #fff;
+  --danger: #e5443a;
+  --danger-hover: #cf2e24;
+  --danger-bg: #fef2f1;
+  --danger-border: #f5c6c3;
+  --success: #1a9e5c;
+  --success-bg: #edfaf3;
+  --warning-bg: #fffbeb;
+  --warning-border: #f5d670;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+  --radius: 8px;
+  --radius-lg: 12px;
+}
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  min-height: 100vh;
+}
+.layout {
+  display: flex;
+  min-height: 100vh;
+}
+.sidebar {
+  width: 240px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: 24px 0;
+  flex-shrink: 0;
+}
+.sidebar-brand {
+  padding: 0 20px 20px;
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--primary);
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 8px;
+}
+.sidebar-nav { list-style: none; }
+.sidebar-nav li a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background 0.15s, color 0.15s;
+  border-left: 3px solid transparent;
+}
+.sidebar-nav li a:hover { background: var(--bg); color: var(--text); }
+.sidebar-nav li a.active {
+  background: #f0f3ff;
+  color: var(--primary);
+  border-left-color: var(--primary);
+}
+.sidebar-nav li a svg { width: 18px; height: 18px; flex-shrink: 0; }
+.main {
+  flex: 1;
+  padding: 32px 40px;
+  max-width: 800px;
+}
+.page-title {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.page-subtitle {
+  color: var(--text-secondary);
+  font-size: 14px;
+  margin-bottom: 32px;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid var(--border);
+  margin-bottom: 28px;
+}
+.tab-btn {
+  background: none;
+  border: none;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: color 0.15s, border-color 0.15s;
+}
+.tab-btn:hover { color: var(--text); }
+.tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* Cards */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow-sm);
+}
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.card-title {
+  font-size: 16px;
+  font-weight: 600;
+}
+.card-desc {
+  color: var(--text-secondary);
+  font-size: 13px;
+  margin-bottom: 20px;
+}
+
+/* Form */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.form-group { margin-bottom: 16px; }
+.form-group.full { grid-column: 1 / -1; }
+label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+input[type="text"],
+input[type="email"],
+select {
+  width: 100%;
+  padding: 9px 12px;
+  font-size: 14px;
+  font-family: inherit;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text);
+  transition: border-color 0.15s, box-shadow 0.15s;
+  outline: none;
+}
+input:focus, select:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(79,110,247,0.12);
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: inherit;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, opacity 0.15s, transform 0.1s;
+  outline: none;
+  white-space: nowrap;
+}
+.btn:active { transform: scale(0.98); }
+.btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+.btn-primary { background: var(--primary); color: var(--primary-text); }
+.btn-primary:hover:not(:disabled) { background: var(--primary-hover); }
+.btn-secondary {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.btn-secondary:hover:not(:disabled) { background: var(--bg); }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-danger:hover:not(:disabled) { background: var(--danger-hover); }
+.btn-ghost-danger {
+  background: none;
+  color: var(--danger);
+  border: 1px solid var(--danger-border);
+}
+.btn-ghost-danger:hover:not(:disabled) { background: var(--danger-bg); }
+.btn-sm { padding: 6px 12px; font-size: 13px; }
+.btn-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
+
+/* Toast */
+.toast-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.toast {
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: slideIn 0.25s ease-out;
+  min-width: 280px;
+}
+.toast.success { background: var(--success-bg); color: #0d6e3f; border: 1px solid #b3e6cc; }
+.toast.error { background: var(--danger-bg); color: #b51d14; border: 1px solid var(--danger-border); }
+@keyframes slideIn { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes slideOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(40px); } }
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.15s;
+}
+.modal {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  width: 420px;
+  max-width: 90vw;
+  box-shadow: var(--shadow-lg);
+  animation: scaleIn 0.2s ease-out;
+}
+.modal-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+.modal-icon.danger { background: var(--danger-bg); }
+.modal-icon.danger svg { color: var(--danger); }
+.modal-title { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+.modal-body { color: var(--text-secondary); font-size: 14px; margin-bottom: 20px; line-height: 1.6; }
+.modal-confirm-input {
+  width: 100%;
+  padding: 9px 12px;
+  font-size: 14px;
+  font-family: inherit;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  margin-bottom: 16px;
+  outline: none;
+}
+.modal-confirm-input:focus {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 3px rgba(229,68,58,0.12);
+}
+.modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+
+/* Projects */
+.project-list { list-style: none; }
+.project-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 8px;
+  transition: background 0.15s;
+}
+.project-item:hover { background: var(--bg); }
+.project-info { flex: 1; }
+.project-name { font-size: 14px; font-weight: 600; }
+.project-meta { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.project-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+  flex-shrink: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+}
+
+/* Danger zone */
+.danger-zone {
+  border-color: var(--danger-border);
+  background: var(--danger-bg);
+}
+.danger-zone .card-title { color: var(--danger); }
+
+/* Loading */
+.skeleton {
+  background: linear-gradient(90deg, #eee 25%, #f5f5f5 50%, #eee 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
+  height: 16px;
+  margin-bottom: 8px;
+}
+.skeleton.wide { width: 80%; }
+.skeleton.narrow { width: 50%; }
+.skeleton.block { height: 40px; width: 100%; }
+@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+/* Badge */
+.plan-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  background: linear-gradient(135deg, #6366f1, #4f6ef7);
+  color: #fff;
+}
+
+/* Spinner in buttons */
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+.spinner.dark {
+  border-color: rgba(0,0,0,0.15);
+  border-top-color: var(--text-secondary);
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Empty */
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-secondary);
+}
+.empty-state svg { width: 48px; height: 48px; color: var(--text-muted); margin-bottom: 12px; }
+.empty-state p { font-size: 14px; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  .main { padding: 20px 16px; }
+  .form-row { grid-template-columns: 1fr; }
+  .modal { width: 95vw; padding: 20px; }
+}
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-brand">AppName</div>
+    <ul class="sidebar-nav">
+      <li><a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home</a></li>
+      <li><a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Projects</a></li>
+      <li><a href="#" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Settings</a></li>
+    </ul>
+  </aside>
+
+  <main class="main" id="app">
+    <h1 class="page-title">Settings</h1>
+    <p class="page-subtitle">Manage your account, projects, and preferences</p>
+
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="profile">Profile</button>
+      <button class="tab-btn" data-tab="projects">Projects</button>
+      <button class="tab-btn" data-tab="danger">Danger Zone</button>
+    </div>
+
+    
+    <div class="tab-panel active" id="tab-profile">
+      <div class="card" id="profile-card">
+        <div class="card-header">
+          <span class="card-title">Profile Information</span>
+          <span id="plan-badge"></span>
+        </div>
+        <div id="profile-loading">
+          <div class="skeleton wide"></div>
+          <div class="skeleton narrow"></div>
+          <div class="skeleton block" style="margin-top:12px"></div>
+          <div class="skeleton block"></div>
+        </div>
+        <form id="profile-form" style="display:none" autocomplete="off">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="inp-name">Name</label>
+              <input type="text" id="inp-name">
+            </div>
+            <div class="form-group">
+              <label for="inp-email">Email</label>
+              <input type="email" id="inp-email">
+            </div>
+          </div>
+          <div class="btn-actions">
+            <button type="button" class="btn btn-secondary" id="btn-reset-profile">Reset</button>
+            <button type="submit" class="btn btn-primary" id="btn-save-profile">Save changes</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Notifications</div>
+        <p class="card-desc">Choose how you want to be notified</p>
+        <form id="notif-form" autocomplete="off">
+          <div class="form-group">
+            <label for="sel-email-notif">Email notifications</label>
+            <select id="sel-email-notif">
+              <option value="all">All activity</option>
+              <option value="important">Important only</option>
+              <option value="none">None</option>
+            </select>
+          </div>
+          <div class="btn-actions">
+            <button type="submit" class="btn btn-primary" id="btn-save-notif">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    
+    <div class="tab-panel" id="tab-projects">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Your Projects</span>
+          <span id="project-count" style="font-size:13px;color:var(--text-muted)"></span>
+        </div>
+        <div id="projects-loading">
+          <div class="skeleton block"></div>
+          <div class="skeleton block"></div>
+          <div class="skeleton block"></div>
+        </div>
+        <div id="projects-content" style="display:none">
+          <ul class="project-list" id="project-list"></ul>
+          <div id="projects-empty" class="empty-state" style="display:none">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+            <p>No projects yet</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="tab-panel" id="tab-danger">
+      <div class="card danger-zone">
+        <div class="card-title">Delete Account</div>
+        <p class="card-desc">Permanently delete your account and all associated data. This cannot be undone.</p>
+        <button class="btn btn-danger" id="btn-delete-account">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          Delete account
+        </button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+<div id="modal-root"></div>
+
+<script>
+(function() {
+  "use strict";
+
+  // State
+  let user = null;
+  let originalUser = null;
+  let savingProfile = false;
+  let savingNotif = false;
+  let deletingProjectId = null;
+  let deletingAccount = false;
+
+  const projectColors = ['#4f6ef7','#e5443a','#1a9e5c','#e67e22','#8e44ad','#16a085'];
+
+  // --- Toast ---
+  function showToast(msg, type) {
+    const c = document.getElementById('toast-container');
+    const t = document.createElement('div');
+    t.className = 'toast ' + type;
+    const icon = type === 'success'
+      ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
+      : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
+    t.innerHTML = icon + '<span>' + escHtml(msg) + '</span>';
+    c.appendChild(t);
+    setTimeout(() => {
+      t.style.animation = 'slideOut 0.25s ease-in forwards';
+      setTimeout(() => t.remove(), 260);
+    }, 3500);
+  }
+
+  function escHtml(s) {
+    const d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  // --- Modal ---
+  function showModal(opts) {
+    return new Promise((resolve) => {
+      const root = document.getElementById('modal-root');
+      const overlay = document.createElement('div');
+      overlay.className = 'modal-overlay';
+
+      let confirmInput = '';
+      if (opts.confirmText) {
+        confirmInput = `<input class="modal-confirm-input" id="modal-confirm-inp" placeholder="Type &quot;${escHtml(opts.confirmText)}&quot; to confirm" autocomplete="off">`;
+      }
+
+      overlay.innerHTML = `
+        <div class="modal">
+          <div class="modal-icon danger">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <div class="modal-title">${escHtml(opts.title)}</div>
+          <div class="modal-body">${opts.body}</div>
+          ${confirmInput}
+          <div class="modal-actions">
+            <button class="btn btn-secondary" id="modal-cancel">Cancel</button>
+            <button class="btn btn-danger" id="modal-confirm" ${opts.confirmText ? 'disabled' : ''}>${escHtml(opts.confirmLabel || 'Confirm')}</button>
+          </div>
+        </div>
+      `;
+
+      root.appendChild(overlay);
+
+      const cancelBtn = overlay.querySelector('#modal-cancel');
+      const confirmBtn = overlay.querySelector('#modal-confirm');
+      const inp = overlay.querySelector('#modal-confirm-inp');
+
+      if (inp) {
+        inp.addEventListener('input', () => {
+          confirmBtn.disabled = inp.value !== opts.confirmText;
+        });
+        setTimeout(() => inp.focus(), 50);
+      }
+
+      function close(result) {
+        overlay.style.animation = 'fadeIn 0.15s reverse forwards';
+        setTimeout(() => { overlay.remove(); resolve(result); }, 150);
+      }
+
+      cancelBtn.onclick = () => close(false);
+      overlay.addEventListener('click', (e) => { if (e.target === overlay) close(false); });
+      confirmBtn.onclick = () => {
+        // Show spinner
+        confirmBtn.disabled = true;
+        confirmBtn.innerHTML = '<span class="spinner"></span>' + escHtml(opts.confirmLabel || 'Confirm');
+        resolve(true);
+        // Caller handles close via returned overlay ref
+      };
+
+      overlay._close = () => {
+        overlay.remove();
+      };
+      overlay._resetBtn = () => {
+        confirmBtn.disabled = false;
+        confirmBtn.textContent = opts.confirmLabel || 'Confirm';
+      };
+      resolve.__overlay = overlay;
+    });
+  }
+
+  // Reworked modal to give caller control
+  function openModal(opts) {
+    const root = document.getElementById('modal-root');
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+
+    let confirmInput = '';
+    if (opts.confirmText) {
+      confirmInput = `<input class="modal-confirm-input" id="modal-confirm-inp" placeholder="Type &quot;${escHtml(opts.confirmText)}&quot; to confirm" autocomplete="off">`;
+    }
+
+    overlay.innerHTML = `
+      <div class="modal">
+        <div class="modal-icon danger">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <div class="modal-title">${escHtml(opts.title)}</div>
+        <div class="modal-body">${opts.body}</div>
+        ${confirmInput}
+        <div class="modal-actions">
+          <button class="btn btn-secondary" id="modal-cancel">Cancel</button>
+          <button class="btn btn-danger" id="modal-confirm" ${opts.confirmText ? 'disabled' : ''}>${escHtml(opts.confirmLabel || 'Confirm')}</button>
+        </div>
+      </div>
+    `;
+
+    root.appendChild(overlay);
+
+    const cancelBtn = overlay.querySelector('#modal-cancel');
+    const confirmBtn = overlay.querySelector('#modal-confirm');
+    const inp = overlay.querySelector('#modal-confirm-inp');
+
+    let _resolve;
+    const promise = new Promise(r => { _resolve = r; });
+
+    if (inp) {
+      inp.addEventListener('input', () => {
+        confirmBtn.disabled = inp.value !== opts.confirmText;
+      });
+      setTimeout(() => inp.focus(), 50);
+    }
+
+    function close() {
+      overlay.remove();
+    }
+
+    cancelBtn.onclick = () => { close(); _resolve(false); };
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) { close(); _resolve(false); } });
+
+    confirmBtn.onclick = () => {
+      confirmBtn.disabled = true;
+      confirmBtn.innerHTML = '<span class="spinner"></span> ' + escHtml(opts.confirmLabel || 'Confirm');
+      cancelBtn.disabled = true;
+      _resolve({ close, resetBtn: () => {
+        confirmBtn.disabled = false;
+        confirmBtn.textContent = opts.confirmLabel || 'Confirm';
+        cancelBtn.disabled = false;
+      }});
+    };
+
+    return promise;
+  }
+
+  // --- Tabs ---
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  // --- Load user ---
+  async function loadUser() {
+    try {
+      user = await window.api.getUser();
+      originalUser = { name: user.name, email: user.email };
+      renderProfile();
+      renderProjects();
+    } catch (err) {
+      showToast('Failed to load account: ' + err.message, 'error');
+    }
+  }
+
+  function renderProfile() {
+    document.getElementById('profile-loading').style.display = 'none';
+    const form = document.getElementById('profile-form');
+    form.style.display = 'block';
+
+    document.getElementById('inp-name').value = user.name;
+    document.getElementById('inp-email').value = user.email;
+    document.getElementById('plan-badge').innerHTML = '<span class="plan-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>' + escHtml(user.plan) + '</span>';
+  }
+
+  function renderProjects() {
+    document.getElementById('projects-loading').style.display = 'none';
+    document.getElementById('projects-content').style.display = 'block';
+
+    const list = document.getElementById('project-list');
+    const empty = document.getElementById('projects-empty');
+    const count = document.getElementById('project-count');
+
+    if (!user.projects || user.projects.length === 0) {
+      list.style.display = 'none';
+      empty.style.display = 'block';
+      count.textContent = '0 projects';
+      return;
+    }
+
+    list.style.display = 'block';
+    empty.style.display = 'none';
+    count.textContent = user.projects.length + ' project' + (user.projects.length !== 1 ? 's' : '');
+
+    list.innerHTML = user.projects.map((p, i) => {
+      const initials = p.name.split(/\s+/).map(w => w[0]).join('').toUpperCase().slice(0, 2);
+      const color = projectColors[i % projectColors.length];
+      const date = new Date(p.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      return `
+        <li class="project-item" data-id="${escHtml(p.id)}">
+          <div class="project-icon" style="background:${color}">${initials}</div>
+          <div class="project-info">
+            <div class="project-name">${escHtml(p.name)}</div>
+            <div class="project-meta">Created ${date}</div>
+          </div>
+          <button class="btn btn-ghost-danger btn-sm project-delete-btn" data-id="${escHtml(p.id)}" data-name="${escHtml(p.name)}">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            Delete
+          </button>
+        </li>
+      `;
+    }).join('');
+
+    list.querySelectorAll('.project-delete-btn').forEach(btn => {
+      btn.addEventListener('click', () => handleDeleteProject(btn.dataset.id, btn.dataset.name, btn));
+    });
+  }
+
+  // --- Save profile ---
+  document.getElementById('profile-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (savingProfile) return;
+    savingProfile = true;
+    const btn = document.getElementById('btn-save-profile');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Saving…';
+
+    try {
+      const name = document.getElementById('inp-name').value.trim();
+      const email = document.getElementById('inp-email').value.trim();
+      await window.api.updateSettings({ name, email });
+      user.name = name;
+      user.email = email;
+      originalUser = { name, email };
+      showToast('Profile updated', 'success');
+    } catch (err) {
+      if (err.code === 'NETWORK') {
+        showToast('Network error — please try again', 'error');
+      } else {
+        showToast('Failed to save: ' + err.message, 'error');
+      }
+    } finally {
+      savingProfile = false;
+      btn.disabled = false;
+      btn.textContent = 'Save changes';
+    }
+  });
+
+  document.getElementById('btn-reset-profile').addEventListener('click', () => {
+    if (originalUser) {
+      document.getElementById('inp-name').value = originalUser.name;
+      document.getElementById('inp-email').value = originalUser.email;
+    }
+  });
+
+  // --- Save notifications ---
+  document.getElementById('notif-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (savingNotif) return;
+    savingNotif = true;
+    const btn = document.getElementById('btn-save-notif');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Saving…';
+
+    try {
+      const emailNotif = document.getElementById('sel-email-notif').value;
+      await window.api.updateSettings({ emailNotifications: emailNotif });
+      showToast('Notification preferences saved', 'success');
+    } catch (err) {
+      if (err.code === 'NETWORK') {
+        showToast('Network error — please try again', 'error');
+      } else {
+        showToast('Failed to save: ' + err.message, 'error');
+      }
+    } finally {
+      savingNotif = false;
+      btn.disabled = false;
+      btn.textContent = 'Save';
+    }
+  });
+
+  // --- Delete project ---
+  async function handleDeleteProject(id, name, triggerBtn) {
+    if (deletingProjectId) return;
+
+    const result = await openModal({
+      title: 'Delete "' + name + '"?',
+      body: 'This project and all its data will be permanently removed. This action cannot be undone.',
+      confirmLabel: 'Delete project',
+      confirmText: name
+    });
+
+    if (!result) return;
+
+    deletingProjectId = id;
+    triggerBtn.disabled = true;
+
+    try {
+      await window.api.deleteProject(id);
+      user.projects = user.projects.filter(p => p.id !== id);
+      renderProjects();
+      showToast('"' + name + '" deleted', 'success');
+    } catch (err) {
+      if (err.code === 'NETWORK') {
+        showToast('Network error — could not delete project', 'error');
+      } else {
+        showToast('Failed to delete: ' + err.message, 'error');
+      }
+      result.resetBtn();
+      triggerBtn.disabled = false;
+    } finally {
+      deletingProjectId = null;
+      result.close();
+    }
+  }
+
+  // --- Delete account ---
+  document.getElementById('btn-delete-account').addEventListener('click', async () => {
+    if (deletingAccount) return;
+
+    const result = await openModal({
+      title: 'Delete your account?',
+      body: 'This will permanently delete your account, all projects, and all data. <strong>There is no way to recover your account after this.</strong>',
+      confirmLabel: 'Delete my account',
+      confirmText: 'delete my account'
+    });
+
+    if (!result) return;
+
+    deletingAccount = true;
+    const btn = document.getElementById('btn-delete-account');
+    btn.disabled = true;
+
+    try {
+      await window.api.deleteAccount();
+      result.close();
+      document.getElementById('app').innerHTML = `
+        <div style="text-align:center;padding:80px 20px;">
+          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          <h2 style="margin:16px 0 8px;font-size:22px;">Account deleted</h2>
+          <p style="color:var(--text-secondary);font-size:14px;">Your account and all data have been permanently removed.</p>
+        </div>
+      `;
+    } catch (err) {
+      if (err.code === 'NETWORK') {
+        showToast('Network error — account was not deleted', 'error');
+      } else {
+        showToast('Failed to delete account: ' + err.message, 'error');
+      }
+      result.resetBtn();
+      btn.disabled = false;
+      deletingAccount = false;
+    }
+  });
+
+  // --- Init ---
+  loadUser();
+})();
+</script>
+</body>
+</html>

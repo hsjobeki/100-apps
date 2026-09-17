@@ -1,0 +1,986 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Account settings</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  :root{
+    --ink:#14171f;
+    --ink-2:#4a5260;
+    --ink-3:#78818f;
+    --paper:#eef0f3;
+    --card:#ffffff;
+    --line:#e0e4e9;
+    --line-2:#cfd5dd;
+    --accent:#0d7d75;
+    --accent-soft:#e2f2f0;
+    --warn:#a4600a;
+    --warn-soft:#fdf2e0;
+    --danger:#b3261e;
+    --danger-soft:#fdeceb;
+    --radius:10px;
+    --shadow:0 1px 2px rgba(20,23,31,.06), 0 6px 18px -12px rgba(20,23,31,.28);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    font-size:14px;
+    line-height:1.45;
+    -webkit-font-smoothing:antialiased;
+  }
+  button,input{font:inherit;color:inherit}
+  h1,h2,h3{margin:0;font-weight:600;letter-spacing:-.01em}
+  p{margin:0}
+  .mono{font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px}
+
+  .shell{max-width:1180px;margin:0 auto;padding:18px 24px 40px}
+
+  /* ---------- header ---------- */
+  .topbar{
+    display:flex;align-items:center;gap:14px;
+    padding:12px 16px;margin-bottom:16px;
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);
+  }
+  .avatar{
+    width:42px;height:42px;border-radius:12px;flex:none;
+    display:grid;place-items:center;
+    background:linear-gradient(145deg,#12615c,#0d7d75);
+    color:#fff;font-weight:600;letter-spacing:.02em;
+  }
+  .who{min-width:0;flex:1}
+  .who h1{font-size:15px;line-height:1.2}
+  .who .sub{color:var(--ink-3);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .chips{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+  .chip{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:4px 9px;border-radius:999px;border:1px solid var(--line-2);
+    font-size:12px;font-weight:500;background:#fff;white-space:nowrap;
+  }
+  .chip.plan{background:var(--accent-soft);border-color:#b9ddd9;color:#0a5b55}
+  .chip.warn{background:var(--warn-soft);border-color:#eccf9f;color:var(--warn)}
+  .chip.ok{background:var(--accent-soft);border-color:#b9ddd9;color:#0a5b55}
+  .chip.bad{background:var(--danger-soft);border-color:#f0bfbc;color:var(--danger)}
+  .chip svg{flex:none}
+  .status-pill{min-width:0}
+  .status-pill[hidden]{display:none}
+
+  /* ---------- layout ---------- */
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+  .col{display:flex;flex-direction:column;gap:16px}
+
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);overflow:hidden;
+  }
+  .card > header{
+    display:flex;align-items:center;gap:9px;
+    padding:12px 16px;border-bottom:1px solid var(--line);
+  }
+  .card > header h2{font-size:13.5px;flex:1}
+  .card > header .ico{color:var(--ink-3);display:flex}
+  .count{
+    font-size:11.5px;font-weight:600;color:var(--ink-2);
+    background:var(--paper);border:1px solid var(--line);border-radius:999px;
+    min-width:22px;text-align:center;padding:1px 7px;
+  }
+  .body{padding:14px 16px}
+
+  /* ---------- form ---------- */
+  .field{margin-bottom:12px}
+  .field:last-of-type{margin-bottom:0}
+  .lab{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;color:var(--ink-2);margin-bottom:5px}
+  .dot-mod{width:6px;height:6px;border-radius:50%;background:var(--warn);display:none}
+  .field[data-dirty="1"] .dot-mod{display:block}
+  input[type=text],input[type=email]{
+    width:100%;padding:8px 10px;border:1px solid var(--line-2);border-radius:8px;background:#fff;
+    transition:border-color .12s, box-shadow .12s;
+  }
+  input:focus-visible{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(13,125,117,.15)}
+  input:disabled{background:var(--paper);color:var(--ink-3)}
+
+  .actions{display:flex;align-items:center;gap:10px;margin-top:14px}
+  .btn{
+    display:inline-flex;align-items:center;gap:7px;
+    padding:8px 13px;border-radius:8px;border:1px solid transparent;
+    font-size:13px;font-weight:500;cursor:pointer;background:var(--paper);
+    transition:background .12s,border-color .12s,opacity .12s;
+  }
+  .btn:disabled{cursor:not-allowed;opacity:.62}
+  .btn.primary{background:var(--accent);color:#fff}
+  .btn.primary:hover:not(:disabled){background:#0a6b64}
+  .btn.ghost{background:#fff;border-color:var(--line-2);color:var(--ink-2)}
+  .btn.ghost:hover:not(:disabled){background:var(--paper)}
+  .btn.danger{background:var(--danger);color:#fff}
+  .btn.danger:hover:not(:disabled){background:#9a1f18}
+  .btn.danger-out{background:#fff;border-color:#e6aeaa;color:var(--danger)}
+  .btn.danger-out:hover:not(:disabled){background:var(--danger-soft)}
+  .btn.tiny{padding:4px 9px;font-size:12px;border-radius:7px}
+  .icon-btn{
+    width:30px;height:30px;display:grid;place-items:center;border-radius:8px;
+    border:1px solid transparent;background:transparent;color:var(--ink-3);cursor:pointer;
+  }
+  .icon-btn:hover:not(:disabled){background:var(--danger-soft);color:var(--danger)}
+  .icon-btn:disabled{opacity:.45;cursor:not-allowed}
+
+  /* ---------- spinner / progress ---------- */
+  .spin{
+    width:14px;height:14px;flex:none;border-radius:50%;
+    border:2px solid currentColor;border-top-color:transparent;opacity:.85;
+    animation:rot .7s linear infinite;
+  }
+  @keyframes rot{to{transform:rotate(360deg)}}
+  progress.bar{
+    -webkit-appearance:none;appearance:none;border:none;
+    display:block;width:100%;height:3px;background:var(--line);
+  }
+  progress.bar::-webkit-progress-bar{background:var(--line)}
+  progress.bar::-webkit-progress-value{background:var(--accent)}
+  progress.bar::-moz-progress-bar{background:var(--accent)}
+  progress.bar.warn{background:#f0dcb8}
+  progress.bar.warn::-webkit-progress-bar{background:#f0dcb8}
+  progress.bar.warn::-webkit-progress-value{background:var(--warn)}
+  progress.bar.warn::-moz-progress-bar{background:var(--warn)}
+  progress.bar.red{background:#f2c9c6}
+  progress.bar.red::-webkit-progress-bar{background:#f2c9c6}
+  progress.bar.red::-webkit-progress-value{background:var(--danger)}
+  progress.bar.red::-moz-progress-bar{background:var(--danger)}
+
+  /* ---------- inline feedback ---------- */
+  .note{display:flex;align-items:center;gap:7px;font-size:12.5px}
+  .note.err{color:var(--danger)}
+  .note.ok{color:var(--accent)}
+  .err-box{
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+    margin-top:10px;padding:8px 10px;border-radius:8px;
+    background:var(--danger-soft);border:1px solid #f0bfbc;color:var(--danger);font-size:12.5px;
+  }
+  .err-box .grow{flex:1;min-width:120px}
+
+  /* ---------- switches ---------- */
+  .pref{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--line)}
+  .pref:last-child{border-bottom:none}
+  .pref .name{flex:1;font-size:13px;font-weight:500}
+  .switch{
+    position:relative;width:42px;height:24px;flex:none;border-radius:999px;
+    border:1px solid var(--line-2);background:var(--paper);cursor:pointer;padding:0;
+    transition:background .16s,border-color .16s;
+  }
+  .switch .knob{
+    position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;
+    background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.25);
+    transition:left .16s cubic-bezier(.3,.7,.3,1);
+    display:grid;place-items:center;
+  }
+  .switch[aria-checked="true"]{background:var(--accent);border-color:var(--accent)}
+  .switch[aria-checked="true"] .knob{left:20px}
+  .switch[data-pending="1"]{background:#dfe4ea;border-color:var(--line-2);cursor:progress}
+  .switch[data-pending="1"] .knob{left:11px;background:#fff}
+  .switch[data-pending="1"] .knob::after{
+    content:"";width:10px;height:10px;border-radius:50%;
+    border:2px solid var(--ink-3);border-top-color:transparent;animation:rot .7s linear infinite;
+  }
+  .switch:disabled{opacity:.9}
+  .switch.flash{box-shadow:0 0 0 3px rgba(13,125,117,.22)}
+
+  .seg{display:flex;border:1px solid var(--line-2);border-radius:8px;overflow:hidden;flex:none}
+  .seg button{
+    padding:5px 10px;font-size:12px;background:#fff;border:none;cursor:pointer;color:var(--ink-2);
+    display:flex;align-items:center;gap:5px;border-left:1px solid var(--line);
+  }
+  .seg button:first-child{border-left:none}
+  .seg button[aria-pressed="true"]{background:var(--accent);color:#fff;font-weight:500}
+  .seg button:disabled{cursor:not-allowed;opacity:.6}
+
+  /* ---------- projects ---------- */
+  .plist{list-style:none;margin:0;padding:0;max-height:300px;overflow:auto}
+  .prow{border-bottom:1px solid var(--line);position:relative}
+  .prow:last-child{border-bottom:none}
+  .prow .main{display:flex;align-items:center;gap:10px;padding:10px 16px}
+  .prow .glyph{
+    width:28px;height:28px;border-radius:8px;flex:none;display:grid;place-items:center;
+    background:var(--accent-soft);color:#0a5b55;
+  }
+  .prow .txt{flex:1;min-width:0}
+  .prow .pname{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .prow .meta{color:var(--ink-3);font-size:11.5px}
+  .prow[data-armed="1"]{background:var(--warn-soft)}
+  .prow[data-busy="1"]{background:#fafbfc}
+  .prow[data-busy="1"] .txt{opacity:.55}
+  .confirm{
+    display:flex;align-items:center;gap:8px;padding:0 16px 10px;
+    font-size:12.5px;color:var(--warn);font-weight:500;
+  }
+  .confirm .grow{flex:1}
+  .prow .err-box{margin:0 16px 10px}
+  .empty{
+    margin:6px;padding:26px 16px;text-align:center;border:1.5px dashed var(--line-2);border-radius:10px;
+    color:var(--ink-3);
+  }
+  .empty svg{color:var(--line-2)}
+  .empty .t{font-size:13px;font-weight:500;color:var(--ink-2);margin-top:8px}
+  .empty p{font-size:12.5px;margin-top:2px}
+
+  /* ---------- danger ---------- */
+  .card.zone{border-color:#e6aeaa}
+  .hatch{height:5px;background-image:repeating-linear-gradient(45deg,#b3261e 0 7px,#f4c9c5 7px 14px)}
+  .card.zone > header{background:var(--danger-soft);border-bottom-color:#f0bfbc}
+  .card.zone > header h2{color:var(--danger)}
+  .card.zone > header .ico{color:var(--danger)}
+  .danger-row{display:flex;align-items:center;gap:12px}
+  .danger-row .txt{flex:1}
+  .danger-row .t{font-size:13px;font-weight:600}
+  .danger-row p{font-size:12.5px;color:var(--ink-2)}
+  .risk{display:flex;align-items:center;gap:4px;margin-bottom:10px}
+  .risk i{width:26px;height:5px;border-radius:2px;background:var(--line);display:block}
+  .risk i.on{background:var(--danger)}
+  .risk span{font-size:11px;color:var(--danger);font-weight:600;letter-spacing:.04em;text-transform:uppercase;margin-left:4px}
+
+  /* ---------- modal ---------- */
+  .scrim{
+    position:fixed;inset:0;background:rgba(20,23,31,.5);backdrop-filter:blur(2px);
+    display:grid;place-items:center;padding:20px;z-index:40;
+  }
+  .scrim[hidden]{display:none}
+  .modal{
+    width:min(440px,100%);background:#fff;border-radius:12px;overflow:hidden;
+    box-shadow:0 24px 60px -18px rgba(20,23,31,.5);
+  }
+  .modal header{display:flex;align-items:center;gap:9px;padding:14px 16px;border-bottom:1px solid var(--line)}
+  .modal header h3{font-size:14px;flex:1;color:var(--danger)}
+  .modal .body{padding:14px 16px}
+  .loss{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  .modal footer{display:flex;gap:9px;justify-content:flex-end;padding:12px 16px;background:var(--paper);border-top:1px solid var(--line)}
+  .lock{display:flex;align-items:center;gap:6px;color:var(--ink-3);font-size:12px;margin-top:7px}
+  .lock.armed{color:var(--danger)}
+
+  /* ---------- skeleton ---------- */
+  .sk{background:linear-gradient(90deg,#e8ebef 25%,#f2f4f6 37%,#e8ebef 63%);background-size:400% 100%;animation:sh 1.3s ease infinite;border-radius:6px;height:12px}
+  @keyframes sh{0%{background-position:100% 50%}100%{background-position:0 50%}}
+  .sk.tall{height:34px;border-radius:8px}
+  .sk.round{border-radius:12px}
+
+  .gone{
+    display:grid;place-items:center;gap:14px;padding:70px 20px;text-align:center;
+  }
+  .seal{
+    width:74px;height:74px;border-radius:50%;display:grid;place-items:center;
+    background:var(--danger-soft);border:2px solid #e6aeaa;color:var(--danger);
+  }
+  .gone h2{font-size:18px}
+  .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+  @media (max-width:860px){
+    .shell{padding:12px 12px 32px}
+    .grid{grid-template-columns:1fr}
+    .topbar{flex-wrap:wrap}
+    .chips{width:100%;justify-content:flex-start}
+  }
+</style>
+</head>
+<body>
+<div class="shell" id="shell">
+
+  <div class="topbar">
+    <div class="avatar" id="avatar"><span class="sk round" style="width:22px;height:14px"></span></div>
+    <div class="who">
+      <h1 id="uname"><span class="sk" style="width:130px;display:inline-block"></span></h1>
+      <div class="sub" id="uemail"><span class="sk" style="width:180px;display:inline-block;height:10px"></span></div>
+    </div>
+    <div class="chips">
+      <span class="chip status-pill" id="pill" hidden></span>
+      <span class="chip" id="setupChip" hidden></span>
+      <span class="chip plan" id="planChip" hidden></span>
+    </div>
+  </div>
+
+  <div id="loadErr" hidden class="card" style="margin-bottom:16px">
+    <div class="hatch"></div>
+    <div class="body">
+      <div class="danger-row">
+        <div class="txt">
+          <div class="t" style="color:var(--danger)">Account did not load</div>
+          <p id="loadErrMsg"></p>
+        </div>
+        <button class="btn primary" type="button" id="loadRetry">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M13.5 8a5.5 5.5 0 1 1-1.6-3.9"/><path d="M13.5 1.5V5H10"/></svg>
+          Retry
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid" id="grid">
+    <div class="col">
+
+      <section class="card" id="profileCard">
+        <header>
+          <span class="ico"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5.2" r="2.6"/><path d="M2.6 13.6c.6-2.6 2.8-4 5.4-4s4.8 1.4 5.4 4"/></svg></span>
+          <h2>Profile</h2>
+        </header>
+        <div class="body">
+          <form id="profileForm" novalidate>
+            <div class="field" id="fName">
+              <label class="lab" for="inName">Name <span class="dot-mod" title="Unsaved"></span></label>
+              <input id="inName" name="name" type="text" autocomplete="name" disabled>
+            </div>
+            <div class="field" id="fEmail">
+              <label class="lab" for="inEmail">Email <span class="dot-mod" title="Unsaved"></span></label>
+              <input id="inEmail" name="email" type="email" autocomplete="email" disabled>
+            </div>
+            <div class="actions">
+              <button class="btn primary" type="submit" id="saveBtn" disabled>
+                <span id="saveIcon"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2.5h7.5L13.5 5.5V13a.5.5 0 0 1-.5.5H3a.5.5 0 0 1-.5-.5V3a.5.5 0 0 1 .5-.5Z"/><path d="M5.5 2.5v3.5h5"/></svg></span>
+                <span id="saveLabel">Save changes</span>
+              </button>
+              <span class="note ok" id="saveOk" hidden>
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5 6.4 12 13 4.8"/></svg>
+                Saved
+              </span>
+            </div>
+            <div id="profileErr"></div>
+          </form>
+        </div>
+      </section>
+
+      <section class="card" id="prefCard">
+        <header>
+          <span class="ico"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M2 4.5h12M2 8h12M2 11.5h12"/><circle cx="5.5" cy="4.5" r="1.6" fill="#fff"/><circle cx="10" cy="8" r="1.6" fill="#fff"/><circle cx="6.5" cy="11.5" r="1.6" fill="#fff"/></svg></span>
+          <h2>Preferences</h2>
+        </header>
+        <div class="body" id="prefBody"></div>
+      </section>
+
+    </div>
+
+    <div class="col">
+
+      <section class="card" id="projCard">
+        <header>
+          <span class="ico"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M1.8 4.2A1.2 1.2 0 0 1 3 3h3l1.4 1.6H13a1.2 1.2 0 0 1 1.2 1.2v6A1.2 1.2 0 0 1 13 13H3a1.2 1.2 0 0 1-1.2-1.2Z"/></svg></span>
+          <h2>Projects</h2>
+          <span class="count" id="projCount">–</span>
+        </header>
+        <div id="projWrap">
+          <div style="padding:14px 16px">
+            <div class="sk tall" style="margin-bottom:8px"></div>
+            <div class="sk tall" style="margin-bottom:8px"></div>
+            <div class="sk tall"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card zone" id="dangerCard">
+        <div class="hatch"></div>
+        <header>
+          <span class="ico"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.2 15 13.5H1Z"/><path d="M8 6.4v3.1"/><circle cx="8" cy="11.4" r=".7" fill="currentColor" stroke="none"/></svg></span>
+          <h2>Danger zone</h2>
+        </header>
+        <div class="body">
+          <div class="risk" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><span>Irreversible</span></div>
+          <div class="danger-row">
+            <div class="txt">
+              <div class="t">Delete account</div>
+              <p>Removes your account and all projects.</p>
+            </div>
+            <button class="btn danger-out" type="button" id="openDelete" disabled>
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.8 4.3h10.4"/><path d="M6.2 4.3V2.8h3.6v1.5"/><path d="M4.2 4.3 4.8 13a.6.6 0 0 0 .6.5h5.2a.6.6 0 0 0 .6-.5l.6-8.7"/></svg>
+              Delete account
+            </button>
+          </div>
+          <div id="acctErrSlot"></div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<div class="scrim" id="scrim" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+    <div class="hatch"></div>
+    <header>
+      <span style="color:var(--danger);display:flex"><svg width="17" height="17" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.2 15 13.5H1Z"/><path d="M8 6.4v3.1"/><circle cx="8" cy="11.4" r=".7" fill="currentColor" stroke="none"/></svg></span>
+      <h3 id="mTitle">Delete account</h3>
+      <button class="icon-btn" type="button" id="mClose" aria-label="Close">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+      </button>
+    </header>
+    <progress class="bar red" id="mBar" hidden></progress>
+    <div class="body">
+      <div class="loss" id="mLoss"></div>
+      <label class="lab" for="mInput" style="font-size:12.5px">Type your email to confirm</label>
+      <input id="mInput" type="text" autocomplete="off" spellcheck="false" placeholder="">
+      <div class="lock" id="mLock">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3.2" y="7" width="9.6" height="6.4" rx="1.2"/><path d="M5.6 7V5.2a2.4 2.4 0 0 1 4.8 0V7"/></svg>
+        <span id="mLockText">Locked</span>
+      </div>
+      <div id="mErrSlot"></div>
+    </div>
+    <footer>
+      <button class="btn ghost" type="button" id="mCancel">Cancel</button>
+      <button class="btn danger" type="button" id="mConfirm" disabled>
+        <span id="mConfirmIcon"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.8 4.3h10.4"/><path d="M6.2 4.3V2.8h3.6v1.5"/><path d="M4.2 4.3 4.8 13a.6.6 0 0 0 .6.5h5.2a.6.6 0 0 0 .6-.5l.6-8.7"/></svg></span>
+        <span id="mConfirmLabel">Delete forever</span>
+      </button>
+    </footer>
+  </div>
+</div>
+
+<div class="sr" id="live" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  "use strict";
+  var api = window.api;
+  var $ = function (id) { return document.getElementById(id); };
+
+  var PREFS = [
+    { key: "emailAlerts", name: "Email alerts", value: true },
+    { key: "weeklyDigest", name: "Weekly digest", value: false },
+    { key: "twoFactor", name: "Two-factor auth", value: false }
+  ];
+  var THEMES = ["Light", "Dark", "System"];
+
+  var state = {
+    loading: true,
+    loadError: null,
+    user: null,
+    prefs: PREFS.map(function (p) { return { key: p.key, name: p.name, value: p.value }; }),
+    theme: "System",
+    pendingPref: null,
+    prefError: null,
+    savingProfile: false,
+    profileError: null,
+    projects: [],
+    armed: null,
+    deletingProject: null,
+    projectError: null,
+    deletingAccount: false,
+    accountError: null,
+    accountGone: false,
+    modalOpen: false
+  };
+
+  /* ---------------- helpers ---------------- */
+
+  function say(msg) { $("live").textContent = msg; }
+
+  function reason(err, fallback) {
+    if (!err) return fallback;
+    if (err.code === "NETWORK") return "Network error. Nothing changed.";
+    if (err.code === "NOT_FOUND") return "Not found on the server.";
+    if (err.name === "AbortError") return "Cancelled.";
+    return err.message ? String(err.message) : fallback;
+  }
+
+  function initials(name) {
+    var parts = String(name || "?").trim().split(/\s+/).slice(0, 2);
+    return parts.map(function (p) { return p.charAt(0).toUpperCase(); }).join("") || "?";
+  }
+
+  function fmtDate(iso) {
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return "Unknown date";
+    return d.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+  }
+
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  var SVG = {
+    alert: '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.2 15 13.5H1Z"/><path d="M8 6.4v3.1"/><circle cx="8" cy="11.4" r=".7" fill="currentColor" stroke="none"/></svg>',
+    retry: '<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M13.5 8a5.5 5.5 0 1 1-1.6-3.9"/><path d="M13.5 1.5V5H10"/></svg>',
+    check: '<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5 6.4 12 13 4.8"/></svg>',
+    trash: '<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.8 4.3h10.4"/><path d="M6.2 4.3V2.8h3.6v1.5"/><path d="M4.2 4.3 4.8 13a.6.6 0 0 0 .6.5h5.2a.6.6 0 0 0 .6-.5l.6-8.7"/></svg>',
+    folder: '<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M1.8 4.2A1.2 1.2 0 0 1 3 3h3l1.4 1.6H13a1.2 1.2 0 0 1 1.2 1.2v6A1.2 1.2 0 0 1 13 13H3a1.2 1.2 0 0 1-1.2-1.2Z"/></svg>'
+  };
+
+  function errBox(msg, retryAttr) {
+    return '<div class="err-box" role="alert">' + SVG.alert +
+      '<span class="grow">' + esc(msg) + "</span>" +
+      (retryAttr ? '<button class="btn tiny danger-out" type="button" ' + retryAttr + ">" + SVG.retry + " Retry</button>" : "") +
+      "</div>";
+  }
+
+  /* ---------------- status pill ---------------- */
+
+  var okTimer = null;
+  function pill(kind, text) {
+    var el = $("pill");
+    if (!kind) { el.hidden = true; el.textContent = ""; return; }
+    el.hidden = false;
+    el.className = "chip status-pill " + (kind === "busy" ? "" : kind === "ok" ? "ok" : "bad");
+    el.innerHTML = (kind === "busy" ? '<span class="spin"></span>' : kind === "ok" ? SVG.check : SVG.alert) +
+      "<span>" + esc(text) + "</span>";
+  }
+
+  function syncPill() {
+    if (state.accountGone) { pill(null); return; }
+    var busy = state.savingProfile || state.pendingPref || state.deletingProject || state.deletingAccount;
+    if (busy) {
+      clearTimeout(okTimer);
+      pill("busy", state.deletingAccount ? "Deleting account" : state.deletingProject ? "Deleting" : "Saving");
+      return;
+    }
+    if (state.profileError || state.prefError || state.projectError || state.accountError) {
+      clearTimeout(okTimer);
+      pill("bad", "Action failed");
+      return;
+    }
+    pill(null);
+  }
+
+  function flashSaved(text) {
+    clearTimeout(okTimer);
+    pill("ok", text);
+    okTimer = setTimeout(function () { if (!state.accountGone) pill(null); }, 2600);
+  }
+
+  /* ---------------- header ---------------- */
+
+  function renderHeader() {
+    var u = state.user;
+    if (!u) return;
+    $("avatar").textContent = initials(u.name);
+    $("uname").textContent = u.name || "Unnamed account";
+    $("uemail").textContent = u.email || "";
+    var plan = $("planChip");
+    plan.hidden = false;
+    plan.innerHTML = '<svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1.6 9.9 5.5l4.3.6-3.1 3 .7 4.3L8 11.4 4.2 13.4l.7-4.3-3.1-3 4.3-.6Z"/></svg><span>' + esc(u.plan || "Free") + " plan</span>";
+
+    var setup = $("setupChip");
+    setup.hidden = false;
+    if (u.hasCompletedOnboarding) {
+      setup.className = "chip ok";
+      setup.innerHTML = SVG.check + "<span>Setup complete</span>";
+    } else {
+      setup.className = "chip warn";
+      setup.innerHTML = '<svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="8" r="6" stroke-opacity=".3"/><path d="M8 2a6 6 0 0 1 6 6" stroke-linecap="round"/></svg><span>Setup incomplete</span>';
+    }
+  }
+
+  /* ---------------- profile ---------------- */
+
+  var baseline = { name: "", email: "" };
+
+  function markDirty() {
+    $("fName").setAttribute("data-dirty", $("inName").value !== baseline.name ? "1" : "0");
+    $("fEmail").setAttribute("data-dirty", $("inEmail").value !== baseline.email ? "1" : "0");
+  }
+
+  function renderProfile() {
+    var u = state.user;
+    var nameIn = $("inName"), emailIn = $("inEmail"), btn = $("saveBtn");
+    if (!u) return;
+    if (document.activeElement !== nameIn && !state.savingProfile) nameIn.value = u.name || "";
+    if (document.activeElement !== emailIn && !state.savingProfile) emailIn.value = u.email || "";
+    var locked = state.savingProfile || state.accountGone || state.deletingAccount;
+    nameIn.disabled = locked;
+    emailIn.disabled = locked;
+    btn.disabled = locked;
+    $("saveIcon").innerHTML = state.savingProfile
+      ? '<span class="spin"></span>'
+      : '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2.5h7.5L13.5 5.5V13a.5.5 0 0 1-.5.5H3a.5.5 0 0 1-.5-.5V3a.5.5 0 0 1 .5-.5Z"/><path d="M5.5 2.5v3.5h5"/></svg>';
+    $("saveLabel").textContent = state.savingProfile ? "Saving" : "Save changes";
+    btn.setAttribute("aria-busy", state.savingProfile ? "true" : "false");
+    $("profileErr").innerHTML = state.profileError
+      ? errBox("Profile not saved. " + state.profileError, 'data-act="retry-profile"')
+      : "";
+    markDirty();
+  }
+
+  function saveProfile() {
+    if (state.savingProfile || state.accountGone) return;
+    state.savingProfile = true;
+    state.profileError = null;
+    $("saveOk").hidden = true;
+    renderProfile();
+    syncPill();
+    say("Saving profile");
+
+    var patch = { name: $("inName").value.trim(), email: $("inEmail").value.trim() };
+
+    api.updateSettings(patch).then(function () {
+      state.savingProfile = false;
+      state.user.name = patch.name;
+      state.user.email = patch.email;
+      baseline = { name: patch.name, email: patch.email };
+      renderHeader();
+      renderProfile();
+      $("saveOk").hidden = false;
+      flashSaved("Saved");
+      say("Profile saved");
+      setTimeout(function () { $("saveOk").hidden = true; }, 2600);
+    }, function (err) {
+      state.savingProfile = false;
+      state.profileError = reason(err, "Try again.");
+      renderProfile();
+      syncPill();
+      say("Profile save failed");
+    });
+  }
+
+  /* ---------------- preferences ---------------- */
+
+  function renderPrefs() {
+    var frozen = state.accountGone || state.deletingAccount;
+    var html = state.prefs.map(function (p) {
+      var pend = state.pendingPref === p.key;
+      var disabled = pend || frozen || state.pendingPref;
+      return '<div class="pref">' +
+        '<span class="name">' + esc(p.name) + "</span>" +
+        (pend ? '<span class="note" style="color:var(--ink-3);font-size:11.5px">Saving</span>' : "") +
+        '<button class="switch" type="button" role="switch" aria-label="' + esc(p.name) + '"' +
+        ' aria-checked="' + (p.value ? "true" : "false") + '"' +
+        (pend ? ' data-pending="1" aria-busy="true"' : "") +
+        (disabled ? " disabled" : "") +
+        ' data-act="toggle" data-key="' + p.key + '"><span class="knob"></span></button>' +
+        "</div>";
+    }).join("");
+
+    var themePend = state.pendingPref === "theme";
+    html += '<div class="pref"><span class="name">Theme</span>' +
+      (themePend ? '<span class="note" style="color:var(--ink-3);font-size:11.5px">Saving</span>' : "") +
+      '<div class="seg" role="group" aria-label="Theme">' +
+      THEMES.map(function (t) {
+        var busy = themePend && state.pendingTheme === t;
+        return '<button type="button" data-act="theme" data-val="' + t + '"' +
+          ' aria-pressed="' + (state.theme === t ? "true" : "false") + '"' +
+          ((state.pendingPref || frozen) ? " disabled" : "") + ">" +
+          (busy ? '<span class="spin" style="width:10px;height:10px"></span>' : "") + t + "</button>";
+      }).join("") +
+      "</div></div>";
+
+    if (state.prefError) {
+      html += errBox(state.prefError.msg, 'data-act="retry-pref"');
+    }
+    $("prefBody").innerHTML = html;
+  }
+
+  function commitPref(key, value, label, themeValue) {
+    if (state.pendingPref || state.accountGone) return;
+    state.pendingPref = key;
+    state.pendingTheme = themeValue || null;
+    state.prefError = null;
+    renderPrefs();
+    syncPill();
+    say("Saving " + label);
+
+    var patch = {};
+    patch[key] = value;
+
+    api.updateSettings(patch).then(function () {
+      state.pendingPref = null;
+      state.pendingTheme = null;
+      if (key === "theme") {
+        state.theme = value;
+      } else {
+        state.prefs.forEach(function (p) { if (p.key === key) p.value = value; });
+      }
+      renderPrefs();
+      var sw = $("prefBody").querySelector('[data-key="' + key + '"]');
+      if (sw) { sw.classList.add("flash"); setTimeout(function () { sw.classList.remove("flash"); }, 600); }
+      flashSaved("Saved");
+      say(label + " saved");
+    }, function (err) {
+      state.pendingPref = null;
+      state.pendingTheme = null;
+      state.prefError = {
+        msg: label + " not changed. " + reason(err, "Try again."),
+        key: key, value: value, label: label, theme: themeValue || null
+      };
+      renderPrefs();
+      syncPill();
+      say(label + " change failed");
+    });
+  }
+
+  /* ---------------- projects ---------------- */
+
+  function renderProjects() {
+    var wrap = $("projWrap");
+    if (state.loading) return;
+    var list = state.projects;
+    $("projCount").textContent = String(list.length);
+
+    if (!list.length) {
+      wrap.innerHTML = '<div class="empty">' +
+        '<svg width="34" height="34" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"><path d="M1.8 4.2A1.2 1.2 0 0 1 3 3h3l1.4 1.6H13a1.2 1.2 0 0 1 1.2 1.2v6A1.2 1.2 0 0 1 13 13H3a1.2 1.2 0 0 1-1.2-1.2Z"/></svg>' +
+        '<div class="t">No projects</div>' +
+        "<p>Nothing left to delete here.</p></div>";
+      return;
+    }
+
+    var frozen = state.accountGone || state.deletingAccount;
+    wrap.innerHTML = '<ul class="plist">' + list.map(function (p) {
+      var busy = state.deletingProject === p.id;
+      var armed = state.armed === p.id;
+      var err = state.projectError && state.projectError.id === p.id ? state.projectError.msg : null;
+      return '<li class="prow"' + (armed ? ' data-armed="1"' : "") + (busy ? ' data-busy="1"' : "") + ">" +
+        (busy ? '<progress class="bar red"></progress>' : "") +
+        '<div class="main">' +
+          '<span class="glyph">' + SVG.folder + "</span>" +
+          '<span class="txt"><span class="pname">' + esc(p.name || p.id) + "</span>" +
+          '<span class="meta mono">' + esc(p.id) + " &middot; " + esc(fmtDate(p.createdAt)) + "</span></span>" +
+          (busy
+            ? '<span class="note" style="color:var(--danger);font-size:12px"><span class="spin"></span>Deleting</span>'
+            : '<button class="icon-btn" type="button" aria-label="Delete project ' + esc(p.name || p.id) + '" data-act="arm" data-id="' + esc(p.id) + '"' + ((armed || frozen) ? " disabled" : "") + ">" + SVG.trash + "</button>") +
+        "</div>" +
+        (armed && !busy
+          ? '<div class="confirm">' + SVG.alert +
+            '<span class="grow">Delete this project?</span>' +
+            '<button class="btn tiny ghost" type="button" data-act="disarm">Keep</button>' +
+            '<button class="btn tiny danger" type="button" data-act="del" data-id="' + esc(p.id) + '">Delete</button></div>'
+          : "") +
+        (err ? errBox(err, 'data-act="retry-project" data-id="' + esc(p.id) + '"') : "") +
+        "</li>";
+    }).join("") + "</ul>";
+  }
+
+  function deleteProject(id) {
+    if (state.deletingProject || state.accountGone) return;
+    var proj = state.projects.filter(function (p) { return p.id === id; })[0];
+    if (!proj) return;
+    state.deletingProject = id;
+    state.armed = null;
+    state.projectError = null;
+    renderProjects();
+    syncPill();
+    say("Deleting project " + (proj.name || id));
+
+    api.deleteProject(id).then(function () {
+      state.deletingProject = null;
+      state.projects = state.projects.filter(function (p) { return p.id !== id; });
+      if (state.user) state.user.projects = state.projects;
+      renderProjects();
+      renderModalLoss();
+      flashSaved("Project deleted");
+      say("Project deleted");
+    }, function (err) {
+      state.deletingProject = null;
+      state.projectError = { id: id, msg: "“" + (proj.name || id) + "” not deleted. " + reason(err, "Try again.") };
+      renderProjects();
+      syncPill();
+      say("Project delete failed");
+    });
+  }
+
+  /* ---------------- delete account ---------------- */
+
+  function renderModalLoss() {
+    var u = state.user;
+    if (!u) return;
+    var n = state.projects.length;
+    $("mLoss").innerHTML =
+      '<span class="chip bad">' + SVG.folder + "<span>" + n + (n === 1 ? " project" : " projects") + "</span></span>" +
+      '<span class="chip bad">' + '<svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1.6 9.9 5.5l4.3.6-3.1 3 .7 4.3L8 11.4 4.2 13.4l.7-4.3-3.1-3 4.3-.6Z"/></svg>' +
+      "<span>" + esc(u.plan || "Free") + " plan</span></span>" +
+      '<span class="chip bad">' + SVG.alert + "<span>No undo</span></span>";
+  }
+
+  function matchOk() {
+    var u = state.user;
+    if (!u) return false;
+    return $("mInput").value.trim().toLowerCase() === String(u.email || "").trim().toLowerCase();
+  }
+
+  function renderModal() {
+    var open = state.modalOpen;
+    $("scrim").hidden = !open;
+    if (!open) return;
+    var busy = state.deletingAccount;
+    var ok = matchOk();
+    $("mBar").hidden = !busy;
+    $("mInput").disabled = busy;
+    $("mClose").disabled = busy;
+    $("mCancel").disabled = busy;
+    $("mConfirm").disabled = busy || !ok;
+    $("mConfirmIcon").innerHTML = busy
+      ? '<span class="spin"></span>'
+      : '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.8 4.3h10.4"/><path d="M6.2 4.3V2.8h3.6v1.5"/><path d="M4.2 4.3 4.8 13a.6.6 0 0 0 .6.5h5.2a.6.6 0 0 0 .6-.5l.6-8.7"/></svg>';
+    $("mConfirmLabel").textContent = busy ? "Deleting" : "Delete forever";
+    $("mConfirm").setAttribute("aria-busy", busy ? "true" : "false");
+
+    var lock = $("mLock");
+    lock.className = "lock" + (ok ? " armed" : "");
+    lock.querySelector("svg").innerHTML = ok
+      ? '<rect x="3.2" y="7" width="9.6" height="6.4" rx="1.2"/><path d="M5.6 7V5.2a2.4 2.4 0 0 1 4.7-.5"/>'
+      : '<rect x="3.2" y="7" width="9.6" height="6.4" rx="1.2"/><path d="M5.6 7V5.2a2.4 2.4 0 0 1 4.8 0V7"/>';
+    $("mLockText").textContent = busy ? "Deleting account" : ok ? "Unlocked" : "Email must match";
+    $("mErrSlot").innerHTML = state.accountError
+      ? errBox("Account not deleted. " + state.accountError, 'data-act="retry-account"')
+      : "";
+  }
+
+  function openModal() {
+    if (state.accountGone) return;
+    state.modalOpen = true;
+    state.accountError = null;
+    $("mInput").value = "";
+    $("mInput").placeholder = (state.user && state.user.email) || "";
+    renderModalLoss();
+    renderModal();
+    setTimeout(function () { $("mInput").focus(); }, 30);
+  }
+
+  function closeModal() {
+    if (state.deletingAccount) return;
+    state.modalOpen = false;
+    renderModal();
+    $("openDelete").focus();
+  }
+
+  function deleteAccount() {
+    if (state.deletingAccount || !matchOk()) return;
+    state.deletingAccount = true;
+    state.accountError = null;
+    renderModal();
+    renderProfile();
+    renderPrefs();
+    renderProjects();
+    syncPill();
+    say("Deleting account");
+
+    api.deleteAccount().then(function () {
+      state.deletingAccount = false;
+      state.accountGone = true;
+      state.modalOpen = false;
+      renderModal();
+      renderGone();
+      say("Account deleted");
+    }, function (err) {
+      state.deletingAccount = false;
+      state.accountError = reason(err, "Try again.");
+      renderModal();
+      renderProfile();
+      renderPrefs();
+      renderProjects();
+      syncPill();
+      say("Account deletion failed");
+    });
+  }
+
+  function renderGone() {
+    pill(null);
+    $("shell").innerHTML =
+      '<div class="card"><div class="hatch"></div><div class="gone">' +
+      '<span class="seal"><svg width="34" height="34" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2.8 4.3h10.4"/><path d="M6.2 4.3V2.8h3.6v1.5"/><path d="M4.2 4.3 4.8 13a.6.6 0 0 0 .6.5h5.2a.6.6 0 0 0 .6-.5l.6-8.7"/></svg></span>' +
+      "<h2>Account deleted</h2>" +
+      '<p style="color:var(--ink-3);font-size:13px">Confirmed by the server.</p>' +
+      "</div></div>";
+  }
+
+  /* ---------------- load ---------------- */
+
+  function renderAll() {
+    renderHeader();
+    renderProfile();
+    renderPrefs();
+    renderProjects();
+    renderModal();
+    syncPill();
+  }
+
+  function setLoadError(msg) {
+    state.loadError = msg;
+    $("loadErr").hidden = !msg;
+    $("grid").style.display = msg ? "none" : "";
+    if (msg) $("loadErrMsg").textContent = msg;
+  }
+
+  function load() {
+    state.loading = true;
+    setLoadError(null);
+    $("loadRetry").disabled = true;
+    $("openDelete").disabled = true;
+    say("Loading account");
+
+    api.getUser().then(function (u) {
+      state.loading = false;
+      state.user = u || {};
+      state.projects = Array.isArray(u && u.projects) ? u.projects.slice() : [];
+      baseline = { name: u && u.name ? u.name : "", email: u && u.email ? u.email : "" };
+      $("openDelete").disabled = false;
+      $("loadRetry").disabled = false;
+      renderAll();
+      say("Account loaded");
+    }, function (err) {
+      state.loading = false;
+      $("loadRetry").disabled = false;
+      setLoadError(reason(err, "Could not reach the server."));
+      say("Account failed to load");
+    });
+  }
+
+  /* ---------------- events ---------------- */
+
+  $("profileForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    saveProfile();
+  });
+  $("inName").addEventListener("input", markDirty);
+  $("inEmail").addEventListener("input", markDirty);
+  $("loadRetry").addEventListener("click", load);
+  $("openDelete").addEventListener("click", openModal);
+  $("mClose").addEventListener("click", closeModal);
+  $("mCancel").addEventListener("click", closeModal);
+  $("mConfirm").addEventListener("click", deleteAccount);
+  $("mInput").addEventListener("input", renderModal);
+  $("mInput").addEventListener("keydown", function (e) {
+    if (e.key === "Enter" && matchOk() && !state.deletingAccount) deleteAccount();
+  });
+  $("scrim").addEventListener("mousedown", function (e) {
+    if (e.target === $("scrim")) closeModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && state.modalOpen) closeModal();
+  });
+
+  document.addEventListener("click", function (e) {
+    var t = e.target.closest ? e.target.closest("[data-act]") : null;
+    if (!t) return;
+    var act = t.getAttribute("data-act");
+
+    if (act === "toggle") {
+      var key = t.getAttribute("data-key");
+      var pref = state.prefs.filter(function (p) { return p.key === key; })[0];
+      if (pref) commitPref(key, !pref.value, pref.name);
+    } else if (act === "theme") {
+      var val = t.getAttribute("data-val");
+      if (val !== state.theme) commitPref("theme", val, "Theme", val);
+    } else if (act === "retry-pref") {
+      var pe = state.prefError;
+      if (pe) commitPref(pe.key, pe.value, pe.label, pe.theme);
+    } else if (act === "retry-profile") {
+      saveProfile();
+    } else if (act === "arm") {
+      state.armed = t.getAttribute("data-id");
+      state.projectError = null;
+      renderProjects();
+      syncPill();
+    } else if (act === "disarm") {
+      state.armed = null;
+      renderProjects();
+    } else if (act === "del" || act === "retry-project") {
+      deleteProject(t.getAttribute("data-id"));
+    } else if (act === "retry-account") {
+      deleteAccount();
+    }
+  });
+
+  load();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+{
+  "id": "2e20bdb0",
+  "items": [
+    {
+      "n": 1,
+      "verdict": "PASS",
+      "reason": "At 300 ms after clicking Save under slow latency the button reads 'Saving…' with a spinner, aria-busy=true, and the step header also shows a spinner.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/2e20bdb0_1.png"
+    },
+    {
+      "n": 2,
+      "verdict": "PASS",
+      "reason": "The Save button is disabled while pending (disabled + aria-busy=true), and the scripted triple-click driver observed exactly 1 updateSettings call.",
+      "evidence": "<button class=\"btn primary\" type=\"submit\" data-submit=\"workspace\" aria-busy=\"true\" disabled=\"\"><span class=\"spin\" aria-hidden=\"true\"></span>Saving…</button>"
+    },
+    {
+      "n": 3,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief; the page has no upload or job-progress surface.",
+      "evidence": "N/A per task instructions (B4 brief)"
+    },
+    {
+      "n": 4,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief; no long-running upload or processing action exists.",
+      "evidence": "N/A per task instructions (B4 brief)"
+    },
+    {
+      "n": 5,
+      "verdict": "PASS",
+      "reason": "With fail=1 a visible role=alert error box appears directly under the Save button inside the failing step: 'Couldn't reach the server. Nothing was saved. Your entries are still here.' — cause and consequence stated, not a generic toast.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/2e20bdb0_5.png"
+    },
+    {
+      "n": 6,
+      "verdict": "PASS",
+      "reason": "The error box carries a Retry button; clicking it fired a second updateSettings call without any reload and the form entries were preserved.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/2e20bdb0_6.png"
+    },
+    {
+      "n": 7,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief; no API field-level validation flow exists on this page.",
+      "evidence": "N/A per task instructions (B4 brief)"
+    },
+    {
+      "n": 8,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief per task instructions.",
+      "evidence": "N/A per task instructions (B4 brief)"
+    },
+    {
+      "n": 9,
+      "verdict": "PASS",
+      "reason": "Switching to the Account tab mid-save left a global 'Saving' indicator in the top bar, the Account view rendered normally, and returning after resolution showed step 1 'Saved', '1 of 3 saved', no stuck busy state and no errors.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/2e20bdb0_9b.png"
+    },
+    {
+      "n": 10,
+      "verdict": "PASS",
+      "reason": "Instrumented timing over a 6 s slow save showed 'Saving…' for every sample until the promise resolved at 6023 ms, with 'Saved' + timestamp appearing only after resolution; the Account panel also reported '0 of 3 saved' while the save was still pending.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/2e20bdb0_10.png"
+    }
+  ],
+  "failCount": 0
+}

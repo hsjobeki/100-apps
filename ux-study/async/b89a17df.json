@@ -1,0 +1,66 @@
+{
+  "id": "b89a17df",
+  "items": [
+    {
+      "n": 1,
+      "verdict": "PASS",
+      "reason": "A screenshot initiated ~280 ms after file selection under slow latency already shows the upload card with 'Uploading… 0%', a progress bar and a Cancel button; card Retry flips to the uploading state instantly. Caveats: the initial jobs fetch renders no skeleton (section absent for seconds), and job-row Cancel/Retry buttons give no sub-300 ms feedback.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/b89a17df_1.png"
+    },
+    {
+      "n": 2,
+      "verdict": "PASS",
+      "reason": "While an upload is pending the dropzone is disabled (class 'upload-zone disabled', pointer-events:none) and re-picking a file plus dispatched change/click events produced no second uploadFile call (__apiLog count stayed 1). Caveat: secondary job-row Retry is not deduplicated — rapid clicks fired retryJob('job_b86738') three times.",
+      "evidence": "<div class=\"upload-zone disabled\" id=\"uploadZone\"> …computed pointer-events: none while pending; __apiLog uploadFile count 1 before and after repeated re-pick attempts"
+    },
+    {
+      "n": 3,
+      "verdict": "PASS",
+      "reason": "Upload percentage advances visibly ('Uploading… 0% → 20% → 50% → 70%'), server-side processing shows 'Processing… 11% → 97%' on the card, and running job rows carry mini progress bars (job-progress-mini/progress-fill).",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/b89a17df_3.png"
+    },
+    {
+      "n": 4,
+      "verdict": "PASS",
+      "reason": "Clicking Cancel at 'Uploading… 10%' aborted the upload and showed a clean 'Cancelled' state with 'Upload again'/'Dismiss'; running jobs (including the newly created processing job) can be cancelled from the list, observed as a cancelJob call that ended in 'Cancelled by admin'. Caveat: the card's Cancel silently no-ops once processFile has resolved (it only aborts the AbortController; no cancelJob).",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/b89a17df_4.png"
+    },
+    {
+      "n": 5,
+      "verdict": "PASS",
+      "reason": "Under fail=1 the upload card shows 'Failed — Network error. Check your connection and try again.' directly beside the file name, and job failures surface specific messages on the card ('Row 88: column \"email\" is empty') and per row ('Upstream timeout after 30s').",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/b89a17df_5.png"
+    },
+    {
+      "n": 6,
+      "verdict": "PASS",
+      "reason": "After a network failure, the card offers Retry and Dismiss; clicking Retry re-fired uploadFile without a reload and returned the card to 'Uploading… N%', and failed job rows offer Retry buttons that re-queue the job (retryJob observed, row moved to Queued).",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/b89a17df_6.png"
+    },
+    {
+      "n": 7,
+      "verdict": "N/A",
+      "reason": "Field-level API validation does not apply to this brief; the page has no form fields, only a file picker.",
+      "evidence": "Page contains a single <input type=\"file\" id=\"fileInput\" accept=\".csv,text/csv\"> and no other form fields; marked NOT APPLICABLE by the task."
+    },
+    {
+      "n": 8,
+      "verdict": "PASS",
+      "reason": "The page polls listJobs every ~3 s (__apiLog shows steady calls) and rows changed without any refresh: Running → Succeeded with a Download link, Queued → Running, and a cancelled job appeared as 'Cancelled by admin — Failed' once the server confirmed.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/b89a17df_8.png"
+    },
+    {
+      "n": 9,
+      "verdict": "PASS",
+      "reason": "The app is a single view with no dialogs; cancelling an upload mid-flight while other actions were pending left a coherent 'Cancelled / Upload again / Dismiss' card, the jobs list kept polling and updating, and interleaved row retries/cancels never produced a stuck or inconsistent UI.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/b89a17df_9.png"
+    },
+    {
+      "n": 10,
+      "verdict": "PASS",
+      "reason": "After clicking a row Cancel, the row still showed 'Running' 250 ms later and only changed to 'Cancelled by admin — Failed' after the slow (2–8 s) server response landed; the upload card likewise stays in Uploading/Processing until server events, and Download links appear only for server-confirmed succeeded jobs.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/b89a17df_10.png"
+    }
+  ],
+  "failCount": 0
+}

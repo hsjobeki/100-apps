@@ -1,0 +1,911 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Job queue</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0e13; --panel:#111823; --panel2:#0e141d; --line:#1e2836; --line2:#28374a;
+    --text:#e7eef7; --muted:#8195ab; --dim:#5d7086;
+    --queued:#8aa0b8; --running:#3d9bff; --succeeded:#2fbf82; --failed:#ff5f57; --warn:#f2a93b;
+    --accent:#3d9bff;
+    --radius:10px;
+  }
+  *{box-sizing:border-box}
+  [hidden]{display:none!important}
+  html,body{margin:0;padding:0}
+  body{
+    background:
+      radial-gradient(1200px 400px at 80% -120px, rgba(61,155,255,.10), transparent 70%),
+      var(--bg);
+    color:var(--text);
+    font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
+    font-size:14px; line-height:1.45; -webkit-font-smoothing:antialiased;
+  }
+  .mono{font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace}
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+  .shell{max-width:1160px;margin:0 auto;padding:0 20px 64px}
+
+  header.top{
+    display:flex;align-items:center;justify-content:space-between;gap:16px;
+    padding:18px 0 14px;border-bottom:1px solid var(--line);margin-bottom:18px;
+  }
+  .brand{display:flex;align-items:baseline;gap:10px}
+  .brand h1{font-size:19px;font-weight:650;letter-spacing:-.01em;margin:0}
+  .tag{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--dim);border:1px solid var(--line2);border-radius:5px;padding:2px 6px}
+  .live{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--muted);white-space:nowrap}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--succeeded);box-shadow:0 0 0 0 rgba(47,191,130,.55);animation:pulse 2.4s infinite}
+  .live.paused .dot{background:var(--warn);animation:none}
+  .live.down .dot{background:var(--failed);animation:none}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(47,191,130,.5)}70%{box-shadow:0 0 0 7px rgba(47,191,130,0)}100%{box-shadow:0 0 0 0 rgba(47,191,130,0)}}
+
+  .tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .tile{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px;position:relative;overflow:hidden}
+  .tile::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--c)}
+  .tile .tl{display:flex;align-items:center;gap:7px;color:var(--c);font-size:12.5px;font-weight:600}
+  .tile .tnum{font-size:30px;font-weight:650;letter-spacing:-.02em;line-height:1.15;font-variant-numeric:tabular-nums}
+  .t-failed{--c:var(--failed)} .t-running{--c:var(--running)} .t-queued{--c:var(--queued)} .t-succeeded{--c:var(--succeeded)}
+  .tile.is-zero .tnum{color:var(--dim)}
+  .tile.t-failed.has{box-shadow:inset 0 0 0 1px rgba(255,95,87,.35)}
+
+  .stackwrap{display:flex;align-items:center;gap:12px;margin:12px 0 18px}
+  .stack{flex:1;height:8px;border-radius:999px;overflow:hidden;display:flex;background:#16202c;border:1px solid var(--line)}
+  .stack i{display:block;height:100%;transition:width .4s ease}
+  .stack .sf{background:var(--failed)} .stack .sr{background:var(--running)} .stack .sq{background:var(--queued)} .stack .ss{background:var(--succeeded)}
+  .total{font-size:12.5px;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+
+  .toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+  .grow{flex:1}
+  .btn{
+    display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 12px;
+    background:var(--panel);color:var(--text);border:1px solid var(--line2);border-radius:8px;
+    font:inherit;font-size:13px;font-weight:550;cursor:pointer;white-space:nowrap;
+  }
+  .btn:hover:not(:disabled){background:#182231;border-color:#35485f}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .btn:focus-visible,.seg button:focus-visible,.swt:focus-visible,.linkid:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .btn.primary{background:rgba(255,95,87,.14);border-color:rgba(255,95,87,.45);color:#ffb3ae}
+  .btn.primary:hover:not(:disabled){background:rgba(255,95,87,.22)}
+  .btn.tiny{height:24px;padding:0 8px;font-size:12px}
+  .btn .cnt{font-variant-numeric:tabular-nums;background:rgba(255,255,255,.1);border-radius:999px;padding:0 6px;font-size:11.5px;line-height:17px}
+  .swt{display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 10px 0 8px;background:transparent;border:1px solid var(--line);border-radius:8px;color:var(--muted);font:inherit;font-size:13px;cursor:pointer}
+  .swt .track{width:30px;height:17px;border-radius:999px;background:#25313f;position:relative;transition:background .18s}
+  .swt .track::after{content:"";position:absolute;top:2px;left:2px;width:13px;height:13px;border-radius:50%;background:#7d8fa3;transition:transform .18s,background .18s}
+  .swt[aria-checked="true"]{color:var(--text)}
+  .swt[aria-checked="true"] .track{background:rgba(61,155,255,.35)}
+  .swt[aria-checked="true"] .track::after{transform:translateX(13px);background:var(--running)}
+  .seg{display:inline-flex;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:2px}
+  .seg button{height:26px;padding:0 10px;background:transparent;border:0;border-radius:6px;color:var(--muted);font:inherit;font-size:12.5px;font-weight:550;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+  .seg button[aria-pressed="true"]{background:#1d2836;color:var(--text)}
+  .seg .n{font-size:11px;color:var(--dim);font-variant-numeric:tabular-nums}
+  .seg button[aria-pressed="true"] .n{color:var(--muted)}
+  .search{position:relative;display:flex;align-items:center}
+  .search svg{position:absolute;left:9px;color:var(--dim);pointer-events:none}
+  .search input{height:32px;width:170px;padding:0 10px 0 28px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;color:var(--text);font:inherit;font-size:13px}
+  .search input::placeholder{color:var(--dim)}
+
+  .banner{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;margin-bottom:12px;font-size:13px;
+    background:rgba(255,95,87,.1);border:1px solid rgba(255,95,87,.35);color:#ffb3ae}
+
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  table{width:100%;border-collapse:collapse}
+  thead th{
+    text-align:left;font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--dim);
+    font-weight:600;padding:9px 14px;background:var(--panel2);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:2
+  }
+  tbody.jrow tr.main td{padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:middle}
+  tbody.jrow:hover tr.main td{background:#141d29}
+  tbody.jrow tr.errrow td{padding:0 14px 10px;border-bottom:1px solid var(--line)}
+  .c-st{width:126px} .c-id{width:198px} .c-pg{width:178px} .c-ac{width:180px;text-align:right}
+  .pill{display:inline-flex;align-items:center;gap:6px;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:600;
+    color:var(--c);background:color-mix(in srgb,var(--c) 15%,transparent);border:1px solid color-mix(in srgb,var(--c) 34%,transparent)}
+  .s-queued{--c:var(--queued)} .s-running{--c:var(--running)} .s-succeeded{--c:var(--succeeded)} .s-failed{--c:var(--failed)}
+  .linkid{background:none;border:0;padding:0;color:var(--text);font-family:"JetBrains Mono",ui-monospace,monospace;font-size:12.5px;cursor:pointer;border-bottom:1px dashed var(--line2)}
+  .linkid:hover{color:var(--accent);border-color:var(--accent)}
+  .chip{display:inline-flex;align-items:center;gap:4px;margin-left:8px;padding:1px 6px;border-radius:5px;font-size:11px;font-weight:600}
+  .chip.warn{color:var(--warn);background:rgba(242,169,59,.13);border:1px solid rgba(242,169,59,.34)}
+  .pgwrap{display:flex;align-items:center;gap:8px}
+  progress{-webkit-appearance:none;appearance:none;flex:1;height:6px;border:0;border-radius:999px;background:#1b2531;overflow:hidden}
+  progress::-webkit-progress-bar{background:#1b2531;border-radius:999px}
+  progress::-webkit-progress-value{background:var(--c,var(--running));border-radius:999px}
+  progress.idle::-webkit-progress-value{background:var(--queued)}
+  .pct{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;width:36px;text-align:right}
+  .c-dt{color:var(--muted);font-size:12.5px}
+  .err{display:inline-flex;align-items:flex-start;gap:6px;color:#ff9a95}
+  .err svg{flex:none;margin-top:2px}
+  .ok{display:inline-flex;align-items:center;gap:10px}
+  a.dl{display:inline-flex;align-items:center;gap:5px;color:var(--accent);text-decoration:none;font-weight:550}
+  a.dl:hover{text-decoration:underline}
+  .acts{display:inline-flex;gap:6px;justify-content:flex-end}
+  .rowerr{display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:7px;font-size:12.5px;
+    background:rgba(255,95,87,.09);border:1px solid rgba(255,95,87,.3);color:#ffb3ae}
+  .spin{animation:rot 1s linear infinite;transform-origin:50% 50%}
+  @keyframes rot{to{transform:rotate(360deg)}}
+
+  .skel td{padding:12px 14px;border-bottom:1px solid var(--line)}
+  .sk{height:10px;border-radius:999px;background:linear-gradient(90deg,#17202c,#1e2a38,#17202c);background-size:200% 100%;animation:sh 1.3s linear infinite}
+  @keyframes sh{to{background-position:-200% 0}}
+  .empty{padding:44px 20px;text-align:center;color:var(--muted)}
+  .empty .big{color:var(--text);font-weight:600;font-size:15px;margin:10px 0 4px}
+  .empty svg{color:var(--dim)}
+
+  aside.drawer{position:fixed;top:0;right:0;height:100%;width:400px;max-width:92vw;background:var(--panel);
+    border-left:1px solid var(--line2);box-shadow:-24px 0 60px rgba(0,0,0,.5);transform:translateX(102%);
+    transition:transform .22s ease;z-index:40;display:flex;flex-direction:column}
+  aside.drawer.open{transform:none}
+  .dhead{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line)}
+  .dhead h2{margin:0;font-size:14px;font-weight:650}
+  .iconbtn{width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;background:transparent;border:1px solid var(--line2);border-radius:7px;color:var(--muted);cursor:pointer}
+  .iconbtn:hover{color:var(--text);background:#182231}
+  .dbody{padding:16px;overflow:auto;flex:1}
+  .kv{display:grid;grid-template-columns:112px 1fr;gap:8px 12px;font-size:13px;margin:0}
+  .kv dt{color:var(--dim);font-size:12px}
+  .kv dd{margin:0}
+  .dbox{padding:10px 12px;border-radius:8px;font-size:12.5px;margin-bottom:14px}
+  .dbox.bad{background:rgba(255,95,87,.09);border:1px solid rgba(255,95,87,.3);color:#ffb3ae}
+  .dbox.good{background:rgba(47,191,130,.09);border:1px solid rgba(47,191,130,.3);color:#9ce6c4}
+  .dbox h3{margin:0 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:.06em;opacity:.75}
+  .dfoot{padding:12px 16px;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:flex-end}
+  .scrim{position:fixed;inset:0;background:rgba(5,8,12,.55);opacity:0;pointer-events:none;transition:opacity .2s;z-index:30}
+  .scrim.on{opacity:1;pointer-events:auto}
+
+  dialog{border:1px solid var(--line2);background:var(--panel);color:var(--text);border-radius:12px;padding:0;width:440px;max-width:92vw;box-shadow:0 30px 80px rgba(0,0,0,.6)}
+  dialog::backdrop{background:rgba(5,8,12,.6)}
+  .dlg{padding:18px}
+  .dlg h2{margin:0 0 6px;font-size:15px;font-weight:650}
+  .dsub{margin:0 0 12px;color:var(--muted);font-size:12.5px}
+  .blist{list-style:none;margin:0 0 12px;padding:8px;max-height:190px;overflow:auto;background:var(--panel2);border:1px solid var(--line);border-radius:8px}
+  .blist li{display:flex;align-items:center;gap:8px;padding:4px;font-size:12.5px;font-family:"JetBrains Mono",ui-monospace,monospace}
+  .blist li .st{margin-left:auto;font-family:Inter,sans-serif;font-size:11.5px;color:var(--dim);text-align:right}
+  .blist li.ok,.blist li.ok .st{color:var(--succeeded)}
+  .blist li.bad,.blist li.bad .st{color:var(--failed)}
+  .blist li.run,.blist li.run .st{color:var(--running)}
+  .bprog{display:flex;align-items:center;gap:9px;margin-bottom:14px}
+  .dact{display:flex;gap:8px;justify-content:flex-end}
+
+  .toasts{position:fixed;right:18px;bottom:18px;display:flex;flex-direction:column;gap:8px;z-index:60;max-width:330px}
+  .toast{display:flex;align-items:flex-start;gap:8px;padding:10px 12px;border-radius:9px;font-size:12.5px;
+    background:#16202c;border:1px solid var(--line2);box-shadow:0 12px 30px rgba(0,0,0,.45);animation:slide .18s ease}
+  .toast.bad{border-color:rgba(255,95,87,.45);color:#ffb3ae}
+  .toast.good{border-color:rgba(47,191,130,.4);color:#9ce6c4}
+  .toast svg{flex:none;margin-top:1px}
+  @keyframes slide{from{transform:translateY(8px);opacity:0}}
+
+  @media (max-width:880px){
+    .tiles{grid-template-columns:repeat(2,1fr)}
+    .c-pg,.c-dt,thead th:nth-child(3),thead th:nth-child(4){display:none}
+    .c-st{width:120px}.c-id{width:auto}.c-ac{width:auto}
+    .search input{width:120px}
+    .toolbar{gap:8px}
+  }
+  @media (prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;transition-duration:.001ms!important}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <header class="top">
+    <div class="brand"><h1>Job queue</h1><span class="tag">admin</span></div>
+    <div class="live" id="live" role="status" aria-live="polite"><span class="dot"></span><span id="liveText">Loading queue</span></div>
+  </header>
+
+  <h2 class="sr-only">Queue summary</h2>
+  <section class="tiles" id="tiles"></section>
+  <div class="stackwrap">
+    <div class="stack" id="stack" role="img" aria-label="Queue composition"></div>
+    <span class="total" id="total"></span>
+  </div>
+
+  <div class="toolbar">
+    <button class="btn primary" id="retryAll" type="button" disabled>
+      <span id="retryAllIco"></span><span id="retryAllLbl">Retry all failed</span><span class="cnt" id="retryAllCnt">0</span>
+    </button>
+    <button class="btn" id="refresh" type="button"><span id="refreshIco"></span><span>Refresh</span></button>
+    <button class="swt" id="auto" type="button" role="switch" aria-checked="true"><span class="track"></span><span>Auto-refresh</span></button>
+    <span class="grow"></span>
+    <div class="seg" id="filters" role="group" aria-label="Filter by status"></div>
+    <label class="search"><span class="sr-only">Filter by job ID</span><input id="q" type="search" placeholder="Job ID" autocomplete="off"></label>
+  </div>
+
+  <div id="bannerSlot"></div>
+
+  <div class="panel">
+    <table>
+      <thead><tr><th>Status</th><th>Job</th><th>Progress</th><th>Detail</th><th style="text-align:right">Action</th></tr></thead>
+      <tbody id="skel"></tbody>
+      <tbody id="emptyBody" hidden><tr><td colspan="5"><div class="empty" id="emptyBox"></div></td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-hidden="true" aria-label="Job detail">
+  <div class="dhead"><h2 id="dTitle" class="mono">job</h2><button class="iconbtn" id="dClose" type="button" aria-label="Close detail"></button></div>
+  <div class="dbody" id="dBody"></div>
+  <div class="dfoot" id="dFoot"></div>
+</aside>
+
+<dialog id="bulk" aria-labelledby="bulkTitle">
+  <div class="dlg">
+    <h2 id="bulkTitle">Retry failed jobs</h2>
+    <p class="dsub" id="bulkSub"></p>
+    <ul class="blist" id="bulkList"></ul>
+    <div class="bprog" id="bulkProgWrap" hidden><progress id="bulkProg" max="1" value="0"></progress><span class="pct" id="bulkPct"></span></div>
+    <div class="dact">
+      <button class="btn" id="bulkClose" type="button">Cancel</button>
+      <button class="btn primary" id="bulkGo" type="button">Retry</button>
+    </div>
+  </div>
+</dialog>
+
+<div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+  "use strict";
+  var api = window.api;
+  var POLL_MS = 2000, DETAIL_MS = 1500, STALL_MS = 30000;
+  var RANK = { failed:0, running:1, queued:2, succeeded:3 };
+  var LABEL = { queued:"Queued", running:"Running", succeeded:"Succeeded", failed:"Failed" };
+
+  var I = {
+    clock:'<circle cx="8" cy="8" r="6.1" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 4.5V8l2.3 1.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>',
+    run:'<circle cx="8" cy="8" r="6.1" fill="none" stroke="currentColor" stroke-opacity=".28" stroke-width="1.7"/><path d="M14.1 8A6.1 6.1 0 0 0 8 1.9" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>',
+    check:'<circle cx="8" cy="8" r="6.1" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="m5.1 8.2 2 2.1 3.8-4.4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>',
+    alert:'<path d="M8 2.1 14.8 13.6H1.2z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M8 6.3v3.1" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="8" cy="11.5" r=".95" fill="currentColor"/>',
+    refresh:'<path d="M13.3 7.2A5.4 5.4 0 1 0 12.8 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M13.6 3.2v4h-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>',
+    down:'<path d="M8 2.6v7.6M5 7.4 8 10.4l3-3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.8 12.6h10.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>',
+    close:'<path d="m4.2 4.2 7.6 7.6M11.8 4.2l-7.6 7.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>',
+    search:'<circle cx="7.2" cy="7.2" r="4.4" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="m10.6 10.6 2.7 2.7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>',
+    inbox:'<path d="M3 5.5 5 2.5h6l2 3v7a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M3 9.2h3l.9 1.6h2.2l.9-1.6h3" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>',
+    stop:'<rect x="4.4" y="4.4" width="7.2" height="7.2" rx="1.4" fill="currentColor"/>'
+  };
+  function ic(n, cls, size){
+    return '<svg class="'+(cls||'')+'" width="'+(size||14)+'" height="'+(size||14)+'" viewBox="0 0 16 16" aria-hidden="true">'+I[n]+'</svg>';
+  }
+  function statusIcon(s){
+    return s==='failed'?ic('alert'):s==='succeeded'?ic('check'):s==='running'?ic('run','spin'):ic('clock');
+  }
+  function esc(s){
+    return String(s==null?'':s).replace(/[&<>"']/g,function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+  function fmt(n){ return Number(n).toLocaleString('en-US'); }
+  function ago(ms){
+    var s = Math.max(0, Math.round(ms/1000));
+    if (s < 2) return 'just now';
+    if (s < 60) return s + 's ago';
+    var m = Math.floor(s/60);
+    if (m < 60) return m + 'm ago';
+    return Math.floor(m/60) + 'h ago';
+  }
+  function dur(ms){
+    var s = Math.max(0, Math.round(ms/1000));
+    return s < 60 ? s + 's' : Math.floor(s/60) + 'm ' + (s % 60) + 's';
+  }
+  function describe(e){
+    if (!e) return 'Unknown error';
+    if (e.name === 'AbortError') return 'Request stopped';
+    if (e.code === 'NETWORK') return 'Network error \u2014 the queue server did not respond';
+    if (e.code === 'NOT_FOUND') return 'This job is no longer in the queue';
+    return e.message || String(e);
+  }
+
+  var state = {
+    jobs: [], loaded:false, pollError:null,
+    filter:'all', query:'',
+    pending:new Map(), rowErr:new Map(), meta:new Map(),
+    updatedAt:0, auto:true, inFlight:false, wait:POLL_MS,
+    drawerId:null, drawerErr:null, bulk:null
+  };
+
+  function $(id){ return document.getElementById(id); }
+  var elTiles=$('tiles'), elStack=$('stack'), elTotal=$('total'), elLive=$('live'), elLiveText=$('liveText'),
+      elFilters=$('filters'), elQ=$('q'), elSkel=$('skel'), elEmptyBody=$('emptyBody'), elEmptyBox=$('emptyBox'),
+      elBanner=$('bannerSlot'), elRetryAll=$('retryAll'), elRetryAllCnt=$('retryAllCnt'), elRetryAllLbl=$('retryAllLbl'),
+      elRetryAllIco=$('retryAllIco'), elRefresh=$('refresh'), elRefreshIco=$('refreshIco'), elAuto=$('auto'),
+      elDrawer=$('drawer'), elScrim=$('scrim'), elDTitle=$('dTitle'), elDBody=$('dBody'), elDFoot=$('dFoot'),
+      elToasts=$('toasts'), dlg=$('bulk');
+  var tableEl = elSkel.parentNode;
+
+  elRefreshIco.innerHTML = ic('refresh');
+  elRetryAllIco.innerHTML = ic('refresh');
+  $('dClose').innerHTML = ic('close');
+  document.querySelector('.search').insertAdjacentHTML('afterbegin', ic('search','',14));
+
+  elSkel.innerHTML = [0,1,2,3,4,5].map(function(i){
+    return '<tr class="skel"><td><div class="sk" style="width:86px"></div></td><td><div class="sk" style="width:110px"></div></td>'+
+      '<td><div class="sk" style="width:140px"></div></td><td><div class="sk" style="width:'+(120+i*18)+'px"></div></td>'+
+      '<td><div class="sk" style="width:70px;margin-left:auto"></div></td></tr>';
+  }).join('');
+
+  var FILTERS = [['all','All'],['failed','Failed'],['running','Running'],['queued','Queued'],['succeeded','Succeeded']];
+  elFilters.innerHTML = FILTERS.map(function(f){
+    return '<button type="button" data-f="'+f[0]+'" aria-pressed="'+(f[0]==='all')+'">'+f[1]+'<span class="n" data-n="'+f[0]+'"></span></button>';
+  }).join('');
+  elFilters.addEventListener('click', function(ev){
+    var b = ev.target.closest('button[data-f]');
+    if (!b) return;
+    state.filter = b.dataset.f;
+    render();
+  });
+  elQ.addEventListener('input', function(){ state.query = elQ.value.trim().toLowerCase(); render(); });
+
+  function counts(){
+    var c = { queued:0, running:0, succeeded:0, failed:0, total:state.jobs.length };
+    state.jobs.forEach(function(j){ if (c[j.status] != null) c[j.status]++; });
+    return c;
+  }
+  function failedIds(){
+    return state.jobs.filter(function(j){ return j.status === 'failed'; }).map(function(j){ return j.id; });
+  }
+  function visibleJobs(){
+    var list = state.jobs.filter(function(j){
+      if (state.filter !== 'all' && j.status !== state.filter) return false;
+      if (state.query && j.id.toLowerCase().indexOf(state.query) < 0) return false;
+      return true;
+    });
+    list.sort(function(a,b){ return (RANK[a.status] - RANK[b.status]) || a.id.localeCompare(b.id); });
+    return list;
+  }
+  function jobById(id){
+    for (var i = 0; i < state.jobs.length; i++) if (state.jobs[i].id === id) return state.jobs[i];
+    return null;
+  }
+
+  function touchMeta(j, now){
+    var m = state.meta.get(j.id);
+    if (!m) { state.meta.set(j.id, { first:now, status:j.status, progress:j.progress, changed:now, moved:now }); return; }
+    if (m.status !== j.status) { m.status = j.status; m.changed = now; }
+    if (m.progress !== j.progress) { m.progress = j.progress; m.moved = now; }
+  }
+  function applyJobs(list){
+    var now = Date.now();
+    list.forEach(function(j){ touchMeta(j, now); });
+    state.jobs = list;
+    state.updatedAt = now;
+  }
+  function mergeJob(snap){
+    if (!snap || !snap.id) return;
+    touchMeta(snap, Date.now());
+    var found = false;
+    state.jobs = state.jobs.map(function(j){
+      if (j.id === snap.id) { found = true; return snap; }
+      return j;
+    });
+    if (!found) state.jobs = state.jobs.concat([snap]);
+  }
+
+  var pollTimer = null;
+  function schedule(ms){
+    if (pollTimer) clearTimeout(pollTimer);
+    pollTimer = null;
+    if (!state.auto) return;
+    pollTimer = setTimeout(function(){ poll(false); }, ms == null ? state.wait : ms);
+  }
+  function poll(manual){
+    if (!api || state.inFlight) return Promise.resolve();
+    if (!manual && document.hidden) { schedule(POLL_MS); return Promise.resolve(); }
+    state.inFlight = true;
+    if (manual) {
+      elRefresh.disabled = true;
+      var s0 = elRefreshIco.querySelector('svg');
+      if (s0) s0.classList.add('spin');
+    }
+    renderLive();
+    return api.listJobs().then(function(list){
+      applyJobs(list || []);
+      state.pollError = null;
+      state.wait = POLL_MS;
+    }, function(e){
+      state.pollError = describe(e);
+      state.wait = Math.min(state.wait * 2, 15000);
+    }).then(function(){
+      state.inFlight = false;
+      state.loaded = true;
+      if (manual) {
+        elRefresh.disabled = false;
+        var s1 = elRefreshIco.querySelector('svg');
+        if (s1) s1.classList.remove('spin');
+      }
+      render();
+      schedule();
+    });
+  }
+
+  document.addEventListener('visibilitychange', function(){ if (!document.hidden && state.auto) poll(false); });
+  elRefresh.addEventListener('click', function(){ poll(true); });
+  elAuto.addEventListener('click', function(){
+    state.auto = !state.auto;
+    elAuto.setAttribute('aria-checked', String(state.auto));
+    if (state.auto) poll(false); else schedule();
+    render();
+  });
+
+  function act(id, kind){
+    if (state.pending.has(id)) return;
+    state.pending.set(id, kind);
+    state.rowErr.delete(id);
+    state.drawerErr = null;
+    render();
+    var p = kind === 'retry' ? api.retryJob(id) : api.cancelJob(id);
+    p.then(function(snap){
+      mergeJob(snap);
+      toast('good', (kind === 'retry' ? 'Requeued ' : 'Cancelled ') + id);
+    }, function(e){
+      state.rowErr.set(id, { msg:describe(e), kind:kind });
+      toast('bad', (kind === 'retry' ? 'Retry failed: ' : 'Cancel failed: ') + id);
+    }).then(function(){
+      state.pending.delete(id);
+      render();
+      if (state.auto) poll(false);
+    });
+  }
+
+  var rows = new Map(), lastOrder = '';
+  function buildRow(id){
+    var tb = document.createElement('tbody');
+    tb.className = 'jrow';
+    tb.dataset.id = id;
+    tb.innerHTML =
+      '<tr class="main">'+
+        '<td class="c-st"><span class="pill" data-r="pill"></span></td>'+
+        '<td class="c-id"><button class="linkid" type="button" data-r="idbtn" data-fkey="id:'+id+'"></button><span class="chip warn" data-r="stall" hidden></span></td>'+
+        '<td class="c-pg"><div class="pgwrap"><progress data-r="pg" max="100" value="0"></progress><span class="pct" data-r="pct"></span></div></td>'+
+        '<td class="c-dt" data-r="detail"></td>'+
+        '<td class="c-ac"><span class="acts">'+
+          '<button class="btn tiny" type="button" data-r="retry" data-fkey="retry:'+id+'" hidden></button>'+
+          '<button class="btn tiny" type="button" data-r="cancel" data-fkey="cancel:'+id+'" hidden></button>'+
+        '</span></td>'+
+      '</tr>'+
+      '<tr class="errrow" data-r="errrow" hidden><td colspan="5"><div class="rowerr">'+ic('alert')+
+        '<span class="grow" data-r="errtext"></span>'+
+        '<button class="btn tiny" type="button" data-r="errretry" data-fkey="errretry:'+id+'">Try again</button>'+
+      '</div></td></tr>';
+    var r = { tb:tb, id:id, cache:{} };
+    tb.querySelectorAll('[data-r]').forEach(function(el){ r[el.dataset.r] = el; });
+    r.idbtn.addEventListener('click', function(){ openDrawer(id); });
+    r.retry.addEventListener('click', function(){ act(id, 'retry'); });
+    r.cancel.addEventListener('click', function(){ act(id, 'cancel'); });
+    r.errretry.addEventListener('click', function(){
+      var e = state.rowErr.get(id);
+      act(id, e ? e.kind : 'retry');
+    });
+    rows.set(id, r);
+    return r;
+  }
+
+  function detailHTML(job){
+    if (job.status === 'failed') {
+      return '<span class="err">'+ic('alert')+'<span>'+esc(job.error || 'Failed without a reported reason')+'</span></span>';
+    }
+    if (job.status === 'succeeded') {
+      var out = '';
+      if (job.result && job.result.rows != null) out += '<span>'+fmt(job.result.rows)+' rows</span>';
+      if (job.result && job.result.downloadUrl) out += '<a class="dl" href="'+esc(job.result.downloadUrl)+'" download>'+ic('down')+'Download</a>';
+      return '<span class="ok">'+(out || '\u2014')+'</span>';
+    }
+    return '<span style="color:var(--dim)">\u2014</span>';
+  }
+
+  function updateRow(r, job){
+    var pend = state.pending.get(job.id);
+    var m = state.meta.get(job.id) || {};
+    var cls = 'jrow s-' + job.status;
+    if (r.tb.className !== cls) r.tb.className = cls;
+
+    var pillHTML = statusIcon(job.status) + '<span>' + LABEL[job.status] + '</span>';
+    if (r.cache.pill !== pillHTML) { r.pill.innerHTML = pillHTML; r.cache.pill = pillHTML; }
+    if (r.cache.id !== job.id) { r.idbtn.textContent = job.id; r.cache.id = job.id; }
+
+    var pv = Math.max(0, Math.min(100, Math.round(Number(job.progress) || 0)));
+    if (r.cache.pv !== pv) {
+      r.pg.value = pv;
+      r.pct.textContent = pv + '%';
+      r.pg.setAttribute('aria-label', 'Progress ' + pv + '%');
+      r.cache.pv = pv;
+    }
+    r.pg.classList.toggle('idle', job.status === 'queued');
+
+    var stalled = job.status === 'running' && m.moved && (Date.now() - m.moved > STALL_MS);
+    r.stall.hidden = !stalled;
+    if (stalled) {
+      var t = 'No progress ' + dur(Date.now() - m.moved);
+      if (r.cache.stall !== t) { r.stall.innerHTML = ic('alert','',12) + '<span>' + esc(t) + '</span>'; r.cache.stall = t; }
+    }
+
+    var d = detailHTML(job);
+    if (r.cache.detail !== d) { r.detail.innerHTML = d; r.cache.detail = d; }
+
+    var canRetry = job.status === 'failed';
+    var canCancel = job.status === 'queued' || job.status === 'running';
+    r.retry.hidden = !canRetry;
+    r.cancel.hidden = !canCancel;
+    if (canRetry) {
+      r.retry.disabled = !!pend;
+      var rl = pend === 'retry' ? ic('run','spin') + '<span>Retrying</span>' : '<span>Retry</span>';
+      if (r.cache.retry !== rl) { r.retry.innerHTML = rl; r.cache.retry = rl; }
+    }
+    if (canCancel) {
+      r.cancel.disabled = !!pend;
+      var cl = pend === 'cancel' ? ic('run','spin') + '<span>Cancelling</span>' : '<span>Cancel</span>';
+      if (r.cache.cancel !== cl) { r.cancel.innerHTML = cl; r.cache.cancel = cl; }
+    }
+
+    var err = state.rowErr.get(job.id);
+    r.errrow.hidden = !err;
+    if (err) {
+      var sig = err.kind + '|' + err.msg;
+      if (r.cache.err !== sig) {
+        r.errtext.textContent = err.msg;
+        r.errretry.textContent = err.kind === 'retry' ? 'Retry again' : 'Cancel again';
+        r.cache.err = sig;
+      }
+      r.errretry.disabled = !!pend;
+    } else {
+      r.cache.err = null;
+    }
+  }
+
+  function withFocus(fn){
+    var a = document.activeElement;
+    var key = a && a.dataset ? a.dataset.fkey : null;
+    fn();
+    if (key && document.activeElement !== a) {
+      var el = document.querySelector('[data-fkey="' + key + '"]');
+      if (el) el.focus();
+    }
+  }
+
+  function renderTable(){
+    var list = visibleJobs();
+    var ids = list.map(function(j){ return j.id; });
+    var present = {};
+    ids.forEach(function(id){ present[id] = 1; });
+
+    if (state.loaded && elSkel.style.display !== 'none') elSkel.style.display = 'none';
+
+    list.forEach(function(job){ updateRow(rows.get(job.id) || buildRow(job.id), job); });
+    rows.forEach(function(r, id){ if (!present[id] && r.tb.parentNode) r.tb.remove(); });
+
+    var order = ids.join('|');
+    if (order !== lastOrder) {
+      withFocus(function(){
+        ids.forEach(function(id){ tableEl.insertBefore(rows.get(id).tb, elEmptyBody); });
+      });
+      lastOrder = order;
+    }
+
+    if (!state.loaded || ids.length) { elEmptyBody.hidden = true; return; }
+    elEmptyBody.hidden = false;
+    var sig = state.pollError ? 'err' : ((state.filter !== 'all' || state.query) ? 'filtered' : 'none');
+    if (elEmptyBox.dataset.sig === sig) return;
+    elEmptyBox.dataset.sig = sig;
+    if (sig === 'err') {
+      elEmptyBox.innerHTML = ic('alert','',22) + '<div class="big">Queue did not load</div><div>' + esc(state.pollError) + '</div>' +
+        '<button class="btn tiny" type="button" id="emptyAct" style="margin-top:12px">Retry now</button>';
+      $('emptyAct').addEventListener('click', function(){ poll(true); });
+    } else if (sig === 'filtered') {
+      elEmptyBox.innerHTML = ic('search','',22) + '<div class="big">No matching jobs</div>' +
+        '<button class="btn tiny" type="button" id="emptyAct" style="margin-top:12px">Clear filter</button>';
+      $('emptyAct').addEventListener('click', function(){
+        state.filter = 'all'; state.query = ''; elQ.value = ''; render();
+      });
+    } else {
+      elEmptyBox.innerHTML = ic('inbox','',22) + '<div class="big">Queue is empty</div><div>Nothing has been submitted yet.</div>';
+    }
+  }
+
+  function renderSummary(){
+    var c = counts();
+    var order = [['failed','Failed'],['running','Running'],['queued','Queued'],['succeeded','Succeeded']];
+    var html = order.map(function(o){
+      var n = c[o[0]];
+      return '<div class="tile t-'+o[0]+(n ? ' has' : ' is-zero')+'">'+
+        '<div class="tl">'+statusIcon(o[0])+'<span>'+o[1]+'</span></div>'+
+        '<div class="tnum">'+n+'</div></div>';
+    }).join('');
+    if (elTiles.dataset.sig !== html) { elTiles.innerHTML = html; elTiles.dataset.sig = html; }
+
+    var t = c.total || 1;
+    var seg = [['sf',c.failed],['sr',c.running],['sq',c.queued],['ss',c.succeeded]];
+    var sHtml = seg.map(function(s){ return '<i class="'+s[0]+'" style="width:'+(s[1]/t*100)+'%"></i>'; }).join('');
+    if (elStack.dataset.sig !== sHtml) { elStack.innerHTML = sHtml; elStack.dataset.sig = sHtml; }
+    elStack.setAttribute('aria-label', c.failed+' failed, '+c.running+' running, '+c.queued+' queued, '+c.succeeded+' succeeded');
+    var totalTxt = state.loaded ? c.total + ' jobs' : '';
+    if (elTotal.textContent !== totalTxt) elTotal.textContent = totalTxt;
+
+    FILTERS.forEach(function(f){
+      var n = elFilters.querySelector('[data-n="'+f[0]+'"]');
+      if (n) n.textContent = f[0] === 'all' ? String(c.total) : String(c[f[0]]);
+      var b = elFilters.querySelector('[data-f="'+f[0]+'"]');
+      if (b) b.setAttribute('aria-pressed', String(state.filter === f[0]));
+    });
+
+    var busy = !!(state.bulk && state.bulk.running);
+    elRetryAll.disabled = busy ? false : c.failed === 0;
+    var cnt = busy ? (state.bulk.done + '/' + state.bulk.ids.length) : String(c.failed);
+    if (elRetryAllCnt.textContent !== cnt) elRetryAllCnt.textContent = cnt;
+    var lbl = busy ? 'Retrying' : 'Retry all failed';
+    if (elRetryAllLbl.textContent !== lbl) elRetryAllLbl.textContent = lbl;
+    var svg = elRetryAllIco.querySelector('svg');
+    if (svg) svg.classList.toggle('spin', busy);
+  }
+
+  function renderLive(){
+    elLive.classList.toggle('paused', !state.auto && !state.pollError);
+    elLive.classList.toggle('down', !!state.pollError);
+    var txt;
+    if (!state.loaded) txt = 'Loading queue';
+    else if (state.pollError) txt = 'Updates failing \u00b7 last ' + ago(Date.now() - state.updatedAt);
+    else if (!state.auto) txt = 'Paused \u00b7 updated ' + ago(Date.now() - state.updatedAt);
+    else if (state.inFlight) txt = 'Updating\u2026';
+    else txt = 'Live \u00b7 updated ' + ago(Date.now() - state.updatedAt);
+    if (elLiveText.textContent !== txt) elLiveText.textContent = txt;
+  }
+
+  function renderBanner(){
+    var sig = (state.pollError && state.jobs.length) ? state.pollError : '';
+    if (elBanner.dataset.sig === sig) return;
+    elBanner.dataset.sig = sig;
+    if (!sig) { elBanner.innerHTML = ''; return; }
+    elBanner.innerHTML = '<div class="banner">'+ic('alert')+
+      '<span class="grow">'+esc(sig)+'. Showing the last known state.</span>'+
+      '<button class="btn tiny" type="button" id="bRetry">Retry now</button></div>';
+    $('bRetry').addEventListener('click', function(){ poll(true); });
+  }
+
+  function render(){ renderSummary(); renderTable(); renderLive(); renderBanner(); renderDrawer(); }
+
+  var detailTimer = null;
+  function openDrawer(id){
+    state.drawerId = id;
+    state.drawerErr = null;
+    elDBody.dataset.sig = '';
+    elDFoot.dataset.sig = '';
+    elDrawer.classList.add('open');
+    elDrawer.setAttribute('aria-hidden','false');
+    elScrim.classList.add('on');
+    renderDrawer();
+    $('dClose').focus();
+    if (detailTimer) clearInterval(detailTimer);
+    detailTimer = setInterval(function(){
+      var open = state.drawerId;
+      if (!open) return;
+      api.getJob(open).then(function(snap){
+        if (state.drawerId !== open) return;
+        state.drawerErr = null;
+        mergeJob(snap);
+        render();
+      }, function(e){
+        if (state.drawerId !== open) return;
+        state.drawerErr = describe(e);
+        renderDrawer();
+      });
+    }, DETAIL_MS);
+  }
+  function closeDrawer(){
+    state.drawerId = null;
+    state.drawerErr = null;
+    elDrawer.classList.remove('open');
+    elDrawer.setAttribute('aria-hidden','true');
+    elScrim.classList.remove('on');
+    if (detailTimer) { clearInterval(detailTimer); detailTimer = null; }
+  }
+  $('dClose').addEventListener('click', closeDrawer);
+  elScrim.addEventListener('click', closeDrawer);
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape' && state.drawerId && !dlg.open) closeDrawer();
+  });
+
+  function renderDrawer(){
+    if (!state.drawerId) return;
+    var id = state.drawerId, job = jobById(id), m = state.meta.get(id) || {};
+    if (elDTitle.textContent !== id) elDTitle.textContent = id;
+
+    var body, foot = '';
+    if (!job) {
+      body = '<div class="dbox bad"><h3>Gone</h3>This job is no longer in the queue.</div>';
+    } else {
+      var pend = state.pending.get(id);
+      var err = state.rowErr.get(id);
+      var pv = Math.max(0, Math.min(100, Math.round(Number(job.progress) || 0)));
+      body =
+        '<div class="s-'+job.status+'" style="margin-bottom:14px"><span class="pill">'+statusIcon(job.status)+'<span>'+LABEL[job.status]+'</span></span></div>'+
+        '<div class="s-'+job.status+'" style="margin-bottom:16px"><div class="pgwrap">'+
+          '<progress max="100" value="'+pv+'" aria-label="Progress '+pv+'%"'+(job.status === 'queued' ? ' class="idle"' : '')+'></progress>'+
+          '<span class="pct">'+pv+'%</span></div></div>';
+      if (job.status === 'failed') {
+        body += '<div class="dbox bad"><h3>Failure reason</h3>'+esc(job.error || 'No reason reported')+'</div>';
+      }
+      if (job.status === 'succeeded' && job.result) {
+        body += '<div class="dbox good"><h3>Result</h3>'+
+          (job.result.rows != null ? fmt(job.result.rows)+' rows' : 'Ready')+
+          (job.result.downloadUrl ? ' &middot; <a class="dl" href="'+esc(job.result.downloadUrl)+'" download>'+ic('down')+'Download</a>' : '')+
+          '</div>';
+      }
+      if (err) body += '<div class="dbox bad"><h3>Last action</h3>'+esc(err.msg)+'</div>';
+      if (state.drawerErr) body += '<div class="dbox bad"><h3>Live updates</h3>'+esc(state.drawerErr)+'</div>';
+      body += '<dl class="kv">'+
+        '<dt>Job ID</dt><dd class="mono">'+esc(id)+'</dd>'+
+        '<dt>Tracked since</dt><dd data-t="first"></dd>'+
+        '<dt>Last change</dt><dd data-t="changed"></dd>'+
+        (job.status === 'running' ? '<dt>Progress moved</dt><dd data-t="moved"></dd>' : '')+
+        '</dl>';
+      if (job.status === 'failed') {
+        foot += '<button class="btn primary" type="button" data-a="retry"'+(pend ? ' disabled' : '')+'>'+
+          (pend === 'retry' ? ic('run','spin')+'<span>Retrying</span>' : '<span>Retry job</span>')+'</button>';
+      }
+      if (job.status === 'queued' || job.status === 'running') {
+        foot += '<button class="btn" type="button" data-a="cancel"'+(pend ? ' disabled' : '')+'>'+
+          (pend === 'cancel' ? ic('run','spin')+'<span>Cancelling</span>' : '<span>Cancel job</span>')+'</button>';
+      }
+    }
+    if (elDBody.dataset.sig !== body) { elDBody.innerHTML = body; elDBody.dataset.sig = body; }
+    if (job) {
+      [['first',m.first],['changed',m.changed],['moved',m.moved]].forEach(function(p){
+        var el = elDBody.querySelector('[data-t="'+p[0]+'"]');
+        if (!el) return;
+        var v = p[1] ? ago(Date.now() - p[1]) : '\u2014';
+        if (el.textContent !== v) el.textContent = v;
+      });
+    }
+    if (elDFoot.dataset.sig !== foot) {
+      elDFoot.innerHTML = foot;
+      elDFoot.dataset.sig = foot;
+      elDFoot.querySelectorAll('[data-a]').forEach(function(b){
+        b.addEventListener('click', function(){ act(id, b.dataset.a); });
+      });
+    }
+  }
+
+  var elBulkSub=$('bulkSub'), elBulkList=$('bulkList'), elBulkProgWrap=$('bulkProgWrap'), elBulkProg=$('bulkProg'),
+      elBulkPct=$('bulkPct'), elBulkGo=$('bulkGo'), elBulkClose=$('bulkClose');
+
+  function remainingIds(b){
+    var ok = {};
+    b.results.forEach(function(r){ if (r.ok) ok[r.id] = 1; });
+    return b.ids.filter(function(id){ return !ok[id]; });
+  }
+
+  elRetryAll.addEventListener('click', function(){
+    if (state.bulk && state.bulk.running) {
+      if (!dlg.open) dlg.showModal();
+      renderDialog();
+      return;
+    }
+    var ids = failedIds();
+    if (!ids.length) return;
+    state.bulk = { ids:ids, done:0, running:false, stop:false, current:null, results:[] };
+    elBulkList.dataset.sig = '';
+    renderDialog();
+    if (!dlg.open) dlg.showModal();
+  });
+  elBulkClose.addEventListener('click', function(){ if (dlg.open) dlg.close(); });
+  elBulkGo.addEventListener('click', function(){
+    var b = state.bulk;
+    if (!b) return;
+    if (b.running) { b.stop = true; renderDialog(); return; }
+    if (b.results.length) {
+      var again = remainingIds(b);
+      if (!again.length) { if (dlg.open) dlg.close(); return; }
+      state.bulk = { ids:again, done:0, running:false, stop:false, current:null, results:[] };
+    }
+    runBulk();
+  });
+
+  function runBulk(){
+    var b = state.bulk;
+    if (!b || b.running) return;
+    b.running = true;
+    b.stop = false;
+    elBulkList.dataset.sig = '';
+    renderDialog();
+    renderSummary();
+    var i = 0;
+    function step(){
+      if (b.stop || i >= b.ids.length) return Promise.resolve();
+      var id = b.ids[i];
+      b.current = id;
+      renderDialog();
+      return api.retryJob(id).then(function(snap){
+        mergeJob(snap);
+        b.results.push({ id:id, ok:true });
+      }, function(e){
+        b.results.push({ id:id, ok:false, msg:describe(e) });
+      }).then(function(){
+        b.done++; i++; b.current = null;
+        renderDialog();
+        render();
+        return step();
+      });
+    }
+    step().then(function(){
+      b.running = false;
+      b.current = null;
+      var bad = b.results.filter(function(r){ return !r.ok; }).length;
+      var ok = b.results.length - bad;
+      if (b.stop) toast('good', 'Stopped after ' + b.done + ' of ' + b.ids.length);
+      else if (bad) toast('bad', ok + ' requeued, ' + bad + ' failed');
+      else if (ok) toast('good', ok + (ok === 1 ? ' job requeued' : ' jobs requeued'));
+      renderDialog();
+      render();
+      if (state.auto) poll(false);
+    });
+  }
+
+  function renderDialog(){
+    var b = state.bulk;
+    if (!b) return;
+    var n = b.ids.length;
+    var sub;
+    if (b.running) sub = 'Retrying ' + Math.min(b.done + 1, n) + ' of ' + n + '. Each job restarts from the beginning.';
+    else if (b.results.length && b.done >= n) sub = b.results.filter(function(r){ return r.ok; }).length + ' of ' + n + ' requeued.';
+    else if (b.results.length) sub = 'Stopped after ' + b.done + ' of ' + n + '.';
+    else sub = 'Requeues ' + n + (n === 1 ? ' job' : ' jobs') + '. Each job restarts from the beginning.';
+    if (elBulkSub.textContent !== sub) elBulkSub.textContent = sub;
+
+    var html = b.ids.map(function(id){
+      var res = null;
+      for (var k = 0; k < b.results.length; k++) if (b.results[k].id === id) res = b.results[k];
+      var cls = res ? (res.ok ? 'ok' : 'bad') : (b.current === id ? 'run' : '');
+      var st = res ? (res.ok ? 'Requeued' : esc(res.msg)) : (b.current === id ? 'Retrying\u2026' : 'Waiting');
+      var glyph = res ? (res.ok ? ic('check') : ic('alert')) : (b.current === id ? ic('run','spin') : ic('clock'));
+      return '<li class="'+cls+'">'+glyph+'<span>'+esc(id)+'</span><span class="st">'+st+'</span></li>';
+    }).join('');
+    if (elBulkList.dataset.sig !== html) { elBulkList.innerHTML = html; elBulkList.dataset.sig = html; }
+
+    elBulkProgWrap.hidden = !(b.running || b.results.length);
+    elBulkProg.max = n;
+    elBulkProg.value = b.done;
+    var pctTxt = b.done + '/' + n;
+    if (elBulkPct.textContent !== pctTxt) elBulkPct.textContent = pctTxt;
+
+    var go, close;
+    if (b.running) {
+      go = b.stop ? ic('run','spin')+'<span>Stopping</span>' : ic('stop')+'<span>Stop</span>';
+      elBulkGo.disabled = b.stop;
+      close = 'Close';
+    } else if (b.results.length) {
+      var left = remainingIds(b).length;
+      go = left ? '<span>Retry remaining</span><span class="cnt">'+left+'</span>' : '<span>Done</span>';
+      elBulkGo.disabled = false;
+      close = 'Close';
+    } else {
+      go = '<span>Retry '+n+(n === 1 ? ' job' : ' jobs')+'</span>';
+      elBulkGo.disabled = false;
+      close = 'Cancel';
+    }
+    if (elBulkGo.dataset.sig !== go) { elBulkGo.innerHTML = go; elBulkGo.dataset.sig = go; }
+    if (elBulkClose.textContent !== close) elBulkClose.textContent = close;
+  }
+
+  function toast(kind, text){
+    var el = document.createElement('div');
+    el.className = 'toast ' + kind;
+    el.innerHTML = (kind === 'bad' ? ic('alert') : ic('check')) + '<span>' + esc(text) + '</span>';
+    elToasts.appendChild(el);
+    setTimeout(function(){ el.remove(); }, kind === 'bad' ? 7000 : 4000);
+  }
+
+  setInterval(function(){
+    renderLive();
+    if (state.loaded) { renderTable(); renderDrawer(); }
+  }, 1000);
+
+  if (!api) {
+    elSkel.style.display = 'none';
+    elBanner.dataset.sig = 'noapi';
+    elBanner.innerHTML = '<div class="banner">'+ic('alert')+'<span class="grow">Queue API unavailable on this page.</span></div>';
+  } else {
+    render();
+    poll(false);
+  }
+})();
+</script>
+</body>
+</html>

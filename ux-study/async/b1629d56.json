@@ -1,0 +1,66 @@
+{
+  "id": "b1629d56",
+  "items": [
+    {
+      "n": 1,
+      "verdict": "PASS",
+      "reason": "At 250 ms after initial navigation under slow latency the page shows a visible 'Loading jobs…' overlay with spinner; at 250 ms into an upload the progress panel ('Uploading…', filename, bar) is already visible; a clicked Retry button shows a spinner and disables immediately.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/b1629d56_1.png"
+    },
+    {
+      "n": 2,
+      "verdict": "PASS",
+      "reason": "Three rapid clicks on a row's Retry under slow latency produced exactly one retryJob call in __apiLog, and the button rendered disabled with an inline spinner; the upload dropzone is replaced by the progress panel while an upload is pending, preventing re-submission.",
+      "evidence": "<button class=\"act-btn retry\" onclick=\"retryJob('job_b86738')\" disabled=\"\"><span class=\"spinner\"></span> Retry</button> — 3 clicks, callsSince: [\"retryJob\"]"
+    },
+    {
+      "n": 3,
+      "verdict": "PASS",
+      "reason": "Upload progress is shown as a live percentage and fill bar (observed advancing 12%→48% during a slow upload, driven by onProgress), and every job row shows a progress bar plus numeric % that advances during polling (58%→78%→99% observed).",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/b1629d56_3.png"
+    },
+    {
+      "n": 4,
+      "verdict": "PASS",
+      "reason": "A Cancel button next to the in-flight upload aborted it at 12% and returned the panel cleanly to the dropzone with no spurious error; running/queued job rows have a Cancel action that moved job_8c1e89 to 'Failed / Cancelled by admin' via one cancelJob call.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/b1629d56_4.png"
+    },
+    {
+      "n": 5,
+      "verdict": "PASS",
+      "reason": "Job failure reasons are specific and shown in the failed row itself ('Worker ran out of memory at 1.8 GB', 'Upstream timeout after 30s'), and an upload failure shows 'Network error — check connection' inline in the upload panel; the one weaker surface is that retry/cancel network failures use a bottom-right toast ('Network error — try again') rather than a message at the row.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/b1629d56_5.png"
+    },
+    {
+      "n": 6,
+      "verdict": "PASS",
+      "reason": "After a failed upload an inline Retry button re-attempted the upload without reload (uploadFile calls went 1→2 in __apiLog); after a failed retryJob the row's Retry button re-enables for another attempt, and the polling banner offers 'Retry now'.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/b1629d56_6.png"
+    },
+    {
+      "n": 7,
+      "verdict": "N/A",
+      "reason": "Field-level validation mapping applies only to the checkout brief (B5); this job-queue admin page has no API-validated form fields.",
+      "evidence": "Marked NOT APPLICABLE for this brief in the assignment; the page contains no form submitting to a validating endpoint (only a file input and row action buttons)."
+    },
+    {
+      "n": 8,
+      "verdict": "PASS",
+      "reason": "The page polls listJobs every 3 s (timestamps 3054, 6054, 9054… in __apiLog) with a 'Live' indicator; without any refresh a running job's progress advanced 58%→78%→99%, a newly processed upload appeared as a new row and reached Succeeded, and header counts updated (TOTAL 8→9).",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/b1629d56_8.png"
+    },
+    {
+      "n": 9,
+      "verdict": "PASS",
+      "reason": "Toggling the upload panel and switching filter tabs (Failed→Succeeded→All) while an upload and a retryJob were in flight caused no page errors; the pending retry's disabled/spinner state survived the re-render and everything settled consistently (retried job → Queued, 0 stuck spinners, coherent counts TOTAL 9 / QUEUED 1 / RUNNING 1 / SUCCEEDED 5 / FAILED 2).",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/b1629d56_9.png"
+    },
+    {
+      "n": 10,
+      "verdict": "PASS",
+      "reason": "In an instrumented slow-latency retry, the row kept showing 'Failed 38%' with a pending spinner for the full 5.4 s the retryJob call was in flight and flipped to 'Queued' only after the promise resolved (resolved at 5440 ms, UI changed by 5674 ms); no optimistic success or state change was shown before server confirmation.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/b1629d56_10.png"
+    }
+  ],
+  "failCount": 0
+}

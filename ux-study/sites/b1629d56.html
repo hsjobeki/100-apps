@@ -1,0 +1,470 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Job Queue Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f8f9fb;--surface:#fff;--border:#e2e5ea;--text:#1a1d23;--text2:#5f6672;--text3:#8b91a0;
+  --blue:#3b82f6;--blue-bg:#eff6ff;--green:#16a34a;--green-bg:#f0fdf4;--amber:#d97706;--amber-bg:#fffbeb;
+  --red:#dc2626;--red-bg:#fef2f2;--purple:#7c3aed;--purple-bg:#f5f3ff;
+  --radius:8px;--shadow:0 1px 3px rgba(0,0,0,.08);
+}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;min-height:100vh}
+button{font:inherit;cursor:pointer;border:none;background:none}
+.app{max-width:1200px;margin:0 auto;padding:24px 20px}
+
+/* Header */
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+.header h1{font-size:20px;font-weight:700;display:flex;align-items:center;gap:8px}
+.header h1 svg{color:var(--blue)}
+.header-actions{display:flex;gap:8px;align-items:center}
+.poll-indicator{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text3)}
+.poll-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* Summary cards */
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:24px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
+.card-label{font-size:12px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.card-value{font-size:28px;font-weight:700;line-height:1.2}
+.card-value.queued{color:var(--purple)}
+.card-value.running{color:var(--blue)}
+.card-value.succeeded{color:var(--green)}
+.card-value.failed{color:var(--red)}
+
+/* Toolbar */
+.toolbar{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.filter-group{display:flex;gap:2px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.filter-btn{padding:6px 14px;font-size:13px;font-weight:500;color:var(--text2);transition:all .15s}
+.filter-btn:hover{background:#f1f3f5}
+.filter-btn.active{background:var(--blue);color:#fff}
+.upload-btn{display:flex;align-items:center;gap:6px;padding:8px 16px;background:var(--blue);color:#fff;border-radius:var(--radius);font-size:13px;font-weight:600;transition:opacity .15s}
+.upload-btn:hover{opacity:.9}
+.upload-btn:disabled{opacity:.5;cursor:not-allowed}
+.upload-btn svg{flex-shrink:0}
+
+/* Upload area */
+.upload-area{background:var(--surface);border:2px dashed var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px;display:none;transition:border-color .15s}
+.upload-area.visible{display:block}
+.upload-area.dragover{border-color:var(--blue);background:var(--blue-bg)}
+.upload-progress{margin-top:12px}
+.upload-progress-bar{height:6px;background:#e5e7eb;border-radius:3px;overflow:hidden}
+.upload-progress-fill{height:100%;background:var(--blue);border-radius:3px;transition:width .2s;width:0}
+.upload-status{display:flex;align-items:center;justify-content:space-between;margin-top:8px;font-size:13px;color:var(--text2)}
+.upload-cancel{color:var(--red);font-weight:500;font-size:13px}
+.upload-cancel:hover{text-decoration:underline}
+.upload-error{margin-top:8px;padding:8px 12px;background:var(--red-bg);border-radius:6px;font-size:13px;color:var(--red);display:flex;align-items:center;gap:6px}
+
+/* Table */
+.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;padding:10px 16px;font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:12px 16px;border-bottom:1px solid #f1f3f5;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafbfc}
+
+/* Status badge */
+.badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:12px;font-size:12px;font-weight:600;white-space:nowrap}
+.badge::before{content:'';width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.badge.queued{background:var(--purple-bg);color:var(--purple)}.badge.queued::before{background:var(--purple)}
+.badge.running{background:var(--blue-bg);color:var(--blue)}.badge.running::before{background:var(--blue);animation:pulse 1.5s infinite}
+.badge.succeeded{background:var(--green-bg);color:var(--green)}.badge.succeeded::before{background:var(--green)}
+.badge.failed{background:var(--red-bg);color:var(--red)}.badge.failed::before{background:var(--red)}
+
+/* Progress bar in table */
+.progress-cell{min-width:120px}
+.progress-bar{height:6px;background:#e5e7eb;border-radius:3px;overflow:hidden;position:relative}
+.progress-fill{height:100%;border-radius:3px;transition:width .3s ease}
+.progress-fill.running{background:var(--blue)}
+.progress-fill.succeeded{background:var(--green)}
+.progress-fill.failed{background:var(--red)}
+.progress-fill.queued{background:var(--purple);width:0!important}
+.progress-pct{font-size:11px;color:var(--text3);margin-top:2px}
+
+/* Error text */
+.error-text{font-size:12px;color:var(--red);max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.error-text:hover{white-space:normal;word-break:break-word}
+
+/* Result link */
+.result-link{font-size:12px;color:var(--blue);text-decoration:none;display:inline-flex;align-items:center;gap:4px}
+.result-link:hover{text-decoration:underline}
+.result-rows{font-size:11px;color:var(--text3)}
+
+/* Action buttons */
+.action-group{display:flex;gap:6px}
+.act-btn{display:inline-flex;align-items:center;gap:4px;padding:5px 10px;border-radius:6px;font-size:12px;font-weight:600;transition:all .15s}
+.act-btn:disabled{opacity:.4;cursor:not-allowed}
+.act-btn.retry{background:var(--amber-bg);color:var(--amber)}
+.act-btn.retry:hover:not(:disabled){background:#fef3c7}
+.act-btn.cancel{background:var(--red-bg);color:var(--red)}
+.act-btn.cancel:hover:not(:disabled){background:#fee2e2}
+.act-btn .spinner{width:12px;height:12px;border:2px solid currentColor;border-top-color:transparent;border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Empty & loading states */
+.empty-state{text-align:center;padding:48px 20px;color:var(--text3)}
+.empty-state svg{margin-bottom:12px;color:var(--border)}
+.loading-overlay{display:flex;align-items:center;justify-content:center;padding:48px;color:var(--text3);gap:8px}
+.loading-overlay .spinner{width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite}
+
+/* Toast */
+.toast-container{position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column;gap:8px;z-index:100}
+.toast{padding:10px 16px;border-radius:var(--radius);font-size:13px;font-weight:500;box-shadow:0 4px 12px rgba(0,0,0,.15);animation:slideIn .25s ease;display:flex;align-items:center;gap:8px;max-width:360px}
+.toast.success{background:#065f46;color:#fff}
+.toast.error{background:var(--red);color:#fff}
+@keyframes slideIn{from{transform:translateY(12px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+/* Network banner */
+.net-banner{background:var(--red);color:#fff;text-align:center;padding:8px;font-size:13px;font-weight:500;display:none;align-items:center;justify-content:center;gap:8px}
+.net-banner.visible{display:flex}
+.net-banner button{color:#fff;text-decoration:underline;font-weight:600;font-size:13px}
+
+/* Responsive */
+@media(max-width:640px){
+  .summary{grid-template-columns:repeat(2,1fr)}
+  .header{flex-direction:column;align-items:flex-start}
+  td:nth-child(5),th:nth-child(5){display:none}
+}
+</style>
+</head>
+<body>
+<div class="net-banner" id="netBanner">
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M8 4.5v4M8 10.5v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+  Connection issue — retrying automatically
+  <button onclick="fetchJobs()">Retry now</button>
+</div>
+
+<div class="app">
+  <header class="header">
+    <h1>
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="18" rx="3"/><path d="M8 7h8M8 12h8M8 17h4"/></svg>
+      Job Queue
+    </h1>
+    <div class="header-actions">
+      <div class="poll-indicator"><span class="poll-dot" id="pollDot"></span><span id="pollText">Live</span></div>
+      <button class="upload-btn" id="uploadToggle" onclick="toggleUpload()">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 12V3M4 6l4-4 4 4M2 14h12"/></svg>
+        Upload &amp; Process
+      </button>
+    </div>
+  </header>
+
+  <div class="upload-area" id="uploadArea">
+    <div id="uploadDropzone" style="text-align:center">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5" stroke-linecap="round"><path d="M12 16V6M8 9l4-4 4 4"/><path d="M20 16v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2"/></svg>
+      <p style="margin-top:8px;font-size:14px;color:var(--text2)">Drop a file or <label style="color:var(--blue);cursor:pointer;font-weight:500">browse<input type="file" id="fileInput" hidden></label></p>
+    </div>
+    <div class="upload-progress" id="uploadProgress" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <span id="uploadFileName" style="font-size:13px;font-weight:500"></span>
+        <button class="upload-cancel" id="uploadCancelBtn" onclick="cancelUpload()">Cancel</button>
+      </div>
+      <div class="upload-progress-bar"><div class="upload-progress-fill" id="uploadFill"></div></div>
+      <div class="upload-status"><span id="uploadPct">0%</span><span id="uploadStep">Uploading…</span></div>
+    </div>
+    <div class="upload-error" id="uploadError" style="display:none">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M8 5v3.5M8 10.5v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <span id="uploadErrorMsg"></span>
+      <button onclick="retryUpload()" style="margin-left:auto;font-weight:600;color:var(--red);font-size:12px">Retry</button>
+    </div>
+  </div>
+
+  <div class="summary" id="summary">
+    <div class="card"><div class="card-label">Total</div><div class="card-value" id="cTotal">–</div></div>
+    <div class="card"><div class="card-label">Queued</div><div class="card-value queued" id="cQueued">–</div></div>
+    <div class="card"><div class="card-label">Running</div><div class="card-value running" id="cRunning">–</div></div>
+    <div class="card"><div class="card-label">Succeeded</div><div class="card-value succeeded" id="cSucceeded">–</div></div>
+    <div class="card"><div class="card-label">Failed</div><div class="card-value failed" id="cFailed">–</div></div>
+  </div>
+
+  <div class="toolbar">
+    <div class="filter-group">
+      <button class="filter-btn active" data-f="all" onclick="setFilter('all',this)">All</button>
+      <button class="filter-btn" data-f="queued" onclick="setFilter('queued',this)">Queued</button>
+      <button class="filter-btn" data-f="running" onclick="setFilter('running',this)">Running</button>
+      <button class="filter-btn" data-f="succeeded" onclick="setFilter('succeeded',this)">Succeeded</button>
+      <button class="filter-btn" data-f="failed" onclick="setFilter('failed',this)">Failed</button>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <div class="loading-overlay" id="loadingState"><div class="spinner"></div>Loading jobs…</div>
+    <table id="jobTable" style="display:none">
+      <thead>
+        <tr><th>Job ID</th><th>Status</th><th>Progress</th><th>Details</th><th>Result</th><th style="text-align:right">Actions</th></tr>
+      </thead>
+      <tbody id="jobBody"></tbody>
+    </table>
+    <div class="empty-state" id="emptyState" style="display:none">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 9h6M9 13h4"/></svg>
+      <p style="font-size:14px;margin-top:4px" id="emptyText">No jobs found</p>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toasts"></div>
+
+<script>
+(function(){
+  let jobs = [];
+  let filter = 'all';
+  let pollTimer = null;
+  let initialLoad = true;
+  let uploadAbort = null;
+  let lastUploadFile = null;
+  const pendingActions = new Set();
+  let consecutiveNetErrors = 0;
+
+  // Polling
+  function startPolling() {
+    stopPolling();
+    pollTimer = setInterval(fetchJobs, 3000);
+  }
+  function stopPolling() {
+    if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+  }
+
+  // Fetch jobs
+  async function fetchJobs() {
+    try {
+      const result = await api.listJobs();
+      jobs = result;
+      consecutiveNetErrors = 0;
+      document.getElementById('netBanner').classList.remove('visible');
+      renderSummary();
+      renderTable();
+      if (initialLoad) {
+        initialLoad = false;
+        document.getElementById('loadingState').style.display = 'none';
+        document.getElementById('jobTable').style.display = '';
+      }
+    } catch (e) {
+      if (initialLoad) {
+        document.getElementById('loadingState').innerHTML = '<svg width="18" height="18" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#dc2626" stroke-width="1.5"/><path d="M8 5v3.5M8 10.5v.5" stroke="#dc2626" stroke-width="1.5" stroke-linecap="round"/></svg> <span style="color:var(--red)">Failed to load jobs</span> <button onclick="fetchJobs()" style="margin-left:8px;color:var(--blue);font-weight:600;font-size:13px;background:none;border:none;cursor:pointer">Retry</button>';
+      }
+      if (e.code === 'NETWORK') {
+        consecutiveNetErrors++;
+        if (consecutiveNetErrors >= 2) {
+          document.getElementById('netBanner').classList.add('visible');
+        }
+      }
+    }
+  }
+  window.fetchJobs = fetchJobs;
+
+  function renderSummary() {
+    const counts = { queued: 0, running: 0, succeeded: 0, failed: 0 };
+    jobs.forEach(j => { if (counts[j.status] !== undefined) counts[j.status]++; });
+    document.getElementById('cTotal').textContent = jobs.length;
+    document.getElementById('cQueued').textContent = counts.queued;
+    document.getElementById('cRunning').textContent = counts.running;
+    document.getElementById('cSucceeded').textContent = counts.succeeded;
+    document.getElementById('cFailed').textContent = counts.failed;
+  }
+
+  function renderTable() {
+    const filtered = filter === 'all' ? jobs : jobs.filter(j => j.status === filter);
+    const tbody = document.getElementById('jobBody');
+    const table = document.getElementById('jobTable');
+    const empty = document.getElementById('emptyState');
+
+    if (filtered.length === 0 && !initialLoad) {
+      table.style.display = 'none';
+      empty.style.display = '';
+      document.getElementById('emptyText').textContent = filter === 'all' ? 'No jobs in the queue' : 'No ' + filter + ' jobs';
+      return;
+    }
+    table.style.display = '';
+    empty.style.display = 'none';
+
+    // Sort: failed first, then running, queued, succeeded
+    const order = { failed: 0, running: 1, queued: 2, succeeded: 3 };
+    const sorted = [...filtered].sort((a, b) => (order[a.status] ?? 4) - (order[b.status] ?? 4));
+
+    tbody.innerHTML = sorted.map(j => {
+      const busy = pendingActions.has(j.id);
+      const progressWidth = j.status === 'queued' ? 0 : j.progress;
+      let detailHtml = '<span style="color:var(--text3)">—</span>';
+      if (j.status === 'failed' && j.error) {
+        detailHtml = '<span class="error-text" title="' + esc(j.error) + '">' + esc(j.error) + '</span>';
+      }
+      let resultHtml = '<span style="color:var(--text3)">—</span>';
+      if (j.status === 'succeeded' && j.result) {
+        resultHtml = '<a class="result-link" href="' + esc(j.result.downloadUrl) + '" target="_blank"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3v8M5 8l3 3 3-3M3 13h10"/></svg>Download</a>' +
+          (j.result.rows ? ' <span class="result-rows">(' + j.result.rows.toLocaleString() + ' rows)</span>' : '');
+      }
+      let actionsHtml = '';
+      if (j.status === 'failed') {
+        actionsHtml = '<button class="act-btn retry" onclick="retryJob(\'' + j.id + '\')" ' + (busy ? 'disabled' : '') + '>' +
+          (busy ? '<span class="spinner"></span>' : '<svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 8a6 6 0 0110.47-4M14 8a6 6 0 01-10.47 4"/><path d="M14 2v4h-4M2 14v-4h4"/></svg>') +
+          ' Retry</button>';
+      } else if (j.status === 'running' || j.status === 'queued') {
+        actionsHtml = '<button class="act-btn cancel" onclick="cancelJob(\'' + j.id + '\')" ' + (busy ? 'disabled' : '') + '>' +
+          (busy ? '<span class="spinner"></span>' : '<svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg>') +
+          ' Cancel</button>';
+      }
+      return '<tr data-status="' + j.status + '">' +
+        '<td><code style="font-size:12px;color:var(--text2)">' + esc(j.id) + '</code></td>' +
+        '<td><span class="badge ' + j.status + '">' + capitalize(j.status) + '</span></td>' +
+        '<td class="progress-cell"><div class="progress-bar"><div class="progress-fill ' + j.status + '" style="width:' + progressWidth + '%"></div></div><div class="progress-pct">' + progressWidth + '%</div></td>' +
+        '<td>' + detailHtml + '</td>' +
+        '<td>' + resultHtml + '</td>' +
+        '<td style="text-align:right"><div class="action-group" style="justify-content:flex-end">' + actionsHtml + '</div></td></tr>';
+    }).join('');
+  }
+
+  // Actions
+  window.retryJob = async function(id) {
+    if (pendingActions.has(id)) return;
+    pendingActions.add(id);
+    renderTable();
+    try {
+      const updated = await api.retryJob(id);
+      const idx = jobs.findIndex(j => j.id === id);
+      if (idx >= 0) jobs[idx] = updated;
+      toast('Job requeued', 'success');
+    } catch (e) {
+      toast(e.code === 'NETWORK' ? 'Network error — try again' : 'Retry failed: ' + e.message, 'error');
+    } finally {
+      pendingActions.delete(id);
+      renderTable();
+    }
+  };
+
+  window.cancelJob = async function(id) {
+    if (pendingActions.has(id)) return;
+    pendingActions.add(id);
+    renderTable();
+    try {
+      const updated = await api.cancelJob(id);
+      const idx = jobs.findIndex(j => j.id === id);
+      if (idx >= 0) jobs[idx] = updated;
+      toast('Job cancelled', 'success');
+    } catch (e) {
+      toast(e.code === 'NETWORK' ? 'Network error — try again' : 'Cancel failed: ' + e.message, 'error');
+    } finally {
+      pendingActions.delete(id);
+      renderTable();
+    }
+  };
+
+  // Upload
+  function toggleUpload() {
+    const area = document.getElementById('uploadArea');
+    area.classList.toggle('visible');
+    if (!area.classList.contains('visible')) resetUpload();
+  }
+  window.toggleUpload = toggleUpload;
+
+  const dropzone = document.getElementById('uploadDropzone');
+  const uploadArea = document.getElementById('uploadArea');
+  uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('dragover'); });
+  uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
+  uploadArea.addEventListener('drop', e => { e.preventDefault(); uploadArea.classList.remove('dragover'); if (e.dataTransfer.files.length) startUpload(e.dataTransfer.files[0]); });
+  document.getElementById('fileInput').addEventListener('change', function() { if (this.files.length) startUpload(this.files[0]); this.value = ''; });
+
+  async function startUpload(file) {
+    lastUploadFile = file;
+    const progress = document.getElementById('uploadProgress');
+    const dropz = document.getElementById('uploadDropzone');
+    const errEl = document.getElementById('uploadError');
+    errEl.style.display = 'none';
+    dropz.style.display = 'none';
+    progress.style.display = '';
+    document.getElementById('uploadFileName').textContent = file.name;
+    document.getElementById('uploadFill').style.width = '0%';
+    document.getElementById('uploadPct').textContent = '0%';
+    document.getElementById('uploadStep').textContent = 'Uploading…';
+    document.getElementById('uploadCancelBtn').style.display = '';
+    document.getElementById('uploadToggle').disabled = true;
+
+    uploadAbort = new AbortController();
+    try {
+      const { fileId } = await api.uploadFile(file, {
+        onProgress(pct) {
+          document.getElementById('uploadFill').style.width = (pct * 0.6) + '%';
+          document.getElementById('uploadPct').textContent = Math.round(pct * 0.6) + '%';
+        },
+        signal: uploadAbort.signal
+      });
+
+      document.getElementById('uploadStep').textContent = 'Processing…';
+      document.getElementById('uploadFill').style.width = '65%';
+      document.getElementById('uploadPct').textContent = '65%';
+
+      const { jobId } = await api.processFile(fileId, { signal: uploadAbort.signal });
+
+      document.getElementById('uploadFill').style.width = '100%';
+      document.getElementById('uploadPct').textContent = '100%';
+      document.getElementById('uploadStep').textContent = 'Queued';
+      document.getElementById('uploadCancelBtn').style.display = 'none';
+      toast('Job ' + jobId + ' created', 'success');
+
+      await fetchJobs();
+      setTimeout(resetUpload, 1500);
+    } catch (e) {
+      if (e.name === 'AbortError') {
+        toast('Upload cancelled', 'success');
+        resetUpload();
+        return;
+      }
+      document.getElementById('uploadProgress').style.display = 'none';
+      errEl.style.display = 'flex';
+      document.getElementById('uploadErrorMsg').textContent = e.code === 'NETWORK' ? 'Network error — check connection' : e.message;
+    } finally {
+      uploadAbort = null;
+      document.getElementById('uploadToggle').disabled = false;
+    }
+  }
+
+  function cancelUpload() {
+    if (uploadAbort) uploadAbort.abort();
+  }
+  window.cancelUpload = cancelUpload;
+
+  function retryUpload() {
+    if (lastUploadFile) startUpload(lastUploadFile);
+  }
+  window.retryUpload = retryUpload;
+
+  function resetUpload() {
+    document.getElementById('uploadProgress').style.display = 'none';
+    document.getElementById('uploadError').style.display = 'none';
+    document.getElementById('uploadDropzone').style.display = '';
+    document.getElementById('uploadFill').style.width = '0%';
+    lastUploadFile = null;
+  }
+
+  // Filter
+  window.setFilter = function(f, btn) {
+    filter = f;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderTable();
+  };
+
+  // Toast
+  function toast(msg, type) {
+    const el = document.createElement('div');
+    el.className = 'toast ' + type;
+    el.textContent = msg;
+    document.getElementById('toasts').appendChild(el);
+    setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity .3s'; setTimeout(() => el.remove(), 300); }, 3000);
+  }
+
+  // Helpers
+  function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+  function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+  // Init
+  fetchJobs();
+  startPolling();
+})();
+</script>
+</body>
+</html>

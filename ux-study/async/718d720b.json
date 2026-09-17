@@ -1,0 +1,66 @@
+{
+  "id": "718d720b",
+  "items": [
+    {
+      "n": 1,
+      "verdict": "PASS",
+      "reason": "Within 250 ms of clicking Process file, the panel switched to a stepper with 'Uploading 0%', a progressbar, and a Cancel button.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/718d720b_1.png"
+    },
+    {
+      "n": 2,
+      "verdict": "PASS",
+      "reason": "Process file button was disabled the moment the action started; 4 rapid clicks produced exactly 1 uploadFile call in window.__apiLog.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/718d720b_2.png"
+    },
+    {
+      "n": 3,
+      "verdict": "PASS",
+      "reason": "Upload percentage advanced live (observed 20%, 80%) and job progress from getJob polling rendered as progressbars with % (43% -> 79% -> Done); the jobs table shows per-job progress bars too.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/718d720b_3.png"
+    },
+    {
+      "n": 4,
+      "verdict": "PASS",
+      "reason": "A Cancel button is present during both upload and processing; clicking it mid-processing showed 'Cancelling', called cancelJob, and settled to 'Processing failed / Cancelled by admin' with Retry and New file options.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/718d720b_4.png"
+    },
+    {
+      "n": 5,
+      "verdict": "PASS",
+      "reason": "Under fail=1 the upload panel itself showed 'Upload failed / Network request failed' (the API's actual error message) directly in the stepper next to the upload control; failed jobs in the table show specific reasons like 'Upstream timeout after 30s' inline.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/718d720b_5.png"
+    },
+    {
+      "n": 6,
+      "verdict": "PASS",
+      "reason": "The failure state offers Retry and New file buttons; clicking Retry re-issued uploadFile (call count 1 -> 2) and re-entered the uploading state without any page reload.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/718d720b_6.png"
+    },
+    {
+      "n": 7,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief; the page has no order form and submitOrder field-level validation cannot occur.",
+      "evidence": "Page contains only a file input and job table: <input class=\"sr\" type=\"file\" id=\"file\" accept=\".csv,text/csv\"> — no address/payment fields exist."
+    },
+    {
+      "n": 8,
+      "verdict": "PASS",
+      "reason": "The page polls listJobs continuously (a 'Live / Updating automatically' badge is shown) and job job_8c1e89 transitioned Running 53% -> Failed on screen without any manual refresh; counts (running/queued/failed/done) updated too.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/718d720b_8.png"
+    },
+    {
+      "n": 9,
+      "verdict": "PASS",
+      "reason": "Mid-upload I selected a different file, clicked Refresh, and clicked a job-table action; the in-flight upload continued unduplicated (still 1 uploadFile call), the pipeline banner kept naming the file actually uploading, and everything settled to a coherent queued-job state with a populated table.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/718d720b_9.png"
+    },
+    {
+      "n": 10,
+      "verdict": "PASS",
+      "reason": "The stepper's Done state and the 'Done / 9,153 rows / Download' result appeared only after the polled job reached succeeded (timeline: Queued at t=0-9s, Running 43-79% at t=12-21s, Done at t=24s); no success indication was shown before server confirmation.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/718d720b_10.png"
+    }
+  ],
+  "failCount": 0
+}

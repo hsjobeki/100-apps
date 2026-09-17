@@ -1,0 +1,548 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Checkout</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f5f5f7;--surface:#fff;--border:#d1d5db;--border-focus:#6366f1;
+  --text:#111827;--text-secondary:#6b7280;--text-muted:#9ca3af;
+  --primary:#4f46e5;--primary-hover:#4338ca;--primary-text:#fff;
+  --danger:#ef4444;--danger-bg:#fef2f2;--danger-border:#fca5a5;
+  --success:#059669;--success-bg:#ecfdf5;--success-border:#6ee7b7;
+  --radius:8px;--radius-lg:12px;
+}
+body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;min-height:100vh}
+.page{max-width:1080px;margin:0 auto;padding:24px 16px 60px}
+header{margin-bottom:32px;display:flex;align-items:center;gap:12px}
+header svg{flex-shrink:0}
+header h1{font-size:1.5rem;font-weight:700;letter-spacing:-0.02em}
+.layout{display:grid;grid-template-columns:1fr 380px;gap:32px;align-items:start}
+@media(max-width:800px){.layout{grid-template-columns:1fr;gap:24px}.order-summary{order:-1}}
+.card{background:var(--surface);border-radius:var(--radius-lg);border:1px solid var(--border);padding:24px}
+.card h2{font-size:1.1rem;font-weight:600;margin-bottom:20px;display:flex;align-items:center;gap:8px}
+.card h2 .step{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:var(--primary);color:#fff;font-size:0.75rem;font-weight:600}
+
+/* Form fields */
+.form-section{margin-bottom:28px}
+.form-section:last-of-type{margin-bottom:0}
+.field{margin-bottom:16px}
+.field:last-child{margin-bottom:0}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+@media(max-width:500px){.field-row,.field-row-3{grid-template-columns:1fr}}
+label{display:block;font-size:0.8125rem;font-weight:500;margin-bottom:4px;color:var(--text)}
+input,select{
+  width:100%;height:42px;padding:0 12px;
+  border:1.5px solid var(--border);border-radius:var(--radius);
+  font-family:inherit;font-size:0.9375rem;color:var(--text);
+  background:var(--surface);transition:border-color .15s,box-shadow .15s;
+  outline:none;
+}
+input:focus,select:focus{border-color:var(--border-focus);box-shadow:0 0 0 3px rgba(99,102,241,.15)}
+input.has-error,select.has-error{border-color:var(--danger);box-shadow:0 0 0 3px rgba(239,68,68,.1)}
+.field-error{font-size:0.75rem;color:var(--danger);margin-top:4px;display:none;align-items:center;gap:4px}
+.field-error.visible{display:flex}
+.field-error svg{flex-shrink:0}
+input::placeholder{color:var(--text-muted)}
+
+/* Order summary */
+.order-summary .items{list-style:none;margin-bottom:16px}
+.order-summary .item{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f0f0f0}
+.order-summary .item:last-child{border-bottom:none}
+.item-info{display:flex;align-items:center;gap:12px}
+.item-thumb{width:48px;height:48px;border-radius:var(--radius);background:#f3f4f6;display:flex;align-items:center;justify-content:center;font-size:1.25rem;flex-shrink:0}
+.item-name{font-size:0.875rem;font-weight:500}
+.item-qty{font-size:0.75rem;color:var(--text-secondary)}
+.item-price{font-size:0.875rem;font-weight:600;white-space:nowrap}
+.summary-line{display:flex;justify-content:space-between;padding:6px 0;font-size:0.875rem;color:var(--text-secondary)}
+.summary-total{display:flex;justify-content:space-between;padding:12px 0 0;border-top:2px solid var(--text);font-size:1.1rem;font-weight:700;margin-top:8px}
+
+/* Card icons */
+.card-type-icons{display:flex;gap:6px;margin-left:auto}
+.card-type-icons span{display:inline-flex;align-items:center;justify-content:center;width:36px;height:24px;border-radius:4px;border:1px solid var(--border);font-size:0.625rem;font-weight:600;color:var(--text-secondary);background:#fafafa}
+.card-type-icons span.active{border-color:var(--primary);background:#eef2ff;color:var(--primary)}
+
+/* Submit button */
+.submit-row{margin-top:24px}
+.btn-submit{
+  width:100%;height:48px;border:none;border-radius:var(--radius);
+  background:var(--primary);color:var(--primary-text);
+  font-family:inherit;font-size:1rem;font-weight:600;
+  cursor:pointer;transition:background .15s,opacity .15s;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  position:relative;
+}
+.btn-submit:hover:not(:disabled){background:var(--primary-hover)}
+.btn-submit:disabled{opacity:.6;cursor:not-allowed}
+.btn-submit .spinner{display:none;width:20px;height:20px;border:2.5px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
+.btn-submit.loading .spinner{display:block}
+.btn-submit.loading .btn-label{opacity:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Alerts */
+.alert{padding:12px 14px;border-radius:var(--radius);font-size:0.8125rem;margin-bottom:16px;display:none;align-items:flex-start;gap:8px;line-height:1.4}
+.alert.visible{display:flex}
+.alert-error{background:var(--danger-bg);border:1px solid var(--danger-border);color:#991b1b}
+.alert-success{background:var(--success-bg);border:1px solid var(--success-border);color:#065f46}
+.alert svg{flex-shrink:0;margin-top:1px}
+.alert-body{flex:1}
+.alert-body strong{font-weight:600}
+.alert .btn-retry{
+  display:inline-flex;align-items:center;gap:4px;
+  margin-top:6px;padding:4px 10px;border-radius:4px;
+  background:#fff;border:1px solid var(--danger-border);
+  font-family:inherit;font-size:0.75rem;font-weight:500;
+  color:#991b1b;cursor:pointer;transition:background .15s;
+}
+.alert .btn-retry:hover{background:#fef2f2}
+
+/* Success overlay */
+.success-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.4);
+  display:none;align-items:center;justify-content:center;
+  z-index:100;animation:fadeIn .25s ease;
+}
+.success-overlay.visible{display:flex}
+.success-card{
+  background:#fff;border-radius:16px;padding:40px;text-align:center;
+  max-width:420px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.15);
+  animation:slideUp .3s ease;
+}
+.success-icon{
+  width:64px;height:64px;border-radius:50%;
+  background:var(--success-bg);margin:0 auto 16px;
+  display:flex;align-items:center;justify-content:center;
+}
+.success-card h2{font-size:1.25rem;font-weight:700;margin-bottom:8px}
+.success-card p{color:var(--text-secondary);font-size:0.9rem;margin-bottom:4px}
+.success-card .order-id{font-family:monospace;font-size:0.8125rem;color:var(--primary);font-weight:600;margin-bottom:20px}
+.success-card .btn-continue{
+  display:inline-flex;padding:10px 28px;border-radius:var(--radius);
+  background:var(--primary);color:#fff;border:none;
+  font-family:inherit;font-size:0.9375rem;font-weight:600;cursor:pointer;
+}
+.success-card .btn-continue:hover{background:var(--primary-hover)}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+/* Secure badge */
+.secure-badge{display:flex;align-items:center;justify-content:center;gap:6px;font-size:0.75rem;color:var(--text-muted);margin-top:12px}
+.secure-badge svg{width:14px;height:14px}
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><rect width="28" height="28" rx="7" fill="#4f46e5"/><path d="M8 14.5l3.5 3.5 8.5-8.5" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <h1>Checkout</h1>
+  </header>
+
+  <div class="layout">
+    <div class="form-col">
+      <!-- Network error alert -->
+      <div id="networkAlert" class="alert alert-error">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm-.75 4a.75.75 0 011.5 0v3a.75.75 0 01-1.5 0V5zm.75 6.5a.875.875 0 110-1.75.875.875 0 010 1.75z"/></svg>
+        <div class="alert-body">
+          <strong>Connection failed.</strong> Please check your network and try again.
+          <br><button class="btn-retry" id="retryBtn" type="button">
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M14 1v5h-5l1.95-1.95A5.5 5.5 0 003.05 11H1.5A7 7 0 0112.95 3.05L14 2V1zm0 10h1.5A7 7 0 013.05 12.95L2 14v1H2V10h5l-1.95 1.95A5.5 5.5 0 0012.95 5H14v6z"/></svg>
+            Retry
+          </button>
+        </div>
+      </div>
+
+      <!-- Contact -->
+      <div class="card form-section">
+        <h2><span class="step">1</span> Contact</h2>
+        <div class="field">
+          <label for="email">Email</label>
+          <input type="email" id="email" placeholder="you@example.com" autocomplete="email">
+          <div class="field-error" id="emailError"><svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="8" r="7"/><path d="M8 4v4" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="11" r=".875" fill="#fff"/></svg><span></span></div>
+        </div>
+        <div class="field">
+          <label for="name">Full name</label>
+          <input type="text" id="name" placeholder="Alex Rivera" autocomplete="name">
+          <div class="field-error" id="nameError"><svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="8" r="7"/><path d="M8 4v4" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="11" r=".875" fill="#fff"/></svg><span></span></div>
+        </div>
+      </div>
+
+      <!-- Shipping -->
+      <div class="card form-section">
+        <h2><span class="step">2</span> Shipping</h2>
+        <div class="field">
+          <label for="address1">Address</label>
+          <input type="text" id="address1" placeholder="123 Main St, Apt 4" autocomplete="address-line1">
+          <div class="field-error" id="address1Error"><svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="8" r="7"/><path d="M8 4v4" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="11" r=".875" fill="#fff"/></svg><span></span></div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="city">City</label>
+            <input type="text" id="city" placeholder="San Francisco" autocomplete="address-level2">
+            <div class="field-error" id="cityError"><svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="8" r="7"/><path d="M8 4v4" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="11" r=".875" fill="#fff"/></svg><span></span></div>
+          </div>
+          <div class="field">
+            <label for="postalCode">Postal code</label>
+            <input type="text" id="postalCode" placeholder="94102" autocomplete="postal-code">
+            <div class="field-error" id="postalCodeError"><svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="8" r="7"/><path d="M8 4v4" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="11" r=".875" fill="#fff"/></svg><span></span></div>
+          </div>
+        </div>
+        <div class="field">
+          <label for="country">Country</label>
+          <select id="country" autocomplete="country">
+            <option value="">Select country</option>
+            <option value="US">United States</option>
+            <option value="CA">Canada</option>
+            <option value="GB">United Kingdom</option>
+            <option value="DE">Germany</option>
+            <option value="FR">France</option>
+            <option value="AU">Australia</option>
+            <option value="JP">Japan</option>
+            <option value="BR">Brazil</option>
+            <option value="IN">India</option>
+            <option value="MX">Mexico</option>
+          </select>
+          <div class="field-error" id="countryError"><svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="8" r="7"/><path d="M8 4v4" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="11" r=".875" fill="#fff"/></svg><span></span></div>
+        </div>
+      </div>
+
+      <!-- Payment -->
+      <div class="card form-section">
+        <h2>
+          <span class="step">3</span> Payment
+          <span class="card-type-icons">
+            <span id="cardVisa">Visa</span>
+            <span id="cardMC">MC</span>
+            <span id="cardAmex">Amex</span>
+          </span>
+        </h2>
+        <div class="field">
+          <label for="cardNumber">Card number</label>
+          <input type="text" id="cardNumber" placeholder="4242 4242 4242 4242" autocomplete="cc-number" inputmode="numeric" maxlength="19">
+          <div class="field-error" id="cardNumberError"><svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="8" r="7"/><path d="M8 4v4" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="11" r=".875" fill="#fff"/></svg><span></span></div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="cardExpiry">Expiry</label>
+            <input type="text" id="cardExpiry" placeholder="MM / YY" autocomplete="cc-exp" inputmode="numeric" maxlength="7">
+            <div class="field-error" id="cardExpiryError"><svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="8" r="7"/><path d="M8 4v4" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="11" r=".875" fill="#fff"/></svg><span></span></div>
+          </div>
+          <div class="field">
+            <label for="cardCvc">CVC</label>
+            <input type="text" id="cardCvc" placeholder="123" autocomplete="cc-csc" inputmode="numeric" maxlength="4">
+            <div class="field-error" id="cardCvcError"><svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="8" r="7"/><path d="M8 4v4" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="11" r=".875" fill="#fff"/></svg><span></span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit -->
+      <div class="submit-row">
+        <button type="button" class="btn-submit" id="submitBtn">
+          <span class="spinner"></span>
+          <span class="btn-label">Pay $142.97</span>
+        </button>
+        <div class="secure-badge">
+          <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a4 4 0 00-4 4v2H3a1 1 0 00-1 1v6a1 1 0 001 1h10a1 1 0 001-1V8a1 1 0 00-1-1h-1V5a4 4 0 00-4-4zm-2.5 4a2.5 2.5 0 015 0v2h-5V5z"/></svg>
+          Secure, encrypted checkout
+        </div>
+      </div>
+    </div>
+
+    <!-- Order Summary -->
+    <div class="order-summary">
+      <div class="card" style="position:sticky;top:24px">
+        <h2>Order summary</h2>
+        <ul class="items" id="orderItems"></ul>
+        <div class="summary-line"><span>Subtotal</span><span id="subtotal">$0.00</span></div>
+        <div class="summary-line"><span>Shipping</span><span id="shipping">$5.99</span></div>
+        <div class="summary-line"><span>Tax</span><span id="tax">$0.00</span></div>
+        <div class="summary-total"><span>Total</span><span id="total">$0.00</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Success overlay -->
+<div class="success-overlay" id="successOverlay">
+  <div class="success-card">
+    <div class="success-icon">
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="M9 16.5l5 5 9-9" stroke="#059669" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <h2>Order confirmed!</h2>
+    <p>Thank you for your purchase.</p>
+    <p class="order-id" id="orderId"></p>
+    <button class="btn-continue" id="continueBtn">Continue shopping</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  // Cart items (static for this shop)
+  const cartItems = [
+    { name: 'Wireless Headphones', qty: 1, price: 79.99, emoji: '🎧' },
+    { name: 'USB-C Cable', qty: 2, price: 12.99, emoji: '🔌' },
+    { name: 'Phone Stand', qty: 1, price: 24.99, emoji: '📱' },
+  ];
+  const SHIPPING = 5.99;
+  const TAX_RATE = 0.08;
+
+  // Render order summary
+  const itemsEl = document.getElementById('orderItems');
+  let subtotal = 0;
+  cartItems.forEach(item => {
+    const lineTotal = item.price * item.qty;
+    subtotal += lineTotal;
+    const li = document.createElement('li');
+    li.className = 'item';
+    li.innerHTML = `
+      <div class="item-info">
+        <div class="item-thumb">${item.emoji}</div>
+        <div>
+          <div class="item-name">${item.name}</div>
+          <div class="item-qty">Qty: ${item.qty}</div>
+        </div>
+      </div>
+      <div class="item-price">$${lineTotal.toFixed(2)}</div>`;
+    itemsEl.appendChild(li);
+  });
+  const tax = +(subtotal * TAX_RATE).toFixed(2);
+  const total = +(subtotal + SHIPPING + tax).toFixed(2);
+  document.getElementById('subtotal').textContent = '$' + subtotal.toFixed(2);
+  document.getElementById('tax').textContent = '$' + tax.toFixed(2);
+  document.getElementById('total').textContent = '$' + total.toFixed(2);
+  document.querySelector('.btn-label').textContent = 'Pay $' + total.toFixed(2);
+
+  // Field definitions
+  const fields = ['email','name','address1','city','postalCode','country','cardNumber','cardExpiry','cardCvc'];
+  const inputEls = {};
+  const errorEls = {};
+  fields.forEach(f => {
+    inputEls[f] = document.getElementById(f);
+    errorEls[f] = document.getElementById(f + 'Error');
+  });
+
+  function showFieldError(field, msg) {
+    const input = inputEls[field];
+    const err = errorEls[field];
+    if (!input || !err) return;
+    input.classList.add('has-error');
+    err.querySelector('span').textContent = msg;
+    err.classList.add('visible');
+  }
+
+  function clearFieldError(field) {
+    const input = inputEls[field];
+    const err = errorEls[field];
+    if (!input || !err) return;
+    input.classList.remove('has-error');
+    err.classList.remove('visible');
+  }
+
+  function clearAllErrors() {
+    fields.forEach(clearFieldError);
+    networkAlert.classList.remove('visible');
+  }
+
+  // Clear individual field errors on input
+  fields.forEach(f => {
+    inputEls[f].addEventListener('input', () => clearFieldError(f));
+    inputEls[f].addEventListener('change', () => clearFieldError(f));
+  });
+
+  // Card number formatting
+  inputEls.cardNumber.addEventListener('input', function(e) {
+    let v = this.value.replace(/\D/g, '').slice(0, 16);
+    let formatted = v.replace(/(.{4})/g, '$1 ').trim();
+    this.value = formatted;
+    updateCardIcons(v);
+  });
+
+  // Expiry formatting
+  inputEls.cardExpiry.addEventListener('input', function() {
+    let v = this.value.replace(/\D/g, '').slice(0, 4);
+    if (v.length >= 3) v = v.slice(0, 2) + ' / ' + v.slice(2);
+    this.value = v;
+  });
+
+  // CVC: digits only
+  inputEls.cardCvc.addEventListener('input', function() {
+    this.value = this.value.replace(/\D/g, '').slice(0, 4);
+  });
+
+  // Card type detection
+  function updateCardIcons(digits) {
+    const visa = document.getElementById('cardVisa');
+    const mc = document.getElementById('cardMC');
+    const amex = document.getElementById('cardAmex');
+    visa.classList.remove('active');
+    mc.classList.remove('active');
+    amex.classList.remove('active');
+    if (!digits) return;
+    if (digits[0] === '4') visa.classList.add('active');
+    else if (digits[0] === '5') mc.classList.add('active');
+    else if (digits.slice(0,2) === '34' || digits.slice(0,2) === '37') amex.classList.add('active');
+  }
+
+  // Client-side validation
+  function validateLocally() {
+    let valid = true;
+    const vals = {};
+    fields.forEach(f => {
+      vals[f] = (inputEls[f].value || '').trim();
+    });
+    if (!vals.email || !/\S+@\S+\.\S+/.test(vals.email)) {
+      showFieldError('email', 'Enter a valid email address.');
+      valid = false;
+    }
+    if (!vals.name) {
+      showFieldError('name', 'Enter your full name.');
+      valid = false;
+    }
+    if (!vals.address1) {
+      showFieldError('address1', 'Enter your street address.');
+      valid = false;
+    }
+    if (!vals.city) {
+      showFieldError('city', 'Enter your city.');
+      valid = false;
+    }
+    if (!vals.postalCode) {
+      showFieldError('postalCode', 'Enter your postal code.');
+      valid = false;
+    }
+    if (!vals.country) {
+      showFieldError('country', 'Select your country.');
+      valid = false;
+    }
+    const cardDigits = vals.cardNumber.replace(/\s/g, '');
+    if (!cardDigits || cardDigits.length < 13) {
+      showFieldError('cardNumber', 'Enter a valid card number.');
+      valid = false;
+    }
+    const expDigits = vals.cardExpiry.replace(/\D/g, '');
+    if (!expDigits || expDigits.length < 4) {
+      showFieldError('cardExpiry', 'Enter expiry as MM/YY.');
+      valid = false;
+    }
+    if (!vals.cardCvc || vals.cardCvc.length < 3) {
+      showFieldError('cardCvc', 'Enter your CVC code.');
+      valid = false;
+    }
+    return valid ? vals : null;
+  }
+
+  const submitBtn = document.getElementById('submitBtn');
+  const networkAlert = document.getElementById('networkAlert');
+  const retryBtn = document.getElementById('retryBtn');
+  const successOverlay = document.getElementById('successOverlay');
+  const continueBtn = document.getElementById('continueBtn');
+
+  let abortController = null;
+  let submitting = false;
+
+  function setLoading(on) {
+    submitting = on;
+    submitBtn.disabled = on;
+    submitBtn.classList.toggle('loading', on);
+  }
+
+  async function handleSubmit() {
+    if (submitting) return;
+
+    clearAllErrors();
+    const vals = validateLocally();
+    if (!vals) {
+      // Focus first errored field
+      const first = fields.find(f => inputEls[f].classList.contains('has-error'));
+      if (first) inputEls[first].focus();
+      return;
+    }
+
+    setLoading(true);
+    abortController = new AbortController();
+
+    const payload = {
+      email: vals.email,
+      name: vals.name,
+      address1: vals.address1,
+      city: vals.city,
+      postalCode: vals.postalCode,
+      country: vals.country,
+      cardNumber: vals.cardNumber.replace(/\s/g, ''),
+      cardExpiry: vals.cardExpiry.replace(/\s/g, ''),
+      cardCvc: vals.cardCvc,
+      items: cartItems.map(i => ({ name: i.name, qty: i.qty, price: i.price })),
+    };
+
+    try {
+      const result = await api.submitOrder(payload, { signal: abortController.signal });
+      setLoading(false);
+      document.getElementById('orderId').textContent = 'Order ' + result.orderId;
+      successOverlay.classList.add('visible');
+    } catch(err) {
+      setLoading(false);
+      if (err.name === 'AbortError') return;
+
+      if (err.code === 'VALIDATION' && err.fields) {
+        Object.keys(err.fields).forEach(key => {
+          if (errorEls[key]) showFieldError(key, err.fields[key]);
+        });
+        const firstBad = fields.find(f => err.fields[f]);
+        if (firstBad) inputEls[firstBad].focus();
+      } else if (err.code === 'NETWORK') {
+        networkAlert.classList.add('visible');
+        networkAlert.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      } else {
+        networkAlert.querySelector('.alert-body strong').textContent = 'Something went wrong.';
+        networkAlert.classList.add('visible');
+      }
+    }
+  }
+
+  submitBtn.addEventListener('click', handleSubmit);
+
+  retryBtn.addEventListener('click', function() {
+    networkAlert.classList.remove('visible');
+    handleSubmit();
+  });
+
+  continueBtn.addEventListener('click', function() {
+    successOverlay.classList.remove('visible');
+    // Reset form
+    fields.forEach(f => { inputEls[f].value = ''; });
+    clearAllErrors();
+    updateCardIcons('');
+  });
+
+  // Keyboard: Enter in form submits
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !submitting && !successOverlay.classList.contains('visible')) {
+      const active = document.activeElement;
+      if (active && (active.tagName === 'INPUT' || active.tagName === 'SELECT')) {
+        e.preventDefault();
+        handleSubmit();
+      }
+    }
+  });
+
+  // Pre-fill email from user if available
+  (async function prefill() {
+    try {
+      const user = await api.getUser();
+      if (user && user.email && !inputEls.email.value) {
+        inputEls.email.value = user.email;
+      }
+      if (user && user.name && !inputEls.name.value) {
+        inputEls.name.value = user.name;
+      }
+    } catch(e) { /* ignore */ }
+  })();
+})();
+</script>
+</body>
+</html>

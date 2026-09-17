@@ -1,0 +1,530 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Blind pairwise rating</title>
+<style>
+  :root {
+    --bg: #14161a; --panel: #1c1f26; --line: #2c313b; --ink: #e6e9ef;
+    --dim: #949cab; --accent: #5b9dff; --warn: #d8a13a; --bad: #e2686b;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+         font: 13px/1.45 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+
+  header { position: sticky; top: 0; z-index: 20; background: var(--panel);
+           border-bottom: 1px solid var(--line); }
+  .row { display: flex; align-items: center; gap: 12px; padding: 8px 14px; flex-wrap: wrap; }
+  .row + .row { border-top: 1px solid var(--line); }
+  h1 { font-size: 13px; font-weight: 600; margin: 0; white-space: nowrap; }
+  .brief { color: var(--dim); flex: 1 1 300px; min-width: 220px; }
+  .brief b { color: var(--ink); }
+  .count { font-variant-numeric: tabular-nums; color: var(--dim); white-space: nowrap; }
+  .bar { height: 3px; background: var(--line); border-radius: 2px; width: 120px; overflow: hidden; }
+  .bar i { display: block; height: 100%; background: var(--accent); }
+  .spacer { flex: 1; }
+  label.ctl { color: var(--dim); display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+
+  button, select, input[type=number] {
+    font: inherit; color: var(--ink); background: #252932; border: 1px solid var(--line);
+    border-radius: 6px; padding: 5px 10px; cursor: pointer; }
+  input[type=number] { width: 62px; cursor: text; }
+  button:hover { border-color: var(--accent); }
+  button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent);
+                                color: #0b1220; font-weight: 600; }
+  button.act { padding: 8px 15px; font-weight: 600; }
+  button.ghost { color: var(--dim); }
+  button.go { border-color: #3c6ea8; }
+  kbd { font: 11px ui-monospace, monospace; background: #0f1115; border: 1px solid var(--line);
+        border-radius: 4px; padding: 1px 5px; color: var(--dim); }
+  .seg { display: flex; gap: 3px; }
+
+  main { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px 14px 110px;
+         align-items: start; }
+  main.focus-left { grid-template-columns: 1fr 0; }
+  main.focus-right { grid-template-columns: 0 1fr; }
+  main.focus-left section.right, main.focus-right section.left { display: none; }
+
+  section { background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+            overflow: hidden; min-width: 0; }
+  .hd { display: flex; align-items: center; gap: 8px; padding: 7px 10px;
+        border-bottom: 1px solid var(--line); }
+  .hd .tag { font-weight: 700; letter-spacing: .06em; font-size: 11px; }
+  .hd a { color: var(--accent); text-decoration: none; font-size: 12px; }
+  .hd .spacer { flex: 1; }
+
+  img { display: block; width: 100%; height: auto; background: #fff; }
+  img.mobile { width: 390px; max-width: 100%; margin: 10px auto; border: 1px solid var(--line); }
+
+  .frame-wrap { position: relative; overflow: hidden; background: #fff; }
+  iframe { width: 1440px; height: 900px; border: 0; transform-origin: top left; display: block; }
+
+  .log { border-top: 1px solid var(--line); padding: 6px 10px; min-height: 28px;
+         font: 11px/1.5 ui-monospace, monospace; color: var(--dim); }
+  .log b { color: var(--ink); font-weight: 600; }
+  .log .dupe { color: var(--bad); font-weight: 600; }
+
+  footer { position: fixed; bottom: 0; left: 0; right: 0; z-index: 20; background: var(--panel);
+           border-top: 1px solid var(--line); }
+  .msg { color: var(--dim); }
+  .hint { color: var(--dim); font-size: 12px; }
+
+  .done { padding: 32px 16px 60px; max-width: 820px; }
+  .done h2 { font-size: 17px; }
+  table { border-collapse: collapse; width: 100%; margin: 12px 0; }
+  th, td { border: 1px solid var(--line); padding: 6px 9px; text-align: left;
+           font-variant-numeric: tabular-nums; }
+  th { background: #21252e; }
+  code { font: 12px ui-monospace, monospace; color: var(--dim); }
+  details { margin: 10px 0; color: var(--dim); }
+  details summary { cursor: pointer; color: var(--accent); }
+  details ol { margin: 8px 0 0 0; padding-left: 20px; }
+  details li { margin: 2px 0; }
+  @media (max-width: 980px) { main { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="row">
+    <h1>Blind pairwise rating</h1>
+    <div class="brief" id="brief"></div>
+    <div class="seg" id="mode"></div>
+    <div class="bar"><i id="barfill" style="width:0"></i></div>
+    <div class="count" id="count"></div>
+    <button class="ghost" id="jump">unrated</button>
+  </div>
+  <div class="row" id="shotbar">
+    <div class="seg" id="states"></div>
+    <span class="hint">Static screenshots. Switch to <b>live</b> to judge anything asynchronous.</span>
+  </div>
+  <div class="row" id="livebar" style="display:none">
+    <label class="ctl">latency
+      <select id="latency"><option value="fast">fast</option><option value="slow">slow (2-8s)</option></select>
+    </label>
+    <label class="ctl">failures
+      <select id="fail">
+        <option value="0">never</option>
+        <option value="0.2" selected>sometimes (0.2)</option>
+        <option value="0.5">half</option>
+        <option value="1">always</option>
+      </select>
+    </label>
+    <label class="ctl">seed <input type="number" id="seed" value="7"></label>
+    <button class="go" id="reload">reload both <kbd>r</kbd></button>
+    <span class="spacer"></span>
+    <button class="go" id="fillboth">fill both forms <kbd>f</kbd></button>
+    <button class="go" id="clickboth">click both primary actions <kbd>c</kbd></button>
+    <button class="ghost" id="triple">click 3x fast <kbd>d</kbd></button>
+  </div>
+</header>
+
+<main id="main"></main>
+
+<footer>
+  <div class="row">
+    <b>Overall</b>
+    <button class="act" id="bl">&larr; Left <kbd>&larr;</kbd></button>
+    <button class="act" id="bt">Tie <kbd>=</kbd></button>
+    <button class="act" id="br">Right &rarr; <kbd>&rarr;</kbd></button>
+    <span class="spacer"></span>
+    <span class="msg" id="msg"></span>
+    <button class="ghost" id="bprev"><kbd>p</kbd> back</button>
+    <button class="ghost" id="bskip"><kbd>s</kbd> skip</button>
+    <button class="ghost" id="bres">results</button>
+  </div>
+  <div class="row">
+    <b>Async handling</b>
+    <button id="al">Left <kbd>a</kbd></button>
+    <button id="at">Tie <kbd>t</kbd></button>
+    <button id="ar">Right <kbd>g</kbd></button>
+    <button class="ghost" id="ax">not exercised <kbd>x</kbd></button>
+    <span class="msg" id="amsg"></span>
+    <span class="spacer"></span>
+    <details id="cheat"><summary>what to look for</summary>
+      <ol>
+        <li>Loading state visible within 300 ms of starting an action</li>
+        <li>Primary action disabled or deduplicated while pending (use <b>click 3x fast</b>)</li>
+        <li>Progress shown where the API gives it (upload %, job progress)</li>
+        <li>Cancel available for long-running actions</li>
+        <li>On failure, the message is specific and next to the relevant element</li>
+        <li>On failure, a recovery path exists without reloading</li>
+        <li>API field errors land on the right fields</li>
+        <li>Live state updates without a manual refresh</li>
+        <li>Navigating away or closing a dialog mid-action leaves the UI consistent</li>
+        <li>Success state is not shown before the server confirms</li>
+      </ol>
+      <p>Set <b>failures: always</b> for 5, 6, 7. Set <b>latency: slow</b> for 1, 2, 3, 4, 9, 10.
+         The call log under each frame counts real backend calls, so a repeated method there is a
+         duplicate submission the UI let through.</p>
+    </details>
+  </div>
+</footer>
+
+<script>
+const STATES = [
+  ["idle_desktop", "idle"],
+  ["error_desktop", "everything failing"],
+  ["loading_desktop", "action in flight"],
+  ["idle_mobile", "mobile"],
+];
+const SKIP_METHODS = new Set(["getJob", "listJobs", "getUser", "getMetrics"]);
+
+let pairs = [], verdicts = {}, i = 0, state = "idle_desktop", mode = "shots", focus = null;
+let logTimer = null;
+
+const $ = (id) => document.getElementById(id);
+
+async function boot() {
+  pairs = (await (await fetch("/api/pairs")).json()).pairs;
+  verdicts = await (await fetch("/api/verdicts")).json();
+  const first = pairs.findIndex((p) => !verdicts[p.pairKey]);
+  i = first === -1 ? 0 : first;
+  renderModes();
+  renderStates();
+  render();
+}
+
+function renderModes() {
+  $("mode").innerHTML = "";
+  for (const m of ["shots", "live"]) {
+    const b = document.createElement("button");
+    b.textContent = m;
+    b.setAttribute("aria-pressed", String(m === mode));
+    b.onclick = () => { mode = m; focus = null; renderModes(); render(); };
+    $("mode").appendChild(b);
+  }
+  $("shotbar").style.display = mode === "shots" ? "" : "none";
+  $("livebar").style.display = mode === "live" ? "" : "none";
+}
+
+function renderStates() {
+  $("states").innerHTML = "";
+  STATES.forEach(([key, label], n) => {
+    const b = document.createElement("button");
+    b.textContent = label;
+    b.setAttribute("aria-pressed", String(key === state));
+    b.onclick = () => { state = key; renderStates(); render(); };
+    $("states").appendChild(b);
+  });
+}
+
+function query() {
+  return `latency=${$("latency").value}&fail=${$("fail").value}&seed=${$("seed").value || 7}`;
+}
+
+function shotSide(cls, label, id) {
+  const mob = state === "idle_mobile";
+  return `<section class="${cls}">
+    <div class="hd"><span class="tag">${label}</span><span class="spacer"></span>
+      <a href="/s/${id}?${query()}" target="_blank" rel="noopener">open in a tab &#8599;</a></div>
+    <img class="${mob ? "mobile" : ""}" src="/shots/${id}_${state}.png" alt="${label} ${state}">
+  </section>`;
+}
+
+function liveSide(cls, label, id) {
+  return `<section class="${cls}">
+    <div class="hd"><span class="tag">${label}</span>
+      <button class="ghost" data-fill="${cls}">fill</button>
+      <button class="ghost" data-click="${cls}">click</button>
+      <button class="ghost" data-reload="${cls}">reload</button>
+      <span class="spacer"></span>
+      <button class="ghost" data-focus="${cls}">${focus === cls ? "side by side" : "full width"}</button>
+      <a href="/s/${id}?${query()}" target="_blank" rel="noopener">tab &#8599;</a></div>
+    <div class="frame-wrap" data-wrap="${cls}">
+      <iframe data-frame="${cls}" src="/s/${id}?${query()}"></iframe>
+    </div>
+    <div class="log" data-log="${cls}">no backend calls yet</div>
+  </section>`;
+}
+
+function render() {
+  const p = pairs[i];
+  if (!p) return;
+  $("brief").innerHTML = `<b>Brief:</b> ${p.briefText}`;
+  $("count").textContent = `${i + 1} / ${pairs.length} \u00b7 ${Object.keys(verdicts).length} rated`;
+  $("barfill").style.width = (100 * Object.keys(verdicts).length / pairs.length) + "%";
+
+  $("main").className = focus ? "focus-" + focus : "";
+  $("main").innerHTML = mode === "shots"
+    ? shotSide("left", "LEFT", p.leftId) + shotSide("right", "RIGHT", p.rightId)
+    : liveSide("left", "LEFT", p.leftId) + liveSide("right", "RIGHT", p.rightId);
+
+  if (mode === "live") {
+    $("main").querySelectorAll("[data-fill]").forEach((b) => b.onclick = () => fillSide(b.dataset.fill));
+    $("main").querySelectorAll("[data-click]").forEach((b) => b.onclick = () => clickSide(b.dataset.click));
+    $("main").querySelectorAll("[data-reload]").forEach((b) => b.onclick = () => reloadSide(b.dataset.reload));
+    $("main").querySelectorAll("[data-focus]").forEach((b) => b.onclick = () => {
+      focus = focus === b.dataset.focus ? null : b.dataset.focus; render();
+    });
+    requestAnimationFrame(scaleFrames);
+    startLogPolling();
+  } else {
+    stopLogPolling();
+  }
+
+  const v = verdicts[p.pairKey];
+  $("msg").textContent = v ? `overall: ${v.verdict}` : "";
+  $("amsg").textContent = v && v.asyncVerdict ? `async: ${v.asyncVerdict}` : "";
+  for (const [id, val] of [["al", "Left"], ["at", "Tie"], ["ar", "Right"], ["ax", "NotExercised"]]) {
+    $(id).setAttribute("aria-pressed", String(!!v && v.asyncVerdict === val));
+  }
+}
+
+/* ---- live frame plumbing ---- */
+
+function scaleFrames() {
+  $("main").querySelectorAll("[data-wrap]").forEach((wrap) => {
+    const frame = wrap.querySelector("iframe");
+    const k = Math.min(1, wrap.clientWidth / 1440);
+    frame.style.transform = `scale(${k})`;
+    wrap.style.height = Math.round(900 * k) + "px";
+  });
+}
+addEventListener("resize", () => { if (mode === "live") scaleFrames(); });
+
+const frameOf = (cls) => $("main").querySelector(`iframe[data-frame="${cls}"]`);
+const winOf = (cls) => { try { return frameOf(cls)?.contentWindow ?? null; } catch { return null; } };
+const docOf = (cls) => { try { return frameOf(cls)?.contentDocument ?? null; } catch { return null; } };
+
+function reloadSide(cls) {
+  const p = pairs[i];
+  const id = cls === "left" ? p.leftId : p.rightId;
+  frameOf(cls).src = `/s/${id}?${query()}`;
+}
+function reloadBoth() { reloadSide("left"); reloadSide("right"); }
+
+const FIELD_VALUES = [
+  [/mail/i, "alex@example.com"],
+  [/(full.?name|^name$|cardholder|holder)/i, "Alex Rivera"],
+  [/(address|street|line1)/i, "123 Main St"],
+  [/city|town/i, "San Francisco"],
+  [/(postal|zip|post.?code)/i, "94107"],
+  [/(card.?number|cc.?num|pan)/i, "4242424242424242"],
+  [/(expiry|exp|valid)/i, "12/30"],
+  [/(cvc|cvv|security)/i, "123"],
+  [/(phone|tel|mobile)/i, "+1 415 555 0132"],
+  [/(company|org)/i, "Northwind"],
+];
+
+function valueFor(el) {
+  const hay = [el.name, el.id, el.placeholder, el.getAttribute("autocomplete"),
+               el.getAttribute("aria-label"), el.labels?.[0]?.textContent].filter(Boolean).join(" ");
+  if (el.type === "email") return "alex@example.com";
+  if (el.type === "tel") return "+1 415 555 0132";
+  if (el.type === "number") return "1";
+  for (const [re, v] of FIELD_VALUES) if (re.test(hay)) return v;
+  return "Alex Rivera";
+}
+
+function fillSide(cls) {
+  const w = winOf(cls), d = docOf(cls);
+  if (!d || !w) return;
+  let n = 0;
+  for (const el of d.querySelectorAll("input, textarea, select")) {
+    if (el.disabled || el.readOnly) continue;
+    const r = el.getBoundingClientRect();
+    if (r.width === 0 && r.height === 0) continue;
+
+    if (el.tagName === "SELECT") {
+      const opt = [...el.options].find((o) => o.value && !o.disabled);
+      if (opt && el.value !== opt.value) { el.value = opt.value; n++; }
+    } else if (el.type === "checkbox") {
+      if (!el.checked) { el.checked = true; n++; }
+    } else if (el.type === "radio") {
+      if (!d.querySelector(`input[type=radio][name="${el.name}"]:checked`)) { el.checked = true; n++; }
+    } else if (el.type === "file") {
+      try {
+        const csv = "id,amount,email\n1,100,a@example.com\n2,250,b@example.com\n";
+        const file = new w.File([csv], "sample.csv", { type: "text/csv" });
+        const dt = new w.DataTransfer();
+        dt.items.add(file);
+        el.files = dt.files;
+        n++;
+      } catch { /* browser refused a synthetic file list */ }
+    } else if (el.type === "hidden" || el.type === "submit" || el.type === "button") {
+      continue;
+    } else if (!el.value) {
+      el.value = valueFor(el);
+      n++;
+    }
+    el.dispatchEvent(new w.Event("input", { bubbles: true }));
+    el.dispatchEvent(new w.Event("change", { bubbles: true }));
+  }
+  flash(cls, `filled ${n} field${n === 1 ? "" : "s"}`);
+}
+
+const PRIMARY_TEXT = /\b(pay|submit|order|checkout|process|upload|save|continue|confirm|start|run|retry|create|finish|complete|get started|next)\b/i;
+
+function primaryOf(cls) {
+  const d = docOf(cls);
+  if (!d) return null;
+  const vis = (el) => {
+    const r = el.getBoundingClientRect();
+    if (r.width === 0 || r.height === 0) return false;
+    const cs = el.ownerDocument.defaultView.getComputedStyle(el);
+    return cs.visibility !== "hidden" && cs.display !== "none" && parseFloat(cs.opacity) > 0;
+  };
+  const cands = [...d.querySelectorAll("button, input[type=submit], [role=button], a[role=button]")].filter(vis);
+  return cands.find((el) => PRIMARY_TEXT.test(el.innerText || el.value || ""))
+      ?? cands.find((el) => el.type === "submit")
+      ?? cands[0] ?? null;
+}
+
+function clickSide(cls, times = 1) {
+  const el = primaryOf(cls);
+  if (!el) { flash(cls, "no clickable action found"); return; }
+  const label = (el.innerText || el.value || el.tagName).trim().slice(0, 40).replace(/\s+/g, " ");
+  for (let k = 0; k < times; k++) setTimeout(() => { try { el.click(); } catch {} }, k * 100);
+  flash(cls, `clicked "${label}"${times > 1 ? ` ${times}x` : ""}`);
+}
+
+function flash(cls, text) {
+  const el = $("main").querySelector(`[data-log="${cls}"]`);
+  if (el) el.dataset.flash = text;
+}
+
+function startLogPolling() {
+  stopLogPolling();
+  logTimer = setInterval(() => {
+    for (const cls of ["left", "right"]) {
+      const el = $("main").querySelector(`[data-log="${cls}"]`);
+      if (!el) continue;
+      const w = winOf(cls);
+      const log = w && w.__apiLog;
+      if (!log) { el.innerHTML = el.dataset.flash ? `<b>${el.dataset.flash}</b>` : "waiting for the page"; continue; }
+      const tally = {};
+      for (const e of log) tally[e.method] = (tally[e.method] || 0) + 1;
+      const parts = Object.entries(tally).map(([m, c]) => {
+        const dupe = c > 1 && !SKIP_METHODS.has(m);
+        return `<span class="${dupe ? "dupe" : ""}">${m}\u00d7${c}</span>`;
+      });
+      const flashTxt = el.dataset.flash ? `<b>${el.dataset.flash}</b> \u00b7 ` : "";
+      el.innerHTML = flashTxt + (parts.length ? parts.join("  ") : "no backend calls yet");
+    }
+  }, 400);
+}
+function stopLogPolling() { if (logTimer) { clearInterval(logTimer); logTimer = null; } }
+
+/* ---- voting ---- */
+
+async function post(body) {
+  await fetch("/api/verdict", {
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body),
+  });
+}
+
+async function vote(verdict) {
+  const p = pairs[i];
+  if (!p) return;
+  if (verdict) {
+    const prev = verdicts[p.pairKey] || {};
+    verdicts[p.pairKey] = { ...prev, verdict, at: new Date().toISOString() };
+    await post({ pairKey: p.pairKey, verdict });
+  }
+  if (i < pairs.length - 1) { i++; render(); } else { showResults(); }
+}
+
+async function voteAsync(asyncVerdict) {
+  const p = pairs[i];
+  if (!p) return;
+  const prev = verdicts[p.pairKey] || {};
+  verdicts[p.pairKey] = { ...prev, asyncVerdict, at: new Date().toISOString() };
+  await post({ pairKey: p.pairKey, asyncVerdict });
+  $("amsg").textContent = `async: ${asyncVerdict}`;
+  for (const [id, val] of [["al", "Left"], ["at", "Tie"], ["ar", "Right"], ["ax", "NotExercised"]]) {
+    $(id).setAttribute("aria-pressed", String(asyncVerdict === val));
+  }
+  $("count").textContent = `${i + 1} / ${pairs.length} \u00b7 ${Object.keys(verdicts).length} rated`;
+}
+
+async function showResults(force) {
+  const left = pairs.length - Object.keys(verdicts).filter((k) => verdicts[k].verdict).length;
+  if (left > 0 && force !== true) {
+    const go = confirm(`${left} pairs have no overall verdict. Results reveal which side each model `
+      + `built, so the pairs you have not rated yet stop being blind. Show results anyway?`);
+    if (!go) return;
+  }
+  stopLogPolling();
+  const r = await (await fetch("/api/results")).json();
+  document.querySelector("footer").style.display = "none";
+  document.querySelector("header").style.display = "none";
+  const row = (label, t) => `<tr><td>${label}</td><td>${t.b}</td><td>${t.a}</td><td>${t.ties}</td>
+    <td>${t.rate === null ? "n/a" : t.rate + "%"}</td></tr>`;
+  $("main").outerHTML = `<div class="done">
+    <h2>Your verdicts vs the model rater</h2>
+    <p>You gave an overall verdict on ${r.human.rated} of ${r.human.total} pairs and an async verdict on
+       ${r.humanAsync.rated}. Nothing below was visible while you rated.</p>
+
+    <h3>Overall preference</h3>
+    <table><tr><th>Rater</th><th>prefers B</th><th>prefers A</th><th>ties</th><th>B win rate</th></tr>
+      ${row("You", r.human.tally)}
+      ${row("claude-fable-5", r.fable.tally)}
+    </table>
+    <p><b>Agreement on pairs you both decided:</b>
+       ${r.agreement.n ? `${r.agreement.agree} / ${r.agreement.n} (${r.agreement.rate}%)` : "n/a"}</p>
+
+    <h3>Async handling</h3>
+    <table><tr><th>Rater</th><th>prefers B</th><th>prefers A</th><th>ties</th><th>B win rate</th></tr>
+      ${row("You", r.humanAsync.tally)}
+      ${row("claude-fable-5 (checklist)", r.fableAsync.tally)}
+    </table>
+    <p>Fable's async column resolves each pair by comparing the two sites' checklist fail counts:
+       A mean ${r.fableAsync.meanFailsA} failures per site, B mean ${r.fableAsync.meanFailsB}.
+       ${r.humanAsync.notExercised} pairs you marked <i>not exercised</i> are excluded.</p>
+
+    <h3>Position check</h3>
+    <p>You picked Left ${r.human.leftPicks} times and Right ${r.human.rightPicks} times.
+       A is on the left in ${r.orientation.aLeft} of ${r.human.total} pairs, so a side habit alone
+       cannot produce a lopsided model result.</p>
+
+    <p>A = <code>${r.models.a}</code>, B = <code>${r.models.b}</code>.
+       Per-pair detail in <code>ux-study/human/verdicts.json</code>.</p>
+    <p><button class="act" onclick="location.reload()">back to rating</button></p>
+  </div>`;
+}
+
+$("bl").onclick = () => vote("Left");
+$("br").onclick = () => vote("Right");
+$("bt").onclick = () => vote("Tie");
+$("bskip").onclick = () => vote(null);
+$("bprev").onclick = () => { if (i > 0) { i--; render(); } };
+$("bres").onclick = () => showResults(false);
+$("al").onclick = () => voteAsync("Left");
+$("ar").onclick = () => voteAsync("Right");
+$("at").onclick = () => voteAsync("Tie");
+$("ax").onclick = () => voteAsync("NotExercised");
+$("jump").onclick = () => {
+  const n = pairs.findIndex((p) => !verdicts[p.pairKey]?.verdict);
+  if (n >= 0) { i = n; render(); } else { $("msg").textContent = "all pairs rated"; }
+};
+$("reload").onclick = reloadBoth;
+$("fillboth").onclick = () => { fillSide("left"); fillSide("right"); };
+$("clickboth").onclick = () => { clickSide("left"); clickSide("right"); };
+$("triple").onclick = () => { clickSide("left", 3); clickSide("right", 3); };
+for (const id of ["latency", "fail", "seed"]) $(id).onchange = reloadBoth;
+
+addEventListener("keydown", (e) => {
+  if (e.target.tagName === "INPUT" || e.target.tagName === "SELECT") return;
+  const k = e.key;
+  if (k === "ArrowLeft") vote("Left");
+  else if (k === "ArrowRight") vote("Right");
+  else if (k === "=" || k === "0") vote("Tie");
+  else if (k === "s") vote(null);
+  else if (k === "p") { if (i > 0) { i--; render(); } }
+  else if (k === "a") voteAsync("Left");
+  else if (k === "g") voteAsync("Right");
+  else if (k === "t") voteAsync("Tie");
+  else if (k === "x") voteAsync("NotExercised");
+  else if (k === "m") { mode = mode === "shots" ? "live" : "shots"; focus = null; renderModes(); render(); }
+  else if (mode === "live" && k === "r") reloadBoth();
+  else if (mode === "live" && k === "f") { fillSide("left"); fillSide("right"); }
+  else if (mode === "live" && k === "c") { clickSide("left"); clickSide("right"); }
+  else if (mode === "live" && k === "d") { clickSide("left", 3); clickSide("right", 3); }
+  else if (mode === "shots" && k >= "1" && k <= "4") { state = STATES[+k - 1][0]; renderStates(); render(); }
+});
+
+boot();
+</script>
+</body>
+</html>

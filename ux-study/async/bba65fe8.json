@@ -1,0 +1,66 @@
+{
+  "id": "bba65fe8",
+  "items": [
+    {
+      "n": 1,
+      "verdict": "FAIL",
+      "reason": "Initial load and the error-page Retry show 'Loading services…' promptly, but clicking a range button (1h/24h/7d) — the page's primary async action — shows no loading state at all: at 250 ms under slow latency the old data stays on screen, the .spinner element remains hidden, no aria-busy, no dimming, for up to 8 s.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/bba65fe8_1.png (250 ms after clicking 7d under latency=slow: stale 24h data, no indicator; DOM probe found .spinner with visible:false, gridOpacity 1)"
+    },
+    {
+      "n": 2,
+      "verdict": "PASS",
+      "reason": "Three rapid clicks on '7d' under slow latency produced exactly one getMetrics({range:'7d'}) call in __apiLog (repeat clicks on the already-selected range are no-ops), and while Retry is pending the Retry button is replaced by the loading view so it cannot be re-clicked.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/bba65fe8_2.png (__apiLog after triple-click contains a single {\"m\":\"getMetrics\",\"a\":\"{\\\"range\\\":\\\"7d\\\"}\"} entry)"
+    },
+    {
+      "n": 3,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief; the page exposes no upload or job-progress source.",
+      "evidence": "Page makes only getMetrics calls per __apiLog: [{\"m\":\"getMetrics\",\"a\":\"{\\\"range\\\":\\\"24h\\\"}\"}...] — no upload/job APIs used."
+    },
+    {
+      "n": 4,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief; no long-running cancellable action exists on a read-only dashboard.",
+      "evidence": "Only visible controls are range buttons and Retry: buttons = [Retry, 1h, 24h, 7d]; no upload/processing action to cancel."
+    },
+    {
+      "n": 5,
+      "verdict": "PASS",
+      "reason": "At fail=1 the fetch failure replaces the dashboard (the relevant element — the data itself) with a clear 'Connection Lost' state that includes the specific underlying error text 'Network request failed' and a Retry button.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/bba65fe8_5.png (body text: 'Connection Lost / Network request failed / Retry')"
+    },
+    {
+      "n": 6,
+      "verdict": "PASS",
+      "reason": "The error state offers a Retry button that re-issues getMetrics without a reload (call count 1→2 in __apiLog, 'Loading services…' shown within 150 ms); at fail=0.5 one Retry click recovered the full dashboard in the same session.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/bba65fe8_6b.png (after Retry at fail=0.5: 'Service Health / Updated 02:23:59 PM / HEALTHY 4 …' rendered with no page reload)"
+    },
+    {
+      "n": 7,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief; the page has no form fields and never calls submitOrder.",
+      "evidence": "__apiLog across all sessions contains only getMetrics calls; DOM has no input or form elements, only range buttons and Retry."
+    },
+    {
+      "n": 8,
+      "verdict": "PASS",
+      "reason": "The page polls getMetrics every 10 s (__apiLog t=69, 10585, 20584, …) with the currently selected range, and the UI updates without refresh: the 'Updated' timestamp advanced 02:19:47→02:20:47 and per-service delta values changed across polls (-181ms → -25ms → -16ms).",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/bba65fe8_8.png (__apiLog: getMetrics at t=69,10585,20584,30584,40584,50584,60584; header 'Updated 02:20:47 PM')"
+    },
+    {
+      "n": 9,
+      "verdict": "PASS",
+      "reason": "Clicking 7d while a 1h fetch was still pending under slow latency (closest mid-action view switch on this single-view page) left nothing broken: both requests resolved, the UI settled on 7d active with 7d data, and subsequent polls correctly used range=7d.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/bba65fe8_9b.png (settled: 7d btn cls='active', 'Updated 02:23:06 PM', next poll logged as getMetrics {range:'7d'})"
+    },
+    {
+      "n": 10,
+      "verdict": "PASS",
+      "reason": "No fabricated or premature completed state: after a range click the page keeps the previously confirmed data and the old 'Updated' timestamp, and new values plus a new timestamp appear only when the server responds (02:22:06 before arrival → 02:22:22 after); errors never show success.",
+      "evidence": "DOM before/after 7d response: head 'Updated 02:22:06 PM … 846ms -25ms' unchanged while pending, then 'Updated 02:22:22 PM' with new data only after getMetrics({range:'7d'}) resolved."
+    }
+  ],
+  "failCount": 1
+}

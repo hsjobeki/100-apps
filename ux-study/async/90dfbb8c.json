@@ -1,0 +1,66 @@
+{
+  "id": "90dfbb8c",
+  "items": [
+    {
+      "n": 1,
+      "verdict": "PASS",
+      "reason": "Under slow latency, 250 ms after clicking Save the button read 'Saving' with aria-busy=true, a spinner, and disabled state; delete-project and delete-account confirms likewise showed 'Deleting' within 250 ms.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/90dfbb8c_1.png"
+    },
+    {
+      "n": 2,
+      "verdict": "PASS",
+      "reason": "While pending, Save/Deleting buttons and all dialog buttons were disabled; triple-clicking during each pending action produced exactly 1 updateSettings, 1 deleteProject, and 1 deleteAccount call in window.__apiLog.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/90dfbb8c_2.png"
+    },
+    {
+      "n": 3,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief; the page has no upload or job-progress surface.",
+      "evidence": "N/A per task instructions (B6 brief, no upload/processing flows)."
+    },
+    {
+      "n": 4,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief; no long-running upload/processing action exists to cancel.",
+      "evidence": "N/A per task instructions (B6 brief)."
+    },
+    {
+      "n": 5,
+      "verdict": "PASS",
+      "reason": "At fail=1, a role=alert appeared inside the Profile card 12 px above the Retry button reading 'Network request failed. Your edits are still here.', and the delete dialog showed an error naming the item: 'Network request failed. \"Q3 Website Rebuild\" was not deleted.'",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/90dfbb8c_5.png"
+    },
+    {
+      "n": 6,
+      "verdict": "PASS",
+      "reason": "After a failed save, the button became 'Retry'; clicking it fired a second updateSettings without reload and the edited value 'Alex Failing' was preserved; the failed delete dialog stayed open with enabled Retry/Cancel/Delete buttons.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/90dfbb8c_6.png"
+    },
+    {
+      "n": 7,
+      "verdict": "N/A",
+      "reason": "Marked not applicable; only B5 receives API field-level validation errors.",
+      "evidence": "N/A per task instructions (item 7 applies only to B5)."
+    },
+    {
+      "n": 8,
+      "verdict": "N/A",
+      "reason": "Marked not applicable; this brief has no polled server-side state.",
+      "evidence": "N/A per task instructions (item 8 applies only to B1–B3)."
+    },
+    {
+      "n": 9,
+      "verdict": "PASS",
+      "reason": "During a pending delete, Escape ×2, a backdrop click, and clicking a nav section left the dialog open in its 'Deleting' state (close blocked while in flight); on resolution it closed itself and list count, sidebar badge ('Projects 0'), and the 'No projects' empty state were all consistent.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/90dfbb8c_9.png"
+    },
+    {
+      "n": 10,
+      "verdict": "PASS",
+      "reason": "No optimistic state anywhere: the project row stayed in the list until deleteProject resolved, 'Profile saved.' appeared only after updateSettings resolved, and 250 ms into deleteAccount the page showed only 'Deleting' with no deleted text; 'Account deleted' rendered only after the call resolved.",
+      "evidence": "DOM at +250ms of deleteAccount: dialog buttons [Close(disabled), Retry(disabled), Cancel(disabled), 'Deleting'(disabled)], body contains no 'Account deleted'; after resolve body reads 'Account deleted / Nothing is left to manage here.'"
+    }
+  ],
+  "failCount": 0
+}

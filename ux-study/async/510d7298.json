@@ -1,0 +1,66 @@
+{
+  "id": "510d7298",
+  "items": [
+    {
+      "n": 1,
+      "verdict": "PASS",
+      "reason": "280 ms after clicking 'Use sample CSV' under slow latency, the upload card already showed the file entry with a Cancel button, an 'Uploading 0%' status and a highlighted Upload→Process→Ready stepper.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/510d7298_1.png"
+    },
+    {
+      "n": 2,
+      "verdict": "PASS",
+      "reason": "While the upload was pending the 'Use sample CSV' button reported disabled=true, and a scripted double-click added zero uploadFile calls (count stayed 1); the driver's triple-click also observed exactly 1 uploadFile call.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/510d7298_2.png"
+    },
+    {
+      "n": 3,
+      "verdict": "PASS",
+      "reason": "Upload shows a live percentage (0%→85%), processing shows a per-job progressbar with % in the upload card (aria-valuenow=42 observed mid-run), and every table row has a role=progressbar with its percent.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/510d7298_3.png"
+    },
+    {
+      "n": 4,
+      "verdict": "PASS",
+      "reason": "A Cancel button is present during both upload and processing; clicking it mid-processing issued cancelJob, the row showed 'Cancelling', then settled to Failed with 'Cancelled by admin' and a Retry/Dismiss recovery card.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/510d7298_4.png"
+    },
+    {
+      "n": 5,
+      "verdict": "PASS",
+      "reason": "At fail=1 the upload card itself showed 'Upload failed NETWORK — The server could not be reached' directly beside the file entry, and failed jobs show specific per-row reasons like 'Worker ran out of memory at 1.8 GB'.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/510d7298_5.png"
+    },
+    {
+      "n": 6,
+      "verdict": "PASS",
+      "reason": "The failure card offers Retry and Discard; clicking Retry re-issued uploadFile (log count 1→2) without any reload, and each failed job row has its own Retry button.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/510d7298_6.png"
+    },
+    {
+      "n": 7,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief; the page has no API-driven field-level form validation.",
+      "evidence": "Checklist instruction: item 7 applies only to the checkout brief; this page is a CSV upload/processing tool with no validated form fields."
+    },
+    {
+      "n": 8,
+      "verdict": "PASS",
+      "reason": "The page polls listJobs continuously (2 calls observed in a 6 s window) and jobs advanced Running→Succeeded/Failed with progress percentages updating in the table without any manual refresh.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/510d7298_8.png"
+    },
+    {
+      "n": 9,
+      "verdict": "PASS",
+      "reason": "With an upload pending at 30%, switching the Runs filter to Failed and opening then closing the Job details dialog left the UI consistent: the upload kept progressing, the dialog closed cleanly, counts matched, and zero page errors fired.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/510d7298_9.png"
+    },
+    {
+      "n": 10,
+      "verdict": "PASS",
+      "reason": "Sampling every 800 ms through a full run showed only Queueing→Queued 0%→Running % states until the server reported success, at which point the card switched to 'Succeeded — Download — 9,153 rows'; at fail=1 no success state ever appeared.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/510d7298_10.png"
+    }
+  ],
+  "failCount": 0
+}

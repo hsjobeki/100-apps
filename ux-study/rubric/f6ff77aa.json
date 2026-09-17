@@ -1,0 +1,87 @@
+{
+  "id": "f6ff77aa",
+  "f1": {
+    "score": 5,
+    "observations": [
+      "Upload progress: the active-upload card renders a .progress-track/.progress-fill bar plus 'Uploading…' and a numeric percent ('10%→90%' per async item 3), so the bar carries the state and text supports it.",
+      "Processing status: every job row has a colored status badge with a dot (statusBadge(): 'Running' blue, 'Failed' red) plus its own progress bar; running rows add a percent ('39%', '84%', '80%' in idle_desktop.png).",
+      "Success/failure: success shows a green progress fill plus 'Complete — 2,830 rows processed' and a ↓ Download button; failure shows a red badge, red bar fill, and an SVG error icon (errorIcon()) next to the reason 'Worker ran out of memory at 1.8 GB'.",
+      "metrics desktop.graphical totals 30 (6 svg, 24 badge-heuristic elements); the bars are div-based rather than <progress>, but every inventory state has a graphical carrier.",
+      "Raw ratio: 3/3 inventory items graphical+text, 0 text-only, 0 missing."
+    ]
+  },
+  "f2": {
+    "score": 4,
+    "observations": [
+      "metrics: desktop viewportWords 59, pageWords 71, helperWords 10, longLeafWords 0 — an extremely lean page.",
+      "All 9 button labels are 1–2 words (meanWords 1.22, maxWords 2, longLabels empty): 'Refresh', 'Cancel', 'Retry', '↓ Download', 'Try again'.",
+      "The only text that restates what the UI shows is the header tagline 'Upload, process, and download your data' (10 words, the entirety of helperWords), which repeats what the dropzone and jobs list already communicate.",
+      "Empty state 'No jobs yet. Upload a CSV to get started.' and dropzone 'Drop your CSV here / or click to browse' each earn their place as affordance text, not narration."
+    ]
+  },
+  "f3": {
+    "score": 3,
+    "observations": [
+      "The jobs-list 'Retry' buttons promise behavior that never happens: h() calls el.setAttribute('disabled', false), and setAttribute('disabled','false') disables the element, so every list Retry is permanently inert — confirmed by the async rater (item 6: '<button class=\"retry-btn\" disabled=\"false\"> is actually disabled').",
+      "The jobs-list 'Cancel' buttons have the identical dead-attribute bug (async item 4: 'per-row Cancel buttons in the jobs list are inert'), so 'Cancel' on running rows also promises an action that does not happen.",
+      "Inconsistent naming for the same terminal state: the active-upload card labels a succeeded job 'Complete' (label = 'Complete' in renderActiveUpload) while the same job in the list below is badged 'Succeeded'.",
+      "Otherwise the copy is tight and matches behavior: 'Network error. Check your connection and try again.' sits next to a working 'Try again' link, and failure reasons are the server's specific strings ('Upstream timeout after 30s'). 2–3 issues total lands at the 3 anchor."
+    ]
+  },
+  "f4": {
+    "score": 4,
+    "observations": [
+      "Layout is task-driven: the dropzone is the hero element with accept='.csv,text/csv' and 'Drop your CSV here', and the jobs list is sorted by actionability (order = running 0, queued 1, failed 2, succeeded 3 in loadJobs()).",
+      "Detail choices fit the CSV-processing user: monospace job ids (job_8c1e89), per-row percent + bar for running jobs, server failure reasons inline under the bar, '2,830 rows processed' with ↓ Download on success, and a custom logo SVG of opposing up/down arrows echoing upload/download.",
+      "Type and color are stock: Inter from Google Fonts, indigo #4f7df9 primary, white rounded cards on light gray, pill badges — an interchangeable SaaS palette that keeps this off a 5.",
+      "Skeleton loading rows shaped like job cards (loading_desktop.png) show the loading state was designed for this list rather than a generic spinner."
+    ]
+  },
+  "hierarchy": {
+    "score": 5,
+    "observations": [
+      "Answered from idle_desktop.png before reading source: purpose read instantly as 'upload a CSV for server processing' from the title 'CSV Processor', tagline 'Upload, process, and download your data', and the dominant dropzone — matches the brief.",
+      "Primary action read as the large dashed dropzone 'Drop your CSV here / or click to browse' with the blue upload icon, the largest and topmost interactive region — correct.",
+      "Needs-attention read as the three red 'Failed' rows (job_b86738, job_35484f, job_cf8d6a) with red bars, error icons, specific reasons, and adjacent Retry buttons — red is used only there, so failures pop against the blue/gray page.",
+      "All three answers checked out against the brief and the source; nothing competed with the dropzone for prominence."
+    ]
+  },
+  "f1Inventory": [
+    {
+      "item": "upload progress",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "processing status",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "success/failure",
+      "classification": "graphical+text"
+    }
+  ],
+  "f2Redundant": [
+    "'Upload, process, and download your data' — header tagline restating what the dropzone and jobs list already show."
+  ],
+  "f3Issues": [
+    "List-row 'Retry' buttons are permanently disabled (setAttribute('disabled', false) bug in h()), so the label promises a retry that never happens.",
+    "List-row 'Cancel' buttons on running jobs are permanently disabled by the same bug, promising a cancel that never happens.",
+    "Same terminal state named 'Complete' in the active-upload card but 'Succeeded' in the job-list badge."
+  ],
+  "f4TaskDriven": [
+    "Dropzone as the dominant hero element, accepting only .csv/text/csv, headlined 'Drop your CSV here'",
+    "Monospace job ids (job_8c1e89 etc.) for an operator-facing list",
+    "Jobs sorted by actionability: running, queued, failed, succeeded",
+    "Per-row progress bar plus numeric percent on running jobs",
+    "Server-specific failure reasons rendered inline under each failed job's bar",
+    "'2,830 rows processed' result summary with ↓ Download button on success",
+    "Custom logo SVG of opposing up/down arrows echoing the upload/download workflow",
+    "Skeleton placeholders shaped like job rows during initial jobs load"
+  ],
+  "f4Template": [
+    "Inter from Google Fonts as the sole typeface",
+    "Indigo/blue #4f7df9 primary with white cards on light gray — stock SaaS palette",
+    "Pill-shaped status badges and uniformly rounded cards",
+    "Dashed-border dropzone with centered icon — the standard upload-widget pattern"
+  ]
+}

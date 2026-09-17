@@ -1,0 +1,83 @@
+{
+  "id": "b89a17df",
+  "hierarchy": {
+    "score": 5,
+    "observations": [
+      "From the idle desktop screenshot alone: title 'CSV Processor' plus subtitle 'Upload a CSV file to process it and download the results.' make the purpose unmistakable, and it matches the brief exactly.",
+      "The primary action is obvious: a large dashed dropzone with an upload icon and 'Drop your CSV here or browse' occupies the entire top half of the 1440x900 viewport.",
+      "What needs attention reads instantly: three 'Failed' rows with red dots, red 'Failed' chips, inline reasons ('Worker ran out of memory at 1.8 GB', 'Upstream timeout after 30s') and Retry buttons; the one green 'Download' button marks the completed job. All three answers check out against the brief."
+    ]
+  },
+  "f1": {
+    "score": 5,
+    "observations": [
+      "Raw ratio: 3/3 inventory items graphical+text.",
+      "Upload progress: the active-task card renders a .progress-track/.progress-fill bar with 'Uploading… N%' beside it (async evidence item 3: '0% → 20% → 50% → 70%').",
+      "Processing status: card shows a progress bar with 'Processing… N%'; running job rows carry mini progress bars (job-progress-mini) plus a blue status dot and a 'Running' chip — visible in all three desktop states and the mobile shot.",
+      "Success/failure: colored status dots (green/red/blue), colored chips ('Succeeded' green, 'Failed' red), check/alert SVG icons on the card's file icon, red .task-error banner with alert icon, and a green Download button; metrics count 28 graphical elements (9 svg, 19 badge-heuristic hits) on the idle desktop page."
+    ]
+  },
+  "f2": {
+    "score": 4,
+    "observations": [
+      "Measured desktop viewportWords is 78 and pageWords 85 — a lean page; helperWords is 11 and longLeafWords is 0, so there is no explanatory-paragraph narration anywhere.",
+      "All 6 measured action labels are exactly 1 word (meanWords 1, maxWords 1, longLabels empty); the longest label in the source is the two-word 'Upload again' on the cancelled card.",
+      "The only text that restates what the UI already shows is the job_meta line: renderJobs sets `meta = j.id`, so 5 of 8 rows print the id twice ('job_8c1e89' as title, 'job_8c1e89' as meta), which blocks the 5 anchor's 'no text restates what the UI already shows'."
+    ]
+  },
+  "f3": {
+    "score": 3,
+    "observations": [
+      "4 issues found, which lands in the anchor's '3 = 2 to 4 issues' band; terminology is otherwise consistent (Jobs/Retry/Cancel/Download used identically on card and rows) with no marketing tone and no placeholder lorem.",
+      "The Cancel button on the active card promises behavior that does not happen once processFile resolves: cancelCurrent only calls abortCtrl.abort(), but pollJob awaits api.getJob without a signal, so the abort never rejects anything and the card stays in 'Processing…' — confirmed by the async rater's item-4 caveat.",
+      "The same terminal state is named 'Complete' on the card (statusText for phase 'done') but 'Succeeded' in the list chip; a card-cancelled upload is labeled 'Cancelled' while the identical job shows in the list as 'Failed — Cancelled by admin'."
+    ]
+  },
+  "f4": {
+    "score": 4,
+    "observations": [
+      "Layout is clearly task-driven: upload-first hero dropzone with accept='.csv,text/csv' and 'CSV files only'; the job list is sorted running → queued → failed → succeeded in refreshJobs so actionable work floats up; per-status actions are exact (Cancel on running/queued, Retry on failed, Download only on succeeded with result).",
+      "Result copy is domain-specific: success meta appends '— 1,234 rows' via toLocaleString, failures append the server's concrete reason ('Upstream timeout after 30s'), and the active card shows filename + formatted file size.",
+      "The visual language is stock modern-SaaS: Inter from Google Fonts, white rounded cards on a light-gray page, pastel status chips, dashed dropzone with a circled icon, bottom-right toast — competent but interchangeable styling, which keeps it off the 5 anchor."
+    ]
+  },
+  "f1Inventory": [
+    {
+      "item": "upload progress",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "processing status",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "success/failure",
+      "classification": "graphical+text"
+    }
+  ],
+  "f2Redundant": [
+    "job-meta line repeats the job id already shown as the row title (renderJobs: `let meta = j.id;`), e.g. 'job_8c1e89' printed twice per row for every non-failed, non-succeeded job"
+  ],
+  "f3Issues": [
+    "Copy promising behavior that does not happen: the card's 'Cancel' button is shown throughout the processing phase, but after processFile resolves the abort has no effect (pollJob's getJob takes no signal and the catch never fires), so clicking Cancel silently does nothing",
+    "Inconsistent naming for the same state: card shows 'Complete' for a finished upload while the jobs list chip shows 'Succeeded'",
+    "Inconsistent naming for the same state: card shows 'Cancelled' after aborting, while the same job appears in the list as 'Failed — Cancelled by admin'",
+    "Filler: the job-meta line that only repeats the job id verbatim under the identical id ('job_8c1e89 / job_8c1e89') carries no information"
+  ],
+  "f4TaskDriven": [
+    "Hero dropzone as the dominant element with accept='.csv,text/csv', drag-over highlight state, and the 'CSV files only' constraint",
+    "Jobs list sorted running → queued → failed → succeeded so items needing action surface first",
+    "Status-conditional row actions: Cancel only on running/queued, Retry only on failed, Download only on succeeded jobs with a result",
+    "Per-row mini progress bars for running jobs and a full progress bar with percentage on the active upload/processing card",
+    "Success meta reports processed row count ('— 1,234 rows'); failure meta shows the server's specific error string inline",
+    "Active-task card shows filename and human-formatted file size (formatSize: B/KB/MB)",
+    "Dropzone disables (pointer-events none, .disabled class) while an upload is in flight, matching the one-file-at-a-time pipeline"
+  ],
+  "f4Template": [
+    "Inter font loaded from Google Fonts — default modern-SaaS typeface",
+    "White rounded cards on a light-gray page background with soft shadows",
+    "Pastel status chips and dot indicators in stock blue/red/green semantic colors",
+    "Dashed-border dropzone with a circled upload icon — the canonical upload pattern",
+    "Bottom-right error toast ('Network error') in the standard toast position"
+  ]
+}

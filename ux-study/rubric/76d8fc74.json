@@ -1,0 +1,84 @@
+{
+  "id": "76d8fc74",
+  "f1": {
+    "score": 5,
+    "observations": [
+      "Raw ratio: 3/3 inventory items are graphical+text; 0 text only, 0 missing.",
+      "Save state: `#saveSpinner` (svg spinner) plus `#profileStatus` with state-coloured glyphs — spin icon for data-state=saving, check for saved, alert for error — alongside the words 'Saving'/'Saved'; toggle switches show a spinner inside the knob (`.switch[data-pending] .knob .ic{opacity:1}`) and the row gets a `data-pending` background tint.",
+      "Destructive-action danger level: the Danger zone card carries a red hatched stripe (`.hatch` repeating-linear-gradient in var(--danger)), red-tinted card head (`.danger-card .card-head{background:var(--danger-bg)}`), red trash/alert icons, red 'Danger zone' nav icon (`.nav-link.is-danger .ic`), and solid red `.btn.danger` confirm buttons — all backed by text ('Delete account', 'Cannot be undone.').",
+      "Confirmation state: the delete-account dialog gates the red confirm on a type-your-email field with a live match indicator (`#daMatch` shows a check icon, green at data-state=ok, gray at data-state=no) plus button enable/disable; the project dialog shows the target as a coloured `.pj-mark` chip with name and id, and both confirms swap to spinner + 'Deleting' while pending.",
+      "Metrics corroborate: desktop graphical total 56 (38 svg + 18 badges) on a page with only 82 visible words."
+    ]
+  },
+  "f2": {
+    "score": 5,
+    "observations": [
+      "Desktop viewportWords 58 and pageWords 82 — the page shows state, it does not narrate it.",
+      "Labels: count 5, meanWords 1.4, maxWords 2, longLabels empty; every button is 1–2 words ('Save changes', 'Delete', 'Cancel', 'Try again', 'Retry').",
+      "helperWords 9 and longLeafWords 0; the only helper strings are one-line and non-obvious: 'Job results and mentions', 'Monday summary of activity', 'Applied after saving', 'Removes your account and all projects. Cannot be undone.' — each states behavior the UI cannot show otherwise.",
+      "The delete-account dialog replaces an explanatory paragraph with a three-item icon fact list (email, 'N projects deleted', 'Cannot be undone') — the terse form of a consequence disclosure."
+    ]
+  },
+  "f3": {
+    "score": 4,
+    "observations": [
+      "One genuine issue found: the load-failure button `#loadRetry` is labeled 'Retry' while the profile save retry (`#profileRetry`), pref-row retry, and both dialog confirms after failure all say 'Try again' — two names for the same recovery action.",
+      "Copy matches behavior throughout, verified against the async checklist: 'Try again' relabeling, 'Deleting'/'Deleting account' pending labels, and 'Applied after saving' for theme (applyTheme() runs only in the updateSettings .then) all occur as written.",
+      "Terminology is otherwise consistent: 'Delete' for both projects and account, 'Save changes'→'Saving'→'Saved' as one lifecycle, error strings uniformly follow '<cause>. <consequence>.' ('Network request failed. Changes not saved.' / 'Project not deleted.' / 'Setting unchanged.').",
+      "No filler, no marketing tone, no placeholder text anywhere in the 82 visible words; borderline-only nit, not counted as a category issue: the pre-confirmation facts list says '3 projects deleted' in past tense for something that has not happened yet."
+    ]
+  },
+  "f4": {
+    "score": 4,
+    "observations": [
+      "The destructive-action design system is clearly built for this brief: a red hatched warning stripe over the Danger zone card, a red-differentiated 'Danger zone' nav entry, danger-ghost vs solid-danger button tiers, and dialogs that block Escape/backdrop dismissal while a delete is in flight (`dlg.dataset.busy`).",
+      "Account deletion has brief-specific mechanics: type-your-email gate with live match indicator, a consequence fact list computed from live state ('3 projects deleted'), and a terminal 'Account deleted' screen that recaps what was removed — none of which is stock template furniture.",
+      "Project deletion is grounded in the specific object: the dialog repeats the project's hue-hashed colour chip (hue(p.id)), name, created date, and id, and the row behind the dialog dims with a spinner while pending.",
+      "The chrome is conventional: sticky topbar + left section nav + stacked white cards, Inter, neutral gray palette, pill badges, bottom-right toasts, and skeleton loaders are all standard settings-page kit, which keeps this off a 5."
+    ]
+  },
+  "hierarchy": {
+    "score": 5,
+    "observations": [
+      "Answered from the idle desktop screenshot before reading source: purpose reads instantly as an account settings page — header 'Account settings', identity card, and section nav Profile/Preferences/Projects/Danger zone.",
+      "Primary action: 'Save changes' is the only dark filled button on the screen and sits in the Profile form footer — unambiguous.",
+      "Needs attention: 'Danger zone' is the sole red nav item, and each project row exposes a bordered 'Delete' button — exactly the two destructive capabilities the brief demands.",
+      "All three answers check out against the brief (account settings + delete projects + delete account); nothing on the screen competes with or contradicts them."
+    ]
+  },
+  "f1Inventory": [
+    {
+      "item": "save state",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "destructive-action danger level",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "confirmation state",
+      "classification": "graphical+text"
+    }
+  ],
+  "f2Redundant": [],
+  "f3Issues": [
+    "Inconsistent naming for the same retry action: '#loadRetry' is labeled 'Retry' while '#profileRetry', the pref-row error button, and both dialog confirms after failure are labeled 'Try again'."
+  ],
+  "f4TaskDriven": [
+    "Red hatched stripe (.hatch) + red-tinted head on the Danger zone card, visually quarantining destructive actions",
+    "Red 'Danger zone' nav entry (.nav-link.is-danger) separated at the bottom of the section list",
+    "Two-tier danger buttons: danger-ghost to open the dialog, solid .btn.danger to confirm",
+    "Type-your-email confirmation gate with live match indicator (#daMatch ok/no states) before enabling account deletion",
+    "Consequence fact list in the delete-account dialog computed from live state (email, project count, 'Cannot be undone')",
+    "Project delete dialog repeats the target's hue-hashed colour chip, name, date, and id so the user confirms the right object",
+    "Dialogs block Escape/backdrop/close while a delete is pending (dlg.dataset.busy) and relabel the confirm 'Deleting' → 'Try again'",
+    "Pending project row dims (data-pending) with an inline spinner while its delete resolves",
+    "Terminal 'Account deleted' screen that removes the whole app shell and recaps what was deleted",
+    "'Applied after saving' honesty note under Theme matching the actual save-then-apply behavior"
+  ],
+  "f4Template": [
+    "Sticky topbar + left sidebar section nav + stacked white cards — the standard settings-page shell",
+    "Inter typeface with neutral gray palette and JetBrains Mono accents — default SaaS type/colour kit",
+    "Pill badges ('Pro plan', project count), bottom-right toast stack, and skeleton loading cards — stock component patterns"
+  ]
+}

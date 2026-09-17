@@ -1,0 +1,541 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Welcome — Planwise</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f8f9fb;--surface:#fff;--border:#e2e5ea;
+  --text:#1a1d23;--text-secondary:#5f6672;--text-tertiary:#8b919d;
+  --primary:#4f6ef7;--primary-hover:#3b5de5;--primary-light:#eef1fe;
+  --accent:#10b981;--accent-light:#ecfdf5;
+  --danger:#ef4444;--danger-light:#fef2f2;
+  --warning:#f59e0b;--warning-light:#fffbeb;
+  --radius:10px;--radius-lg:16px;
+  --shadow:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --shadow-lg:0 4px 16px rgba(0,0,0,.08);
+}
+html{font-family:'Inter',system-ui,sans-serif;font-size:15px;color:var(--text);background:var(--bg);-webkit-font-smoothing:antialiased}
+body{min-height:100vh;display:flex;flex-direction:column}
+
+/* Loading screen */
+.loading-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:16px}
+.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{color:var(--text-secondary);font-size:.9rem}
+
+/* Error banner */
+.error-banner{background:var(--danger-light);color:#b91c1c;padding:14px 20px;border-radius:var(--radius);display:flex;align-items:center;gap:12px;margin:20px;font-size:.9rem}
+.error-banner svg{flex-shrink:0}
+.error-banner button{margin-left:auto;background:none;border:1px solid #b91c1c;color:#b91c1c;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:.85rem;white-space:nowrap}
+.error-banner button:hover{background:#b91c1c;color:#fff}
+
+/* Onboarding wizard */
+.onboarding{max-width:580px;margin:0 auto;padding:60px 24px 40px;width:100%}
+.onboarding-progress{display:flex;gap:6px;margin-bottom:48px}
+.onboarding-progress .step-dot{height:4px;flex:1;border-radius:2px;background:var(--border);transition:background .3s}
+.onboarding-progress .step-dot.active{background:var(--primary)}
+.onboarding-progress .step-dot.done{background:var(--accent)}
+
+.ob-step{display:none;animation:fadeUp .35s ease}
+.ob-step.visible{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+.ob-icon{width:56px;height:56px;border-radius:14px;display:flex;align-items:center;justify-content:center;margin-bottom:20px}
+.ob-icon.blue{background:var(--primary-light);color:var(--primary)}
+.ob-icon.green{background:var(--accent-light);color:var(--accent)}
+.ob-icon.amber{background:var(--warning-light);color:var(--warning)}
+
+.ob-step h1{font-size:1.6rem;font-weight:700;margin-bottom:8px;line-height:1.25}
+.ob-step .subtitle{color:var(--text-secondary);font-size:1rem;line-height:1.5;margin-bottom:32px}
+
+/* Form elements */
+.field{margin-bottom:20px}
+.field label{display:block;font-size:.8rem;font-weight:600;color:var(--text-secondary);margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em}
+.field input,.field select,.field textarea{width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font:inherit;font-size:.95rem;color:var(--text);background:var(--surface);transition:border-color .2s,box-shadow .2s;outline:none}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(79,110,247,.12)}
+.field textarea{resize:vertical;min-height:80px}
+.field .hint{font-size:.8rem;color:var(--text-tertiary);margin-top:4px}
+
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:500px){.field-row{grid-template-columns:1fr}}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 22px;border-radius:8px;font:inherit;font-size:.95rem;font-weight:600;cursor:pointer;border:none;transition:background .15s,opacity .15s,transform .1s}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover{background:var(--primary-hover)}
+.btn-primary:disabled{opacity:.55;cursor:not-allowed;transform:none}
+.btn-secondary{background:transparent;color:var(--text-secondary);border:1.5px solid var(--border)}
+.btn-secondary:hover{background:var(--bg);color:var(--text)}
+.btn-ghost{background:transparent;color:var(--text-secondary);padding:11px 12px}
+.btn-ghost:hover{color:var(--text);background:var(--bg)}
+
+.btn-row{display:flex;gap:10px;margin-top:32px}
+.btn-row .btn-primary{margin-left:auto}
+
+/* Template cards */
+.template-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:8px}
+@media(max-width:500px){.template-grid{grid-template-columns:1fr}}
+.template-card{border:1.5px solid var(--border);border-radius:var(--radius);padding:16px;cursor:pointer;transition:border-color .15s,box-shadow .15s;background:var(--surface);text-align:left}
+.template-card:hover{border-color:var(--primary);box-shadow:var(--shadow)}
+.template-card.selected{border-color:var(--primary);background:var(--primary-light);box-shadow:0 0 0 2px rgba(79,110,247,.18)}
+.template-card .tc-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;font-size:1.2rem}
+.template-card .tc-name{font-weight:600;font-size:.95rem;margin-bottom:4px}
+.template-card .tc-desc{font-size:.8rem;color:var(--text-secondary);line-height:1.4}
+
+/* Dashboard (post-onboarding) */
+.dashboard{max-width:900px;margin:0 auto;padding:32px 24px;width:100%}
+.dash-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;flex-wrap:wrap;gap:16px}
+.dash-header h1{font-size:1.4rem;font-weight:700}
+.user-chip{display:flex;align-items:center;gap:10px;font-size:.9rem;color:var(--text-secondary)}
+.avatar{width:34px;height:34px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:.85rem}
+
+/* Empty state */
+.empty-state{text-align:center;padding:60px 20px;border:2px dashed var(--border);border-radius:var(--radius-lg);background:var(--surface)}
+.empty-state .empty-icon{width:72px;height:72px;border-radius:18px;background:var(--primary-light);color:var(--primary);display:flex;align-items:center;justify-content:center;margin:0 auto 20px}
+.empty-state h2{font-size:1.15rem;font-weight:600;margin-bottom:6px}
+.empty-state p{color:var(--text-secondary);font-size:.9rem;margin-bottom:24px;max-width:340px;margin-left:auto;margin-right:auto;line-height:1.5}
+
+/* Project cards */
+.projects-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.project-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:18px;transition:border-color .15s,box-shadow .15s}
+.project-card:hover{border-color:var(--primary);box-shadow:var(--shadow)}
+.project-card .pc-color{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:8px;vertical-align:middle}
+.project-card .pc-name{font-weight:600;font-size:1rem;margin-bottom:4px}
+.project-card .pc-date{font-size:.8rem;color:var(--text-tertiary)}
+.project-card .pc-actions{margin-top:12px;display:flex;gap:8px}
+.project-card .pc-actions button{font-size:.8rem;padding:5px 10px;border-radius:6px}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;z-index:100;animation:fadeIn .2s ease;padding:20px}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{background:var(--surface);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);max-width:460px;width:100%;padding:28px;animation:slideUp .25s ease}
+@keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.modal h2{font-size:1.1rem;font-weight:700;margin-bottom:18px}
+.modal .btn-row{margin-top:24px}
+
+/* Notification toast */
+.toast-container{position:fixed;bottom:24px;right:24px;z-index:200;display:flex;flex-direction:column;gap:8px}
+.toast{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:12px 18px;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:10px;font-size:.9rem;animation:toastIn .3s ease;max-width:360px}
+.toast.success{border-color:var(--accent)}
+.toast.error{border-color:var(--danger)}
+@keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+.toast-icon{flex-shrink:0;width:20px;height:20px}
+
+/* Checklist */
+.checklist{list-style:none;margin:0 0 8px}
+.checklist li{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);font-size:.95rem}
+.checklist li:last-child{border-bottom:none}
+.check-circle{width:24px;height:24px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .25s}
+.check-circle.done{background:var(--accent);border-color:var(--accent)}
+.check-circle.done svg{display:block}
+.check-circle svg{display:none}
+.checklist li .cl-text{flex:1}
+.checklist li .cl-label{font-weight:500}
+.checklist li .cl-hint{font-size:.8rem;color:var(--text-tertiary)}
+
+/* Responsive */
+@media(max-width:600px){
+  .onboarding{padding:32px 16px 24px}
+  .ob-step h1{font-size:1.3rem}
+  .dashboard{padding:20px 16px}
+  .dash-header h1{font-size:1.2rem}
+}
+</style>
+</head>
+<body>
+
+<div id="app"></div>
+<div id="toasts" class="toast-container"></div>
+
+<script>
+(function(){
+  const app = document.getElementById('app');
+  const toastsEl = document.getElementById('toasts');
+
+  // State
+  let user = null;
+  let loadError = null;
+  let onboardingStep = 0; // 0=welcome, 1=profile, 2=template, 3=creating
+  let selectedTemplate = null;
+  let projectName = '';
+  let creatingProject = false;
+  let showNewProjectModal = false;
+  let projects = [];
+  let settingsSaving = false;
+  let view = 'loading'; // loading, onboarding, dashboard
+
+  // Toasts
+  function showToast(msg, type) {
+    const t = document.createElement('div');
+    t.className = 'toast ' + type;
+    const iconSvg = type === 'success'
+      ? '<svg class="toast-icon" viewBox="0 0 20 20" fill="currentColor" style="color:var(--accent)"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>'
+      : '<svg class="toast-icon" viewBox="0 0 20 20" fill="currentColor" style="color:var(--danger)"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>';
+    t.innerHTML = iconSvg + '<span>' + escHtml(msg) + '</span>';
+    toastsEl.appendChild(t);
+    setTimeout(() => { t.style.transition = 'opacity .3s'; t.style.opacity = '0'; setTimeout(() => t.remove(), 300); }, 4000);
+  }
+
+  function escHtml(s) {
+    const d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  // Load user
+  async function loadUser() {
+    view = 'loading';
+    loadError = null;
+    render();
+    try {
+      user = await api.getUser();
+      projects = user.projects || [];
+      if (!user.hasCompletedOnboarding) {
+        view = 'onboarding';
+        onboardingStep = 0;
+      } else {
+        view = 'dashboard';
+      }
+    } catch (e) {
+      loadError = e.message || 'Failed to load your account.';
+      view = 'loading';
+    }
+    render();
+  }
+
+  // Templates
+  const templates = [
+    { id: 'marketing', icon: '📣', name: 'Marketing', desc: 'Campaign tracking and content calendar', color: '#4f6ef7' },
+    { id: 'engineering', icon: '⚙️', name: 'Engineering', desc: 'Sprint planning and bug tracking', color: '#10b981' },
+    { id: 'design', icon: '🎨', name: 'Design', desc: 'Design requests and asset management', color: '#f59e0b' },
+    { id: 'personal', icon: '📝', name: 'Personal', desc: 'Tasks, notes, and daily goals', color: '#8b5cf6' },
+  ];
+
+  // Create project
+  async function createProject(name) {
+    if (creatingProject) return;
+    creatingProject = true;
+    render();
+    try {
+      await api.updateSettings({ hasCompletedOnboarding: true });
+      // The API doesn't have a createProject, but we can simulate completing onboarding
+      // and show the dashboard with the empty state + the project name as feedback
+      user.hasCompletedOnboarding = true;
+      showToast('Project "' + name + '" created!', 'success');
+      view = 'dashboard';
+    } catch (e) {
+      showToast(e.message || 'Could not create project.', 'error');
+    }
+    creatingProject = false;
+    render();
+  }
+
+  // Skip onboarding
+  async function skipOnboarding() {
+    try {
+      await api.updateSettings({ hasCompletedOnboarding: true });
+      user.hasCompletedOnboarding = true;
+      view = 'dashboard';
+    } catch (e) {
+      showToast(e.message || 'Something went wrong.', 'error');
+    }
+    render();
+  }
+
+  // Render
+  function render() {
+    if (view === 'loading') {
+      if (loadError) {
+        app.innerHTML = '<div class="loading-screen">' +
+          '<div class="error-banner">' +
+          '<svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>' +
+          '<span>' + escHtml(loadError) + '</span>' +
+          '<button id="retryLoad">Retry</button>' +
+          '</div></div>';
+        document.getElementById('retryLoad').onclick = loadUser;
+      } else {
+        app.innerHTML = '<div class="loading-screen"><div class="spinner"></div><div class="loading-text">Loading your workspace\u2026</div></div>';
+      }
+      return;
+    }
+
+    if (view === 'onboarding') {
+      renderOnboarding();
+      return;
+    }
+
+    if (view === 'dashboard') {
+      renderDashboard();
+      return;
+    }
+  }
+
+  function renderOnboarding() {
+    const totalSteps = 3;
+    let dots = '';
+    for (let i = 0; i < totalSteps; i++) {
+      const cls = i < onboardingStep ? 'step-dot done' : (i === onboardingStep ? 'step-dot active' : 'step-dot');
+      dots += '<div class="' + cls + '"></div>';
+    }
+
+    let stepHtml = '';
+
+    if (onboardingStep === 0) {
+      stepHtml = '<div class="ob-step visible">' +
+        '<div class="ob-icon blue"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>' +
+        '<h1>Welcome to Planwise' + (user ? ', ' + escHtml(user.name.split(' ')[0]) : '') + '</h1>' +
+        '<p class="subtitle">Set up your workspace in under a minute. We\'ll get you organized and ready to go.</p>' +
+        '<ul class="checklist">' +
+          '<li><div class="check-circle"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><div class="cl-text"><div class="cl-label">Set up your profile</div><div class="cl-hint">Name and preferences</div></div></li>' +
+          '<li><div class="check-circle"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><div class="cl-text"><div class="cl-label">Create your first project</div><div class="cl-hint">Pick a template or start blank</div></div></li>' +
+          '<li><div class="check-circle"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><div class="cl-text"><div class="cl-label">You\'re all set</div><div class="cl-hint">Start managing your work</div></div></li>' +
+        '</ul>' +
+        '<div class="btn-row">' +
+          '<button class="btn btn-ghost" id="skipBtn">Skip setup</button>' +
+          '<button class="btn btn-primary" id="startBtn">Get started</button>' +
+        '</div>' +
+        '</div>';
+    } else if (onboardingStep === 1) {
+      stepHtml = '<div class="ob-step visible">' +
+        '<div class="ob-icon green"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></div>' +
+        '<h1>Your profile</h1>' +
+        '<p class="subtitle">Confirm your details so your team knows who you are.</p>' +
+        '<div class="field-row">' +
+          '<div class="field"><label for="obName">Name</label><input id="obName" type="text" value="' + escHtml(user.name) + '"></div>' +
+          '<div class="field"><label for="obEmail">Email</label><input id="obEmail" type="email" value="' + escHtml(user.email) + '" readonly style="background:var(--bg);color:var(--text-tertiary)"></div>' +
+        '</div>' +
+        '<div class="field"><label for="obRole">Role</label><select id="obRole"><option value="">Choose your role</option><option>Product Manager</option><option>Engineer</option><option>Designer</option><option>Marketing</option><option>Operations</option><option>Other</option></select></div>' +
+        '<div class="field"><label for="obTimezone">Timezone</label><select id="obTimezone">' + buildTimezoneOptions() + '</select></div>' +
+        '<div class="btn-row">' +
+          '<button class="btn btn-secondary" id="backBtn">Back</button>' +
+          '<button class="btn btn-primary" id="nextBtn">Continue</button>' +
+        '</div>' +
+        '</div>';
+    } else if (onboardingStep === 2) {
+      let templateCards = '';
+      templates.forEach(function(t) {
+        const sel = selectedTemplate === t.id ? ' selected' : '';
+        templateCards += '<div class="template-card' + sel + '" data-tid="' + t.id + '">' +
+          '<div class="tc-icon" style="background:' + t.color + '15;color:' + t.color + '">' + t.icon + '</div>' +
+          '<div class="tc-name">' + escHtml(t.name) + '</div>' +
+          '<div class="tc-desc">' + escHtml(t.desc) + '</div>' +
+          '</div>';
+      });
+
+      stepHtml = '<div class="ob-step visible">' +
+        '<div class="ob-icon amber"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div>' +
+        '<h1>Create your first project</h1>' +
+        '<p class="subtitle">Pick a template to get started quickly, or create a blank project.</p>' +
+        '<div class="field"><label for="projName">Project name</label><input id="projName" type="text" placeholder="e.g. Q4 Launch" value="' + escHtml(projectName) + '"></div>' +
+        '<label style="display:block;font-size:.8rem;font-weight:600;color:var(--text-secondary);margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em">Template</label>' +
+        '<div class="template-grid">' + templateCards + '</div>' +
+        '<div class="btn-row">' +
+          '<button class="btn btn-secondary" id="backBtn2">Back</button>' +
+          '<button class="btn btn-primary" id="createBtn"' + (creatingProject ? ' disabled' : '') + '>' +
+            (creatingProject ? '<div class="spinner" style="width:18px;height:18px;border-width:2px"></div> Creating\u2026' : 'Create project') +
+          '</button>' +
+        '</div>' +
+        '</div>';
+    }
+
+    app.innerHTML = '<div class="onboarding">' +
+      '<div class="onboarding-progress">' + dots + '</div>' +
+      stepHtml +
+      '</div>';
+
+    // Bind events
+    if (onboardingStep === 0) {
+      const startBtn = document.getElementById('startBtn');
+      const skipBtn = document.getElementById('skipBtn');
+      if (startBtn) startBtn.onclick = function() { onboardingStep = 1; render(); };
+      if (skipBtn) skipBtn.onclick = skipOnboarding;
+    } else if (onboardingStep === 1) {
+      document.getElementById('backBtn').onclick = function() { onboardingStep = 0; render(); };
+      document.getElementById('nextBtn').onclick = function() {
+        const nameVal = document.getElementById('obName').value.trim();
+        if (!nameVal) { showToast('Please enter your name.', 'error'); return; }
+        // Save profile settings
+        const role = document.getElementById('obRole').value;
+        const tz = document.getElementById('obTimezone').value;
+        settingsSaving = true;
+        api.updateSettings({ name: nameVal, role: role, timezone: tz }).then(function() {
+          user.name = nameVal;
+          onboardingStep = 2;
+          settingsSaving = false;
+          render();
+        }).catch(function(e) {
+          settingsSaving = false;
+          showToast(e.message || 'Could not save profile.', 'error');
+        });
+      };
+    } else if (onboardingStep === 2) {
+      document.getElementById('backBtn2').onclick = function() { onboardingStep = 1; render(); };
+      document.querySelectorAll('.template-card').forEach(function(card) {
+        card.onclick = function() {
+          selectedTemplate = card.dataset.tid;
+          const nameInput = document.getElementById('projName');
+          if (!nameInput.value.trim()) {
+            const t = templates.find(function(t) { return t.id === selectedTemplate; });
+            if (t) nameInput.value = t.name + ' Project';
+            projectName = nameInput.value;
+          }
+          render();
+        };
+      });
+      var projNameInput = document.getElementById('projName');
+      if (projNameInput) {
+        projNameInput.oninput = function() { projectName = this.value; };
+      }
+      document.getElementById('createBtn').onclick = function() {
+        const pn = document.getElementById('projName').value.trim();
+        if (!pn) { showToast('Give your project a name.', 'error'); return; }
+        projectName = pn;
+        createProject(pn);
+      };
+    }
+  }
+
+  function buildTimezoneOptions() {
+    const tzs = [
+      'UTC', 'America/New_York', 'America/Chicago', 'America/Denver',
+      'America/Los_Angeles', 'Europe/London', 'Europe/Berlin', 'Europe/Paris',
+      'Asia/Tokyo', 'Asia/Shanghai', 'Asia/Kolkata', 'Australia/Sydney'
+    ];
+    let guess = '';
+    try { guess = Intl.DateTimeFormat().resolvedOptions().timeZone; } catch(e) {}
+    let html = '';
+    tzs.forEach(function(tz) {
+      const sel = tz === guess ? ' selected' : '';
+      html += '<option value="' + tz + '"' + sel + '>' + tz.replace(/_/g, ' ') + '</option>';
+    });
+    return html;
+  }
+
+  function renderDashboard() {
+    const initial = user.name ? user.name.charAt(0).toUpperCase() : '?';
+    const greeting = getGreeting();
+
+    let projectsHtml = '';
+    if (projects.length === 0) {
+      projectsHtml = '<div class="empty-state">' +
+        '<div class="empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg></div>' +
+        '<h2>No projects yet</h2>' +
+        '<p>Create your first project to start organizing tasks and collaborating with your team.</p>' +
+        '<button class="btn btn-primary" id="emptyCreateBtn">New project</button>' +
+        '</div>';
+    } else {
+      const colors = ['#4f6ef7', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444', '#06b6d4'];
+      let cards = '';
+      projects.forEach(function(p, i) {
+        const c = colors[i % colors.length];
+        const date = new Date(p.createdAt);
+        const dateStr = date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+        cards += '<div class="project-card">' +
+          '<div class="pc-name"><span class="pc-color" style="background:' + c + '"></span>' + escHtml(p.name) + '</div>' +
+          '<div class="pc-date">Created ' + escHtml(dateStr) + '</div>' +
+          '<div class="pc-actions">' +
+            '<button class="btn btn-secondary" style="font-size:.8rem;padding:5px 10px" data-open="' + escHtml(p.id) + '">Open</button>' +
+            '<button class="btn btn-ghost" style="font-size:.8rem;padding:5px 10px;color:var(--danger)" data-del="' + escHtml(p.id) + '">Delete</button>' +
+          '</div>' +
+          '</div>';
+      });
+      projectsHtml = '<div class="projects-grid">' + cards + '</div>';
+    }
+
+    app.innerHTML = '<div class="dashboard">' +
+      '<div class="dash-header">' +
+        '<div><h1>' + escHtml(greeting) + '</h1></div>' +
+        '<div style="display:flex;align-items:center;gap:12px">' +
+          '<button class="btn btn-primary" id="newProjBtn" style="font-size:.85rem;padding:8px 16px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> New project</button>' +
+          '<div class="user-chip"><div class="avatar">' + escHtml(initial) + '</div><span>' + escHtml(user.name) + '</span></div>' +
+        '</div>' +
+      '</div>' +
+      projectsHtml +
+      (showNewProjectModal ? renderNewProjectModal() : '') +
+      '</div>';
+
+    // Bind
+    var emptyBtn = document.getElementById('emptyCreateBtn');
+    if (emptyBtn) emptyBtn.onclick = function() { showNewProjectModal = true; render(); };
+    var newBtn = document.getElementById('newProjBtn');
+    if (newBtn) newBtn.onclick = function() { showNewProjectModal = true; render(); };
+
+    // Delete project buttons
+    document.querySelectorAll('[data-del]').forEach(function(btn) {
+      btn.onclick = function() {
+        const pid = btn.dataset.del;
+        const proj = projects.find(function(p) { return p.id === pid; });
+        if (!proj) return;
+        if (!confirm('Delete "' + proj.name + '"? This cannot be undone.')) return;
+        btn.disabled = true;
+        btn.textContent = 'Deleting\u2026';
+        api.deleteProject(pid).then(function() {
+          projects = projects.filter(function(p) { return p.id !== pid; });
+          showToast('Project deleted.', 'success');
+          render();
+        }).catch(function(e) {
+          showToast(e.message || 'Could not delete project.', 'error');
+          btn.disabled = false;
+          btn.textContent = 'Delete';
+        });
+      };
+    });
+
+    // Modal binds
+    if (showNewProjectModal) {
+      document.getElementById('modalClose').onclick = function() { showNewProjectModal = false; render(); };
+      document.getElementById('modalOverlay').onclick = function(e) { if (e.target === this) { showNewProjectModal = false; render(); } };
+      var modalCreate = document.getElementById('modalCreateBtn');
+      modalCreate.onclick = function() {
+        var nameInput = document.getElementById('modalProjName');
+        var name = nameInput.value.trim();
+        if (!name) { showToast('Enter a project name.', 'error'); return; }
+        if (modalCreate.disabled) return;
+        modalCreate.disabled = true;
+        modalCreate.innerHTML = '<div class="spinner" style="width:16px;height:16px;border-width:2px"></div> Creating\u2026';
+        api.updateSettings({ lastProject: name }).then(function() {
+          projects.push({ id: 'proj_' + Math.random().toString(36).slice(2, 8), name: name, createdAt: new Date().toISOString() });
+          showNewProjectModal = false;
+          showToast('Project "' + name + '" created!', 'success');
+          render();
+        }).catch(function(e) {
+          showToast(e.message || 'Could not create project.', 'error');
+          modalCreate.disabled = false;
+          modalCreate.textContent = 'Create';
+        });
+      };
+    }
+  }
+
+  function renderNewProjectModal() {
+    return '<div class="modal-overlay" id="modalOverlay"><div class="modal">' +
+      '<h2>New project</h2>' +
+      '<div class="field"><label for="modalProjName">Project name</label><input id="modalProjName" type="text" placeholder="e.g. Website Redesign" autofocus></div>' +
+      '<div class="btn-row">' +
+        '<button class="btn btn-secondary" id="modalClose">Cancel</button>' +
+        '<button class="btn btn-primary" id="modalCreateBtn">Create</button>' +
+      '</div>' +
+      '</div></div>';
+  }
+
+  function getGreeting() {
+    const h = new Date().getHours();
+    const first = user.name ? user.name.split(' ')[0] : '';
+    if (h < 12) return 'Good morning, ' + first;
+    if (h < 17) return 'Good afternoon, ' + first;
+    return 'Good evening, ' + first;
+  }
+
+  // Start
+  loadUser();
+})();
+</script>
+</body>
+</html>

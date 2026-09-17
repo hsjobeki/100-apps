@@ -1,0 +1,88 @@
+{
+  "id": "15e2b809",
+  "f1": {
+    "score": 5,
+    "observations": [
+      "Onboarding progress is doubly graphical: the wizard has a 3-dot stepper (#progress-dots with done/current states, first dot filled indigo in the idle screenshot) and the dashboard has a 'Getting started' checklist with a filled progress bar (#checklist-bar width set to done/total %) plus SVG check-circles, supported by the '0 of 3' counter text — graphical+text.",
+      "Empty state is graphical+text: a folder SVG icon (.empty-icon), heading 'No projects yet', one supporting line, and a filled 'New project' button with a plus-icon SVG.",
+      "Metrics corroborate a graphics-forward page: 22 svg elements and 18 badge-heuristic elements (total 40); the plan badge 'PRO' and the user chip are colored badges visible in the idle screenshot.",
+      "Raw ratio: 2/2 inventory items graphical+text.",
+      "Minor caveat: the checklist progress bar is a plain div, so progress/meter/role=progressbar all measure 0 — visually graphical but not exposed as a progressbar to assistive tech."
+    ]
+  },
+  "f2": {
+    "score": 4,
+    "observations": [
+      "Extremely lean measured text: 79 viewport words / 81 page words on desktop, helperWords 38, longLeafWords 0, and every one of the 8 button labels is <=3 words (meanWords 1.38, maxWords 3, longLabels empty; longest labels are 'Get started', 'Create project', 'Go to dashboard').",
+      "Feature-card blurbs are 4-5 words each ('Organize work into focused spaces', 'Track to-dos and deadlines') and carry real information rather than narrating the UI.",
+      "A handful of sentences restate what the UI already shows — 'Here's your workspace overview.' under the dashboard greeting, 'Customize your experience.' under the heading 'Your preferences', and the success-modal body '\"<name>\" has been created.' directly under the heading 'Project created!' — which keeps it off the 5 anchor.",
+      "No explanatory paragraphs anywhere; subtitles are single sentences ('Let's get your workspace set up in under a minute.', 'Start with a template or go blank.')."
+    ]
+  },
+  "f3": {
+    "score": 3,
+    "observations": [
+      "Same feature named two ways: the wizard subtitle says 'Change anytime in Settings' and the checklist action says 'Open settings', but the modal those lead to is titled 'Preferences' and its errors say 'Could not save preferences.'",
+      "The error banner's 'Retry' button promises behavior that never happens: hideError() sets lastRetry = null before the handler's 'if (lastRetry) lastRetry()' check, so Retry can only ever hide the banner — confirmed by the async rater (two clicks, zero API calls).",
+      "'Invite teammates — Collaborate in real time' is a stub: clicking it shows 'Team invites coming soon!' rendered inside the red error banner, so advertised functionality does not exist and a non-error is styled as an error.",
+      "Success copy '\"<name>\" has been created' / '\"<name>\" is ready' contradicts observed behavior: the created project never appears anywhere in the dashboard, and the async rater saw the success modal sitting on top of a 'No projects yet' empty state.",
+      "4 issues total, which lands exactly in the 2-4 band of the anchor; terminology is otherwise consistent and there is no lorem-ipsum-style placeholder text."
+    ]
+  },
+  "f4": {
+    "score": 4,
+    "observations": [
+      "The flow is clearly built for a first-run user with zero projects: a 3-step wizard (Welcome → 'Your preferences' → 'Create your first project'), a 'No projects yet' empty state with a 'New project' CTA, and a 'Getting started' checklist whose first item 'Create your account' is pre-checked — all specific to the brief.",
+      "Personalization is wired to real data: 'Welcome, Alex!' from getUser().name, the alex@example.com + PRO badge, and the dashboard greeting 'Hey, Alex' with an initials avatar.",
+      "Domain-specific choices: project templates 'Blank / Kanban / Sprint' with distinct SVG glyphs, a 'What do you manage?' role chip row (Software/Marketing/Design/Operations/Other), and an 'Import data' quick action wired to the real uploadFile/processFile/getJob polling chain with inline 'Uploading N%' / 'Processing N%' feedback.",
+      "The visual shell is stock SaaS: centered white card on a soft pastel gradient, Inter, indigo primary button, 2x2 pastel-tile feature grid, and a green check-circle success modal — competent but interchangeable styling, which keeps it off 5."
+    ]
+  },
+  "hierarchy": {
+    "score": 5,
+    "observations": [
+      "Answered from the idle desktop screenshot before reading source: the page reads as a first-run onboarding welcome for a workspace/project app ('Welcome, Alex!', 'Let's get your workspace set up in under a minute.', feature cards for Projects/Tasks/Timeline/Reports) — exactly the brief.",
+      "Primary action identified as 'Get started' — the sole filled indigo button, centered below the cards; confirmed in source as #btn-start, the only .btn-primary on the visible step.",
+      "What needs attention: the Get started button and the 3-dot stepper at the bottom with the first segment filled, correctly signalling step 1 of a short wizard; both check out against the markup (#progress-dots, .dot.current).",
+      "All three answers were correct and obvious with no competing focal points — the account chip and feature cards are visually subordinate to the button."
+    ]
+  },
+  "f1Inventory": [
+    {
+      "item": "onboarding progress",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "empty state",
+      "classification": "graphical+text"
+    }
+  ],
+  "f2Redundant": [
+    "Here's your workspace overview.",
+    "Customize your experience.",
+    "\"<project name>\" has been created. (success-modal body restating the heading 'Project created!')"
+  ],
+  "f3Issues": [
+    "Inconsistent naming for the same feature: 'Change anytime in Settings' and 'Open settings' vs the modal titled 'Preferences' and errors saying 'Could not save preferences.'",
+    "Copy promising behavior that does not happen: the error banner's 'Retry' button is dead — hideError() nulls lastRetry before the click handler checks it, so clicking Retry issues no API call (confirmed by the async rater).",
+    "Copy promising behavior that does not happen: 'Invite teammates — Collaborate in real time' only produces 'Team invites coming soon!', displayed in the red error banner.",
+    "Copy contradicting behavior: success modal says '\"<name>\" has been created' / 'is ready' but no project ever appears in the dashboard, and the modal can sit over a 'No projects yet' empty state."
+  ],
+  "f4TaskDriven": [
+    "3-step onboarding wizard (Welcome → Your preferences → Create your first project) with progress dots",
+    "'No projects yet' empty state with folder icon and 'New project' CTA, matching the zero-projects brief exactly",
+    "'Getting started' checklist with progress bar and pre-completed 'Create your account' item, with 'Open settings' / 'Create now' inline actions",
+    "Personalized welcome from getUser(): 'Welcome, Alex!', email + PRO plan badge, 'Hey, Alex' greeting, initials avatar",
+    "'What do you manage?' role chips (Software/Marketing/Design/Operations/Other) tailoring setup",
+    "Project templates Blank / Kanban / Sprint with distinct SVG glyphs, appropriate to project management",
+    "'Import data' quick action wired to uploadFile/processFile/getJob polling with inline 'Uploading N%' / 'Processing N%' progress text",
+    "Project name input with domain example placeholder 'e.g. Q4 Launch' gating the Create button"
+  ],
+  "f4Template": [
+    "Centered white card on a soft pastel gradient background — stock SaaS onboarding shell",
+    "Inter font with indigo (#5xxx-violet) filled primary buttons — default modern-SaaS palette",
+    "2x2 feature-card grid with pastel rounded icon tiles (purple/blue/green/orange)",
+    "Generic topbar: layered-stack logo + 'ProjectHub' + circular initials avatar",
+    "Green check-circle success modal — interchangeable with any product's confirmation dialog"
+  ]
+}

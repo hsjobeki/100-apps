@@ -1,0 +1,66 @@
+{
+  "id": "76d8fc74",
+  "items": [
+    {
+      "n": 1,
+      "verdict": "PASS",
+      "reason": "Clicking Save under slow latency shows a spinner and a 'Saving' status immediately: polling caught `status: Saving` at 1 ms and the button disabled at 3 ms; the delete dialog's confirm disabled at 2 ms and relabeled 'Deleting'.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/76d8fc74_1.png"
+    },
+    {
+      "n": 2,
+      "verdict": "PASS",
+      "reason": "Five programmatic clicks on Save within 250 ms under slow latency produced exactly one updateSettings call in __apiLog, with the button disabled from the first click; delete-project and delete-account confirms disable the same way ('Deleting account', 1 call).",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/76d8fc74_2.png"
+    },
+    {
+      "n": 3,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief.",
+      "evidence": "N/A per task instructions for B6"
+    },
+    {
+      "n": 4,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief.",
+      "evidence": "N/A per task instructions for B6"
+    },
+    {
+      "n": 5,
+      "verdict": "PASS",
+      "reason": "At fail=1, a failed save shows a persistent inline error on the same row as the Save button, and a failed project delete shows a role=alert error inside the dialog naming the consequence.",
+      "evidence": "<span class=\"status\" id=\"profileStatus\" role=\"status\" data-state=\"error\">…Network request failed. Changes not saved.</span> / <div class=\"dlg-error\" id=\"dpError\" role=\"alert\"><span id=\"dpErrorMsg\">Network request failed. Project not deleted.</span></div>"
+    },
+    {
+      "n": 6,
+      "verdict": "PASS",
+      "reason": "After a failed delete the dialog stays open, its confirm re-enables and relabels to 'Try again', and a subsequent attempt succeeded without reload (row removed after a fresh deleteProject + getUser); the Save button also re-enables after failure and there is a dedicated load-error Retry button.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/76d8fc74_6.png"
+    },
+    {
+      "n": 7,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief.",
+      "evidence": "N/A per task instructions for B6"
+    },
+    {
+      "n": 8,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief.",
+      "evidence": "N/A per task instructions for B6"
+    },
+    {
+      "n": 9,
+      "verdict": "PASS",
+      "reason": "Mid-delete the dialog blocks dismissal (close button disabled, Escape suppressed) then closes cleanly on resolve; starting a slow save, jumping to the Danger zone section and opening the delete-account dialog mid-save left no broken state — the save completed to 'Saved', no dangling dialogs and no uncaught errors.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/76d8fc74_9.png"
+    },
+    {
+      "n": 10,
+      "verdict": "PASS",
+      "reason": "No success is shown before the server confirms: during a 6.9 s save no visible toast/status claimed success until resolution; the deleted project row stayed until deleteProject resolved (list refreshed via getUser), and the 'Account deleted' screen appeared only after deleteAccount resolved.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/76d8fc74_10.png"
+    }
+  ],
+  "failCount": 0
+}

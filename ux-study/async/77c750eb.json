@@ -1,0 +1,66 @@
+{
+  "id": "77c750eb",
+  "items": [
+    {
+      "n": 1,
+      "verdict": "PASS",
+      "reason": "Within 200 ms of clicking Pay under slow latency the button was disabled and its label changed to 'Processing…', so a loading state is visible well within 300 ms.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/77c750eb_1.png"
+    },
+    {
+      "n": 2,
+      "verdict": "PASS",
+      "reason": "Three rapid clicks on Pay produced exactly one submitOrder entry in __apiLog, and the button carries a real disabled attribute while pending; a further click on the disabled button during flight added no call.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/77c750eb_2.png"
+    },
+    {
+      "n": 3,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief; the checkout only calls submitOrder, which exposes no progress.",
+      "evidence": "__apiLog across all runs contains only submitOrder entries, e.g. [{\"t\":74416,\"m\":\"submitOrder\"}]; no upload or job APIs are used."
+    },
+    {
+      "n": 4,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief; there is no long-running upload or processing action to cancel.",
+      "evidence": "Page has a single async action, submitOrder (2-8 s under latency=slow); only control rendered is <button type=\"submit\" class=\"submit-btn\" id=\"submitBtn\">."
+    },
+    {
+      "n": 5,
+      "verdict": "FAIL",
+      "reason": "The network-failure message ('Connection lost. Please check your internet and try again.') is specific, but it renders in a banner at the top of the page while the Pay button sits ~960 px lower; measured from the button's scroll position after failure the banner's viewport top was -211 px, completely off-screen, and the page does not scroll to it, so a user at the Pay button sees no error at all.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/77c750eb_5.png"
+    },
+    {
+      "n": 6,
+      "verdict": "PASS",
+      "reason": "The failure banner contains a 'Try again' button that re-issued submitOrder without reload (a second submitOrder appeared in __apiLog and the button returned to 'Processing…'), and after a validation rejection the fields stayed editable and resubmitting after fixing them fired a fresh call with the old errors cleared.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/77c750eb_6.png"
+    },
+    {
+      "n": 7,
+      "verdict": "PASS",
+      "reason": "An API VALIDATION rejection with fields {email, postalCode} rendered each message in a role=alert error div inside the matching field container ('Enter an email address in the form name@example.com' under Email, 'This postal code does not exist in the selected country' under Postal code), and fixing those fields cleared them.",
+      "evidence": "<div class=\"field has-error\" data-field=\"postalCode\"><label for=\"postalCode\">Postal code</label><input id=\"postalCode\" ...><div class=\"field-error\" role=\"alert\">…This postal code does not exist in the selected country</div></div>"
+    },
+    {
+      "n": 8,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief; the checkout has no server state that changes over time to poll.",
+      "evidence": "__apiLog shows no polling methods (no getJob/listJobs/getMetrics), only submitOrder per submission attempt."
+    },
+    {
+      "n": 9,
+      "verdict": "PASS",
+      "reason": "While a slow submit was pending, editing the email field, pressing Escape, clicking elsewhere and re-clicking the disabled Pay button caused no second call (__apiLog stayed at 1) and the flow still resolved cleanly into correctly mapped validation errors; the success flow likewise resolved into a consistent confirmation view.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/77c750eb_9.png"
+    },
+    {
+      "n": 10,
+      "verdict": "PASS",
+      "reason": "During the 2-8 s pending window the page showed only 'Processing…' with no success text (checked at 200 ms and 650 ms), and the 'Order confirmed' view with the server-generated id ord_9c8c99 appeared only after submitOrder resolved; failure and validation runs never showed success.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/77c750eb_10.png"
+    }
+  ],
+  "failCount": 1
+}

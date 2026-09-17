@@ -1,0 +1,84 @@
+{
+  "id": "718d720b",
+  "f1": {
+    "score": 5,
+    "observations": [
+      "Upload progress is a real <progress id=\"upBar\"> bar with a live numeric readout ('Uploading … 43%') in the run card; the async rater observed it advancing at 20% and 80%.",
+      "Processing status is an SVG progress ring (role=progressbar, stroke-dashoffset animated, indeterminate spin while queued) plus a coloured status badge with a pulsing dot; every job row in the table also gets a coloured mini progress bar with a % readout (38%, 81%, 35% etc. in the idle screenshot).",
+      "Success/failure is graphical everywhere: green 'Done' badge with dot and green check bigic in the run card, red 'Failed' badge plus red-filled progress bar in the table, red alert icon in failure states; the queue-level chips (3 running / 0 queued / 3 failed / 2 done) are colour-coded pills.",
+      "Metrics confirm: desktop graphical total 47 (8 svg, 8 role=progressbar, 31 badge-heuristic elements) against only 87 visible words on the whole page.",
+      "Raw ratio: 3/3 inventory items graphical+text, 0 text-only, 0 missing."
+    ]
+  },
+  "f2": {
+    "score": 5,
+    "observations": [
+      "Desktop pageWords is 87 for the entire page; helperWords = 0 and longLeafWords = 0 — there is not a single <p>/<small> of helper prose or any leaf element over 12 words.",
+      "All 8 button labels average 1.13 words with max 2 ('Process file', 'Retry', 'Cancel', 'Download', 'Refresh', 'New file'); longLabels list is empty.",
+      "The only instructional copy is the dropzone's 'Drop CSV here / or browse' (5 words), which conveys affordance rather than restating visible state.",
+      "State text is telegraphic and never narrates what the graphics show: 'Uploading 43%', 'Done / 2,713 rows', 'Upload failed / Network request failed' — no sentence restates the progress bars or badges."
+    ]
+  },
+  "f3": {
+    "score": 4,
+    "observations": [
+      "Terminology is consistent throughout: 'succeeded' is always surfaced as 'Done' via the single LBL map used by both the run card and the table badges, and the summary chips reuse the same words lowercased ('3 running', '2 done').",
+      "No filler, no marketing tone, no placeholder text anywhere; error copy is specific and truthful ('Not a CSV file', 'File is empty', 'Cancel failed — Network request failed', 'No output returned').",
+      "One copy/behavior mismatch: cancelling the active job via cancelJob lands in the 'Processing failed' failure card with detail 'Cancelled by admin' (async item 4 evidence) — the user who pressed Cancel is told the job failed and that an admin cancelled it, even though the page has a distinct 'Cancelled' title it uses only for AbortError-path cancels.",
+      "The 'Live' badge honestly flips to 'Retrying' with a tooltip 'Last update failed: …' when polling errors, matching actual behavior."
+    ]
+  },
+  "f4": {
+    "score": 4,
+    "observations": [
+      "The asymmetric grid (392px upload column, flexible jobs table) directly mirrors the brief's upload-then-monitor workflow, and the three-step stepper Upload → Process → Done is the brief's pipeline made visible.",
+      "CSV-specific detail runs deep: the input accepts .csv/text/csv with client-side rejection ('Not a CSV file'), the file chip shows name + byte size in JetBrains Mono, succeeded rows show row counts ('2,713 rows'), and the download filename is derived as '<name>-processed.csv'.",
+      "Job-queue affordances are tailored: per-row Retry on failed jobs with the inline failure reason ('Upstream timeout after 30s'), per-row Cancel on running jobs, a 'mine' row highlight (inset accent bar) for the job you just submitted, and a Live/Retrying polling badge.",
+      "The visual shell is the familiar SaaS idiom — Inter, indigo #4f46e5 accent, white cards with soft shadows on a grey-blue background, pill badges, avatar-with-initials header — which keeps it a notch below fully bespoke."
+    ]
+  },
+  "hierarchy": {
+    "score": 5,
+    "observations": [
+      "From the idle desktop screenshot alone, before reading source: the page is for uploading a CSV to be processed into a downloadable result — 'CSV Processor' title, 'Upload CSV' panel with 'Drop CSV here', and a 'Recent jobs' table whose succeeded rows carry Download buttons. Correct against the brief.",
+      "Primary action read as the dropzone followed by the full-width indigo 'Process file' button, which is visibly disabled (faded) while no file is selected — the disabled state itself communicates the required first step.",
+      "What needs attention read as the 3 failed jobs: red 'Failed' badges, red progress bars, red error strings ('Worker ran out of memory at 1.8 GB', 'Upstream timeout after 30s') each paired with a Retry button, and the red '3 failed' summary chip. All three answers checked out against the brief."
+    ]
+  },
+  "f1Inventory": [
+    {
+      "item": "upload progress",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "processing status",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "success/failure",
+      "classification": "graphical+text"
+    }
+  ],
+  "f2Redundant": [],
+  "f3Issues": [
+    "Cancelling the active job through the run card's Cancel button (cancelJob path) shows the 'Processing failed' title with detail 'Cancelled by admin' instead of the page's own 'Cancelled' state — copy says the job failed and blames an admin for a cancel the user themselves performed."
+  ],
+  "f4TaskDriven": [
+    "Two-panel grid: fixed 392px upload column beside a dominant jobs table, matching the upload-then-monitor task shape",
+    "Three-step stepper (Upload → Process → Done) that maps one-to-one onto the brief's pipeline",
+    "CSV-specific dropzone: accept='.csv,text/csv' with client-side rejection copy 'Not a CSV file' / 'File is empty'",
+    "File chip showing filename + human-readable byte size, removable with an accessible 'Remove file' button",
+    "SVG progress ring with job id in monospace during processing; indeterminate spin while queued",
+    "Per-row job actions matched to status: Retry on failed (with inline failure reason), Cancel on running/queued, Download on succeeded",
+    "Row counts on succeeded jobs ('2,713 rows', '5,644 rows') and derived download filename '<name>-processed.csv'",
+    "'mine' row highlight (inset accent bar) marking the job the current user just submitted",
+    "Live/Retrying polling badge with adaptive poll cadence (1.2s hot, 3.5s idle, paused when tab hidden)",
+    "JetBrains Mono reserved for machine-ish data: job ids, filenames, sizes, counts, percentages"
+  ],
+  "f4Template": [
+    "Inter as the UI face with an indigo #4f46e5 accent — the default modern-SaaS pairing",
+    "White rounded cards with soft layered shadows on a grey-blue (#eef2f7) page background",
+    "Pill-shaped status badges and count chips with tinted backgrounds",
+    "Sticky blurred header with gradient logo mark and avatar-with-initials + name/plan block"
+  ]
+}

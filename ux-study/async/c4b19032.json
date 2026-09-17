@@ -1,0 +1,66 @@
+{
+  "id": "c4b19032",
+  "items": [
+    {
+      "n": 1,
+      "verdict": "PASS",
+      "reason": "Under latency=slow, within ~280 ms of clicking Pay now the button switched to a disabled 'Processing…' state with a visible spinner.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/c4b19032_1.png"
+    },
+    {
+      "n": 2,
+      "verdict": "PASS",
+      "reason": "The Pay button is disabled ('Processing…', disabled=true) while pending; three rapid clicks produced exactly one submitOrder entry in window.__apiLog.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/c4b19032_2.png"
+    },
+    {
+      "n": 3,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief (checkout form; no upload or job progress API used).",
+      "evidence": "Per task instructions, item 3 is N/A for this page."
+    },
+    {
+      "n": 4,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief.",
+      "evidence": "Per task instructions, item 4 is N/A for this page."
+    },
+    {
+      "n": 5,
+      "verdict": "PASS",
+      "reason": "At fail=1 the submit failure shows a red banner 'Connection failed. Check your network and try again.' directly under the Pay now button, i.e. specific to a network failure and adjacent to the action that failed.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/c4b19032_5.png"
+    },
+    {
+      "n": 6,
+      "verdict": "PASS",
+      "reason": "The error banner includes a Retry button; clicking it issued a second submitOrder call (submitCalls went 1→2 in __apiLog) without any page reload.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/c4b19032_6.png"
+    },
+    {
+      "n": 7,
+      "verdict": "PASS",
+      "reason": "At seed=14 with a well-formed email submitted, the API's VALIDATION rejection was mapped to the email field: input gets class has-error with red border and an inline message under that exact field.",
+      "evidence": "<input id=\"f-email\" type=\"email\" ... class=\"has-error\"><div class=\"field-error\" id=\"err-email\"><svg ...></svg> Enter an email address in the form name@example.com</div>"
+    },
+    {
+      "n": 8,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief (no polled server state on a checkout page).",
+      "evidence": "Per task instructions, item 8 is N/A for this page."
+    },
+    {
+      "n": 9,
+      "verdict": "PASS",
+      "reason": "While a slow submit was pending I edited fields, changed the country, pressed Escape and clicked around; when the request later failed the UI resolved cleanly — Pay now re-enabled, error banner shown, edited values preserved, no stuck overlay or duplicate call.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/c4b19032_9.png"
+    },
+    {
+      "n": 10,
+      "verdict": "PASS",
+      "reason": "During the entire slow pending window the UI showed only 'Processing…' (no success); the 'Order confirmed' dialog appeared only after submitOrder resolved and displays the server-issued order id ord_c8c999, which can only come from the response.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/c4b19032_10.png"
+    }
+  ],
+  "failCount": 0
+}

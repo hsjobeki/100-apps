@@ -1,0 +1,66 @@
+{
+  "id": "19f8347f",
+  "items": [
+    {
+      "n": 1,
+      "verdict": "FAIL",
+      "reason": "Initial page load shows a spinner with 'Loading service data…' within 250 ms, but the user-initiated range switch (1H/24H/7D) shows no loading indicator at all: at 250-600 ms after clicking under latency=slow there is no spinner, no aria-busy, no class or opacity change, and the UI sits frozen for up to 8 s until data arrives.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/19f8347f_1b.png"
+    },
+    {
+      "n": 2,
+      "verdict": "PASS",
+      "reason": "Range buttons are not disabled while pending, but requests are deduplicated: three clicks on 7D within ~350 ms under latency=slow produced exactly one getMetrics call; the two extra clicks added no entries to __apiLog.",
+      "evidence": "__apiLog after 3 rapid clicks on 7D (latency=slow): single new entry {t:34824, method:\"getMetrics\", args:{range:\"7d\"}}; no further getMetrics until the next 10 s poll tick."
+    },
+    {
+      "n": 3,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief; the page is a read-only metrics dashboard with no upload or job surface.",
+      "evidence": "Body text: 'Service Health / Updated 01:44:41 PM / 1H 24H 7D / 1 service down: media-worker / 4 Healthy 1 Degraded 1 Down …' — only service metric cards, no upload or job elements."
+    },
+    {
+      "n": 4,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief; there is no long-running user action (upload/processing) to cancel.",
+      "evidence": "Only interactive controls in the DOM are three range buttons: <button class=\"range-btn\">1H</button>, <button class=\"range-btn active\">24H</button>, <button class=\"range-btn\">7D</button>."
+    },
+    {
+      "n": 5,
+      "verdict": "PASS",
+      "reason": "At fail=1 the data area shows an alert icon with 'Failed to load service data' plus Retry, naming the failed operation where the data would appear; a failed background refresh shows a banner 'Refresh failed — showing last known data' that states the consequence for the visible data.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/19f8347f_5.png"
+    },
+    {
+      "n": 6,
+      "verdict": "FAIL",
+      "reason": "The only interactive recovery affordance is a Retry button implemented as a full page reload (clicking it reset __apiLog to a fresh page load), so no in-page re-fetch exists for the load-failure state; only the background poll self-heals without reload.",
+      "evidence": "<button onclick=\"location.reload()\" style=\"…color:var(--red);…\">Retry</button> — clicking it showed 'Loading service data…' with window.__apiLog reset to length 1 (page reloaded)."
+    },
+    {
+      "n": 7,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief; the dashboard has no form fields.",
+      "evidence": "No <form>, <input>, <select> or textarea in the DOM; interactive elements are limited to the 1H/24H/7D range buttons and the error-state Retry button."
+    },
+    {
+      "n": 8,
+      "verdict": "PASS",
+      "reason": "The page polls getMetrics every 10 s and the header timestamp and data update without any user action; a persistent 'Auto-refreshing' indicator is shown.",
+      "evidence": "__apiLog: getMetrics(range 24h) at t=24, 10024, 20024, 30024, 40024; header advanced 'Updated 01:44:41 PM' → 'Updated 01:45:21 PM' with no user interaction."
+    },
+    {
+      "n": 9,
+      "verdict": "PASS",
+      "reason": "Clicking 7D then 1H while both requests were pending left a consistent final state (1H active, 1h data, no stuck loading); when the 7d response was artificially delayed to land 6 s after the 1h response with latency values marked x100, the stale data never rendered, so out-of-order responses are discarded.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/19f8347f_9c.png"
+    },
+    {
+      "n": 10,
+      "verdict": "FAIL",
+      "reason": "The primary action is non-optimistic (the active range button and data only flip after the response arrives), but the 'Updated <time>' header advances even when the refresh fails: with getMetrics patched to always reject, both polls rejected yet the header still advanced, claiming a fresh update the server never confirmed, only partly offset by the stale-data banner.",
+      "evidence": "Patched api.getMetrics to always reject; 2 polls hit the patch, both rejected, yet header advanced 'Updated 01:49:41 PM' → 'Updated 01:50:01 PM' alongside <span>Refresh failed — showing last known data</span>."
+    }
+  ],
+  "failCount": 3
+}

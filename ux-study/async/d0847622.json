@@ -1,0 +1,66 @@
+{
+  "id": "d0847622",
+  "items": [
+    {
+      "n": 1,
+      "verdict": "PASS",
+      "reason": "Under slow latency, clicking a job's Retry replaced the button with a 'Working' pending state within 27 ms (measured by polling the live DOM), and a 'Syncing…' indicator appears in the header during refresh.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/d0847622_1.png"
+    },
+    {
+      "n": 2,
+      "verdict": "PASS",
+      "reason": "Double- and triple-clicking Retry buttons while pending produced exactly one retryJob call per job (3 calls for 3 distinct jobs in __apiLog); the action button is replaced by a non-actionable 'Working' state while pending.",
+      "evidence": "__apiLog retryJob calls after multi-clicks: [{jobId:'job_35484f'},{jobId:'job_b86738'},{jobId:'job_cf8d6a'}]; pending row: 'Failed job_b86738 38% Worker ran out of memory at 1.8 GB Working'"
+    },
+    {
+      "n": 3,
+      "verdict": "PASS",
+      "reason": "Every job row has a role=progressbar with a numeric percent (8 progressbars observed), and the upload flow shows a live percentage ('test.csv 30% Uploading › Queuing') fed by the API's onProgress.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/d0847622_3u.png"
+    },
+    {
+      "n": 4,
+      "verdict": "PASS",
+      "reason": "Running jobs have a Cancel button that calls cancelJob and lands the job in 'Failed … Cancelled by admin', and the in-flight upload shows its own Cancel button while uploading.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/d0847622_4.png"
+    },
+    {
+      "n": 5,
+      "verdict": "PASS",
+      "reason": "At fail=1 a failed retry shows an inline message in the affected row ('Retry failed: Network request failed') plus a toast naming the exact job ('Couldn't retry job_35484f — Network request failed').",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/d0847622_5.png"
+    },
+    {
+      "n": 6,
+      "verdict": "PASS",
+      "reason": "After a failed retry, the row's Retry button remains and the toast offers 'Try again', which issued a second retryJob call (__apiLog count 1→2) without any reload.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/d0847622_6.png"
+    },
+    {
+      "n": 7,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief; the page has no order form and the API surface it uses (jobs) emits no field-level VALIDATION errors.",
+      "evidence": "Page contains only job-queue controls and a CSV file input; no form fields exist to map validation errors onto (aria snapshot shows no text inputs)."
+    },
+    {
+      "n": 8,
+      "verdict": "PASS",
+      "reason": "The page polls listJobs about every 2.5 s (a 'Live' toggle is on by default); without any interaction a job I observed at 'Running 84%' advanced to 'Succeeded 100%' and filter counts updated.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/d0847622_8.png"
+    },
+    {
+      "n": 9,
+      "verdict": "PASS",
+      "reason": "Starting a slow retry from the job-detail dialog, closing the dialog mid-action, and switching the status filter caused no errors (zero console/pageerror events); when the retry resolved the job appeared as Queued and counts stayed consistent (2 Failed, 2 Running, 1 Queued, 3 Succeeded = 8 All).",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/d0847622_9b.png"
+    },
+    {
+      "n": 10,
+      "verdict": "PASS",
+      "reason": "During a pending retry the row and dialog keep showing 'Failed … Working' and only flip to Queued after retryJob resolves and polling confirms; the uploaded job appeared only with its server-issued id (job_f96c45) after the API responded.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/d0847622_10.png"
+    }
+  ],
+  "failCount": 0
+}

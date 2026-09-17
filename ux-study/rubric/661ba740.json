@@ -1,0 +1,88 @@
+{
+  "id": "661ba740",
+  "f1": {
+    "score": 4,
+    "observations": [
+      "Job status per row is a colored pill badge (.status-badge with a .dot span) — red for 'failed', yellow for 'running', green for 'succeeded' — with the status word inside it; the badge heuristic in metrics counted 37 badges on the idle desktop page.",
+      "Job progress is a colored bar (div.progress-fill with width:${pct}% and per-status color class) plus a numeric percentage ('38%', '81%', '100%') in every row; queued jobs get an empty bar with '—' instead of a fake number.",
+      "Queue-level counts are five stat cards (TOTAL 8, QUEUED 0, RUNNING 3, SUCCEEDED 2, FAILED 3) whose value color and top-border accent are status-coded (blue/purple/yellow/green/red), echoed by count pills in the filter tabs (All 8, Failed 3).",
+      "Failure reason is red text in the Details cell ('Worker ran out of memory at 1.8 GB', 'Upstream timeout after 30s') and a red .detail-error-box in the detail panel — color-coded but with no icon or glyph, so it is text only; this is the one inventory item short of graphical+text.",
+      "Raw ratio: 3/4 inventory items graphical+text, 1/4 text only. metrics graphical.total = 38 (1 svg, 37 badges); the progress bars are styled divs so the progress/meter/roleProgressbar counts of 0 undercount what the screenshot shows."
+    ]
+  },
+  "f2": {
+    "score": 5,
+    "observations": [
+      "desktop.viewportWords = pageWords = 93 for a page showing 8 jobs, 5 stat cards, 5 filter tabs and a table — almost every word is data, not narration; helperWords = 0 and longLeafWords = 0.",
+      "All 12 button labels average 1.42 words with max 2 ('Retry', 'Cancel', 'Pause', 'All 8', 'Failed 3'); longLabels is an empty list.",
+      "There are no headings besides 'Job Queue' and no explanatory paragraphs anywhere in the markup — the only <p>-like copy is toast/error strings that appear on events ('Job job_x requeued', 'Connection lost — retrying automatically').",
+      "The single borderline case is the Details-cell placeholder 'Processing…' on running rows, which mildly restates the adjacent 'running' badge, but it is one word filling an otherwise empty cell, not a sentence."
+    ]
+  },
+  "f3": {
+    "score": 5,
+    "observations": [
+      "Terminology is consistent end to end: the four status words in badges, filter tabs, and stat cards ('queued', 'running', 'succeeded', 'failed') are exactly the API's Job.status values, and STATUS_ORDER uses the same names.",
+      "Copy matches behavior: the retry toast says 'Job <id> requeued' and retryJob does reset the job to queued (async item 10 confirmed the badge flips to 'queued' only after the server snapshot); 'Connection lost — retrying automatically' is accurate because the 2 s poll loop keeps running after a fetch error.",
+      "The 'Live' indicator / 'Pause' / 'Resume' toggle copy tracks the actual polling state machine in togglePolling(); no marketing tone, no filler, no lorem/placeholder strings anywhere in the 757-line source.",
+      "Error strings are specific, not canned: per-row 'Upstream timeout after 30s', action toast 'Failed to retry: Network error — try again', empty states 'No jobs match your search' / 'No failed jobs'."
+    ]
+  },
+  "f4": {
+    "score": 4,
+    "observations": [
+      "The default sort is task-driven in code: STATUS_ORDER = { failed: 0, running: 1, queued: 2, succeeded: 3 } with sortCol = 'status', so the three failed jobs the admin must deal with are the first three rows — visible in the idle screenshot.",
+      "Actions are status-conditional exactly as the brief demands: Retry renders only on failed rows, Cancel only on queued/running rows, and succeeded rows instead get '2,713 rows · Download'.",
+      "The Live/Pause polling control, monospace job IDs, sortable columns, and a failure-reason column promoted into the main table are ops-console choices, not shop-window ones.",
+      "The visual skin itself is stock dark-dashboard vocabulary: Inter from Google Fonts, a row of five stat cards with colored top borders, pill filter tabs, toast notifications — competent but interchangeable with any admin template, which is what holds this at 4."
+    ]
+  },
+  "hierarchy": {
+    "score": 5,
+    "observations": [
+      "From the idle desktop screenshot alone: the page is obviously a background-job-queue admin console — 'Job Queue' h1, TOTAL/QUEUED/RUNNING/SUCCEEDED/FAILED stat cards, and a jobs table.",
+      "Primary action read from the screenshot: the blue 'Retry' buttons on the failed rows, which are the top three rows and the most saturated interactive elements; this matches the brief's 'deal with failed jobs'.",
+      "What needs attention read from the screenshot: the 3 failed jobs, signalled redundantly by the red FAILED card showing 3, red 'failed' badges, red progress bars, and red error text ('Worker ran out of memory at 1.8 GB') — all in the top rows.",
+      "All three answers checked out against the brief and against the source (failed-first STATUS_ORDER confirms the sort was deliberate), so 5: correct and obvious."
+    ]
+  },
+  "f1Inventory": [
+    {
+      "item": "job status per row",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "job progress",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "queue-level counts",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "failure reason",
+      "classification": "text only"
+    }
+  ],
+  "f2Redundant": [
+    "'Processing…' in the Details cell of running rows mildly restates the adjacent 'running' status badge (single-word placeholder, not a sentence; the only restatement found)"
+  ],
+  "f3Issues": [],
+  "f4TaskDriven": [
+    "Failed-first default sort (STATUS_ORDER { failed: 0 }) so broken jobs top the table",
+    "Status-conditional row actions: Retry only on failed, Cancel only on queued/running, Download link only on succeeded",
+    "Failure reason surfaced as a first-class red Details column beside its Retry button, plus a detail-panel error box",
+    "Live/Paused polling indicator with Pause/Resume toggle for a monitoring surface",
+    "Filter tabs with live per-status counts mirroring the stat cards for triage",
+    "Monospace job IDs and sortable ID/Status/Progress columns",
+    "Skeleton rows shaped like the real table during initial load; dashed '—' stat values before data arrives",
+    "Per-status semantic color system (red/yellow/green/purple/blue) carried through cards, tabs, badges, and progress fills"
+  ],
+  "f4Template": [
+    "Row of five stat cards with colored top borders across the page top — standard dashboard boilerplate",
+    "Inter from fonts.googleapis.com on a generic dark admin palette",
+    "Pill-shaped filter tab bar with a right-aligned search input — stock toolbar pattern",
+    "Corner toast notifications with colored dot and 3.5 s auto-dismiss",
+    "Centered modal-style detail overlay with × close button"
+  ]
+}

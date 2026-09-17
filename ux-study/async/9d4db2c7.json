@@ -1,0 +1,66 @@
+{
+  "id": "9d4db2c7",
+  "items": [
+    {
+      "n": 1,
+      "verdict": "PASS",
+      "reason": "Under latency=slow, a centered spinner is visible ~250-350 ms after navigation while getUser pends on a blank page, and clicking Create replaces the button label with an inline spinner observed within ~220 ms of the click.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/9d4db2c7_1.png"
+    },
+    {
+      "n": 2,
+      "verdict": "PASS",
+      "reason": "Clicking Create three times in quick succession under slow latency produced exactly one updateSettings call in __apiLog, and the button was disabled with a spinner for the whole pending window.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/9d4db2c7_2.png"
+    },
+    {
+      "n": 3,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief; the page has no upload or job-progress surface.",
+      "evidence": "Per task instructions: item 3 applies only to B1/B2 briefs."
+    },
+    {
+      "n": 4,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief; no upload or processing action exists to cancel.",
+      "evidence": "Per task instructions: item 4 applies only to B1/B2 briefs."
+    },
+    {
+      "n": 5,
+      "verdict": "FAIL",
+      "reason": "Every failure (wizard finish, project create, project delete) surfaces the same generic bottom-right corner toast 'Network error — please try again.', far from the centered modal's Create button and naming neither the action nor the affected element.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/9d4db2c7_5.png"
+    },
+    {
+      "n": 6,
+      "verdict": "PASS",
+      "reason": "After a failed create the modal stays open with the typed name preserved and Create re-enabled; repeated retries at fail=0.5 succeeded without reloading (failed attempts 0/2/3/4 were followed by successful attempts 1/5/6), and the wizard's failed finish can be re-clicked in place.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/9d4db2c7_6.png"
+    },
+    {
+      "n": 7,
+      "verdict": "N/A",
+      "reason": "Marked not applicable; the page has no API-validated form (submitOrder is unused).",
+      "evidence": "Per task instructions: item 7 applies only to the B5 brief."
+    },
+    {
+      "n": 8,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief; no server-advancing state (jobs, metrics) is displayed.",
+      "evidence": "Per task instructions: item 8 applies only to B1/B2/B3 briefs."
+    },
+    {
+      "n": 9,
+      "verdict": "PASS",
+      "reason": "Mid-create the modal overlay blocks navigation and Cancel is guarded (a programmatic Cancel and a forced tab switch left no broken state); when the pending call settled the modal auto-closed, the list showed the correct 2 projects, and tab switching kept working with no stuck spinner.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/9d4db2c7_9.png"
+    },
+    {
+      "n": 10,
+      "verdict": "PASS",
+      "reason": "Under slow latency the new project card and 'Project created!' toast appear only after updateSettings resolves (list showed no project during the pending window), failed creates never add a card, and a failed delete leaves the card in place.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/9d4db2c7_10.png"
+    }
+  ],
+  "failCount": 1
+}

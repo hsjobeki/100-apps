@@ -1,0 +1,889 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Account settings</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box}
+:root{
+  --bg:#f3f5f7; --panel:#ffffff; --panel-2:#f8fafb;
+  --line:#e2e6eb; --line-2:#cfd6de;
+  --ink:#10141a; --ink-2:#48525f; --ink-3:#78828f;
+  --accent:#14181f; --accent-fg:#ffffff; --accent-hover:#272d36;
+  --ok:#0b7a4b; --ok-bg:#e6f5ed; --ok-line:#bfe4d2;
+  --warn:#8a5600; --warn-bg:#fdf3e0;
+  --danger:#b0261d; --danger-fg:#ffffff; --danger-bg:#fdeceb; --danger-line:#f2c8c5; --danger-hover:#8f1d16;
+  --focus:#2f6feb;
+  --sk-hi:#eef1f5;
+  --r:10px; --r-lg:14px;
+  --shadow:0 1px 2px rgba(16,24,40,.05),0 2px 6px rgba(16,24,40,.06);
+  --shadow-lg:0 12px 40px rgba(10,15,25,.22);
+}
+html[data-theme="dark"]{
+  --bg:#0d1016; --panel:#151920; --panel-2:#1b2029;
+  --line:#262c36; --line-2:#333b47;
+  --ink:#e9edf3; --ink-2:#a7b1be; --ink-3:#7b8593;
+  --accent:#e9edf3; --accent-fg:#10141a; --accent-hover:#ffffff;
+  --ok:#43c48a; --ok-bg:#10281f; --ok-line:#1e4436;
+  --warn:#e0a73c; --warn-bg:#2a2011;
+  --danger:#ff7b6f; --danger-fg:#200906; --danger-bg:#2c1512; --danger-line:#4c221d; --danger-hover:#ff9a90;
+  --focus:#6ea0ff;
+  --sk-hi:#222833;
+  --shadow:0 1px 2px rgba(0,0,0,.4);
+  --shadow-lg:0 12px 40px rgba(0,0,0,.6);
+}
+html,body{height:100%}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased;
+}
+h1,h2,h3{margin:0;letter-spacing:-.015em;font-weight:600}
+p{margin:0}
+ul{margin:0;padding:0;list-style:none}
+button,input,select{font:inherit;color:inherit}
+a{color:inherit}
+.mono{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:12px;letter-spacing:-.02em}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:6px}
+.ic{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ic-lg{width:20px;height:20px}
+.spin{animation:spin .8s linear infinite;transform-origin:50% 50%}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes sk{0%{background-position:100% 50%}100%{background-position:0 50%}}
+@keyframes pop{from{opacity:0;transform:translateY(6px) scale(.98)}to{opacity:1;transform:none}}
+
+.topbar{
+  position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:12px;
+  height:56px;padding:0 20px;background:var(--panel);border-bottom:1px solid var(--line);
+}
+.brand{display:flex;align-items:center;gap:9px;font-weight:600}
+.brand .ic{width:22px;height:22px;stroke-width:1.6;color:var(--accent)}
+html[data-theme="dark"] .brand .ic{color:var(--ink)}
+.topbar .who{margin-left:auto;display:flex;align-items:center;gap:10px;color:var(--ink-2)}
+.topbar .who .mono{color:var(--ink-3)}
+
+.shell{max-width:1120px;margin:0 auto;padding:28px 20px 96px;display:grid;grid-template-columns:196px 1fr;gap:32px;align-items:start}
+.side{position:sticky;top:84px;display:flex;flex-direction:column;gap:2px}
+.side h2{font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:var(--ink-3);margin:0 0 8px 10px}
+.nav-link{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:8px;text-decoration:none;color:var(--ink-2);font-weight:500}
+.nav-link .ic{color:var(--ink-3)}
+.nav-link:hover{background:var(--panel)}
+.nav-link[aria-current="true"]{background:var(--panel);color:var(--ink);box-shadow:var(--shadow)}
+.nav-link[aria-current="true"] .ic{color:var(--ink)}
+.nav-link.is-danger[aria-current="true"],.nav-link.is-danger:hover{color:var(--danger)}
+.nav-link.is-danger .ic{color:var(--danger)}
+
+.content{display:flex;flex-direction:column;gap:18px;min-width:0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow);overflow:hidden}
+.card-head{display:flex;align-items:center;gap:10px;padding:16px 18px;border-bottom:1px solid var(--line)}
+.card-head h2{font-size:15px}
+.card-head .ic{color:var(--ink-3)}
+.card-body{padding:18px}
+
+.identity{display:flex;align-items:center;gap:14px;padding:18px}
+.avatar{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;font-weight:600;font-size:16px;letter-spacing:.02em;background:var(--accent);color:var(--accent-fg)}
+.identity .who-name{font-weight:600;font-size:16px;letter-spacing:-.01em}
+.identity .who-mail{color:var(--ink-2)}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:999px;font-size:12px;font-weight:600;background:var(--panel-2);border:1px solid var(--line);color:var(--ink-2)}
+.badge.plan{background:var(--ok-bg);border-color:var(--ok-line);color:var(--ok)}
+.badge.count{min-width:24px;justify-content:center}
+.identity .badge{margin-left:auto}
+
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.field:last-of-type{margin-bottom:0}
+label{font-weight:500;color:var(--ink-2)}
+input[type="text"],input[type="email"],select{
+  width:100%;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line-2);border-radius:var(--r);
+  transition:border-color .12s,box-shadow .12s;
+}
+input:focus,select:focus{outline:none;border-color:var(--focus);box-shadow:0 0 0 3px color-mix(in srgb,var(--focus) 22%,transparent)}
+input[aria-invalid="true"]{border-color:var(--danger);background:var(--danger-bg)}
+input:disabled,select:disabled{opacity:.6;cursor:not-allowed}
+.field-err{display:none;align-items:center;gap:6px;color:var(--danger);font-size:12.5px;font-weight:500}
+.field-err .ic{width:14px;height:14px}
+.field[data-invalid] .field-err{display:flex}
+
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-foot{display:flex;align-items:center;gap:10px;padding:13px 18px;background:var(--panel-2);border-top:1px solid var(--line);flex-wrap:wrap}
+.foot-actions{margin-left:auto;display:flex;align-items:center;gap:8px}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:8px 14px;border-radius:var(--r);border:1px solid transparent;font-weight:600;cursor:pointer;background:transparent;white-space:nowrap;transition:background .12s,border-color .12s,opacity .12s}
+.btn:disabled{opacity:.6;cursor:not-allowed}
+.btn.primary{background:var(--accent);color:var(--accent-fg)}
+.btn.primary:hover:not(:disabled){background:var(--accent-hover)}
+.btn.ghost{border-color:var(--line-2);color:var(--ink-2);background:var(--panel)}
+.btn.ghost:hover:not(:disabled){background:var(--panel-2);color:var(--ink)}
+.btn.danger{background:var(--danger);color:var(--danger-fg)}
+.btn.danger:hover:not(:disabled){background:var(--danger-hover)}
+.btn.danger-ghost{border-color:var(--danger-line);color:var(--danger);background:var(--danger-bg)}
+.btn.danger-ghost:hover:not(:disabled){background:var(--danger);color:var(--danger-fg)}
+.btn.sm{padding:5px 10px;font-size:13px}
+.icon-btn{display:grid;place-items:center;width:30px;height:30px;border-radius:8px;border:1px solid transparent;background:transparent;color:var(--ink-3);cursor:pointer}
+.icon-btn:hover{background:var(--panel-2);color:var(--ink)}
+.icon-btn:disabled{opacity:.5;cursor:not-allowed}
+
+.status{display:none;align-items:center;gap:7px;font-weight:500;font-size:13px}
+.status[data-state]{display:inline-flex}
+.status[data-state="saving"]{color:var(--ink-2)}
+.status[data-state="saved"]{color:var(--ok)}
+.status[data-state="error"]{color:var(--danger)}
+
+.rows{display:flex;flex-direction:column}
+.row{display:flex;align-items:center;gap:14px;padding:13px 18px;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:0}
+.row-main{min-width:0;display:flex;flex-direction:column;gap:2px}
+.row-label{font-weight:500}
+.row-sub{color:var(--ink-3);font-size:12.5px}
+.row-end{margin-left:auto;display:flex;align-items:center;gap:10px}
+.row-err{display:flex;align-items:center;gap:8px;padding:0 18px 13px;color:var(--danger);font-size:13px;font-weight:500}
+.row[data-pending]{background:var(--panel-2)}
+
+.switch{position:relative;width:42px;height:24px;flex:none;border-radius:999px;border:1px solid var(--line-2);background:var(--panel-2);cursor:pointer;padding:0;transition:background .16s,border-color .16s}
+.switch[aria-checked="true"]{background:var(--ok);border-color:var(--ok)}
+.switch:disabled{cursor:progress}
+.knob{position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:var(--panel);box-shadow:0 1px 2px rgba(0,0,0,.3);display:grid;place-items:center;transition:transform .16s ease}
+.switch[aria-checked="true"] .knob{transform:translateX(18px)}
+.knob .ic{width:11px;height:11px;opacity:0;color:var(--ink-2);stroke-width:2.6}
+.switch[data-pending] .knob .ic{opacity:1}
+
+.pj{display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid var(--line)}
+.pj:last-child{border-bottom:0}
+.pj-mark{width:34px;height:34px;flex:none;border-radius:9px;display:grid;place-items:center;font-weight:600;font-size:13px;color:#fff}
+.pj-name{font-weight:500}
+.pj-meta{color:var(--ink-3)}
+.pj .row-end{margin-left:auto}
+.pj[data-pending]{background:var(--panel-2)}
+.pj[data-pending] .pj-name{color:var(--ink-3)}
+
+.empty{display:flex;flex-direction:column;align-items:center;gap:8px;padding:34px 18px;text-align:center}
+.empty .ic{width:30px;height:30px;color:var(--ink-3);stroke-width:1.4}
+.empty strong{font-weight:600}
+.empty span{color:var(--ink-3)}
+
+.danger-card{border-color:var(--danger-line)}
+.danger-card .card-head{background:var(--danger-bg);border-bottom-color:var(--danger-line)}
+.danger-card .card-head h2,.danger-card .card-head .ic{color:var(--danger)}
+.hatch{height:5px;background:repeating-linear-gradient(-45deg,var(--danger) 0 7px,transparent 7px 14px);opacity:.75}
+.danger-body{display:flex;align-items:center;gap:16px;padding:18px;flex-wrap:wrap}
+.danger-body p{color:var(--ink-2);max-width:42ch}
+.danger-body .btn{margin-left:auto}
+
+.skel{display:flex;flex-direction:column;gap:18px}
+.sk{background:linear-gradient(90deg,var(--line) 25%,var(--sk-hi) 37%,var(--line) 63%);background-size:400% 100%;animation:sk 1.2s ease-in-out infinite;border-radius:7px}
+.sk-card{padding:18px;display:flex;flex-direction:column;gap:12px}
+.sk-row{display:flex;align-items:center;gap:12px}
+
+.load-err{display:flex;align-items:center;gap:14px;padding:18px;border:1px solid var(--danger-line);background:var(--danger-bg);border-radius:var(--r-lg)}
+.load-err .ic{color:var(--danger)}
+.load-err .btn{margin-left:auto}
+.load-err strong{display:block;color:var(--danger)}
+.load-err span{color:var(--ink-2)}
+
+dialog.dlg{
+  width:min(456px,calc(100vw - 32px));padding:0;border:1px solid var(--line);border-radius:var(--r-lg);
+  background:var(--panel);color:var(--ink);box-shadow:var(--shadow-lg);
+}
+dialog.dlg::backdrop{background:rgba(9,12,18,.52);backdrop-filter:blur(2px)}
+dialog.dlg[open]{animation:pop .14s ease-out}
+.dlg-head{display:flex;align-items:center;gap:10px;padding:16px 18px 12px}
+.dlg-head h2{font-size:16px}
+.dlg-icon{width:32px;height:32px;flex:none;border-radius:9px;display:grid;place-items:center;background:var(--danger-bg);color:var(--danger)}
+.dlg-head .icon-btn{margin-left:auto}
+.dlg-body{padding:0 18px 4px;display:flex;flex-direction:column;gap:12px}
+.dlg-foot{display:flex;align-items:center;gap:8px;padding:16px 18px;margin-top:12px;background:var(--panel-2);border-top:1px solid var(--line)}
+.dlg-foot .btn:first-child{margin-right:auto}
+.target{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:var(--r);background:var(--panel-2)}
+.facts{display:flex;flex-direction:column;gap:8px}
+.facts li{display:flex;align-items:center;gap:9px;color:var(--ink-2)}
+.facts .ic{color:var(--danger)}
+.facts b{color:var(--ink);font-weight:600}
+.note{display:flex;align-items:center;gap:8px;padding:9px 11px;border-radius:var(--r);font-weight:500;background:var(--danger-bg);color:var(--danger);border:1px solid var(--danger-line)}
+.dlg-error{display:flex;align-items:flex-start;gap:8px;padding:9px 11px;border-radius:var(--r);background:var(--danger-bg);border:1px solid var(--danger-line);color:var(--danger);font-weight:500}
+.confirm-field{display:flex;flex-direction:column;gap:6px}
+.confirm-wrap{position:relative;display:flex;align-items:center}
+.confirm-wrap input{padding-right:36px}
+.match{position:absolute;right:11px;display:grid;place-items:center;color:var(--ink-3);opacity:0;transition:opacity .12s}
+.match[data-state]{opacity:1}
+.match[data-state="ok"]{color:var(--ok)}
+.match[data-state="no"]{color:var(--ink-3)}
+
+.toasts{position:fixed;right:18px;bottom:18px;z-index:60;display:flex;flex-direction:column-reverse;gap:10px;width:min(360px,calc(100vw - 36px))}
+.toast{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:var(--r);background:var(--panel);border:1px solid var(--line);box-shadow:var(--shadow-lg);animation:pop .16s ease-out}
+.toast .ic{flex:none}
+.toast.ok .ic{color:var(--ok)}
+.toast.err{border-color:var(--danger-line)}
+.toast.err .ic{color:var(--danger)}
+.toast .txt{min-width:0;font-weight:500}
+.toast .btn,.toast .icon-btn{margin-left:auto}
+.toast .btn+.icon-btn{margin-left:0}
+
+.gone{min-height:100vh;display:grid;place-items:center;padding:24px}
+.gone-card{max-width:400px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px;padding:34px 26px;background:var(--panel);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow)}
+.gone-mark{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:var(--ok-bg);color:var(--ok)}
+.gone-mark .ic{width:24px;height:24px;stroke-width:2.2}
+.gone-card h1{font-size:19px}
+.gone-card p{color:var(--ink-2)}
+.gone-list{display:flex;flex-direction:column;gap:6px;color:var(--ink-3);font-size:13px}
+[hidden]{display:none !important}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+@media (max-width:860px){
+  .shell{grid-template-columns:1fr;gap:16px;padding:16px 14px 80px}
+  .side{position:sticky;top:56px;z-index:20;flex-direction:row;flex-wrap:wrap;gap:6px;padding:10px 0;background:var(--bg)}
+  .side h2{display:none}
+  .nav-link{border:1px solid var(--line);background:var(--panel);white-space:nowrap;padding:7px 12px;font-size:13px}
+  .grid-2{grid-template-columns:1fr}
+  .topbar .who .mono{display:none}
+  .danger-body .btn{margin-left:0;width:100%}
+  .toasts{right:12px;left:12px;bottom:12px;width:auto}
+}
+</style>
+</head>
+<body>
+<svg class="vh" aria-hidden="true"><defs>
+<symbol id="i-mark" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5.5"/><path d="M8 12.6l2.7 2.7L16 8.9"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4.6 20a7.6 7.6 0 0 1 14.8 0"/></symbol>
+<symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 8h9M18.5 8H20M4 16h4M13.5 16H20"/><circle cx="15.5" cy="8" r="2.4"/><circle cx="10.5" cy="16" r="2.4"/></symbol>
+<symbol id="i-folder" viewBox="0 0 24 24"><path d="M3.5 6.6a1.6 1.6 0 0 1 1.6-1.6h3.5l2 2.6h8.3a1.6 1.6 0 0 1 1.6 1.6v8.8a1.6 1.6 0 0 1-1.6 1.6H5.1a1.6 1.6 0 0 1-1.6-1.6z"/></symbol>
+<symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3.6 2.9 19.6h18.2z"/><path d="M12 9.4v4.4M12 17.2h.01"/></symbol>
+<symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9.5 7V5.4A1.4 1.4 0 0 1 10.9 4h2.2a1.4 1.4 0 0 1 1.4 1.4V7M6.4 7l.9 12.1A1.4 1.4 0 0 0 8.7 20.4h6.6a1.4 1.4 0 0 0 1.4-1.3L17.6 7"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="M4.5 12.5 9.5 17.5 19.5 6.5"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+<symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.5-5.8"/><path d="M20.4 4.2v4.6h-4.6"/></symbol>
+<symbol id="i-spin" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="38 18"/></symbol>
+<symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="m3.6 6.8 8.4 6 8.4-6"/></symbol>
+<symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3.2 4.8 6.1v5.6c0 4.2 2.9 7.6 7.2 9.1 4.3-1.5 7.2-4.9 7.2-9.1V6.1z"/><path d="M9.4 12.2 11.3 14l3.4-3.9"/></symbol>
+</defs></svg>
+
+<header class="topbar" id="topbar">
+  <div class="brand"><svg class="ic" aria-hidden="true"><use href="#i-mark"></use></svg><span>Account settings</span></div>
+  <div class="who" id="topWho"></div>
+</header>
+
+<main class="shell" id="shell">
+  <nav class="side" aria-label="Settings sections">
+    <h2>Sections</h2>
+    <a class="nav-link" href="#profile" data-nav="profile"><svg class="ic" aria-hidden="true"><use href="#i-user"></use></svg>Profile</a>
+    <a class="nav-link" href="#prefs" data-nav="prefs"><svg class="ic" aria-hidden="true"><use href="#i-sliders"></use></svg>Preferences</a>
+    <a class="nav-link" href="#projects" data-nav="projects"><svg class="ic" aria-hidden="true"><use href="#i-folder"></use></svg>Projects</a>
+    <a class="nav-link is-danger" href="#danger" data-nav="danger"><svg class="ic" aria-hidden="true"><use href="#i-alert"></use></svg>Danger zone</a>
+  </nav>
+
+  <div class="content">
+    <div class="skel" id="skeleton" aria-hidden="true">
+      <div class="card sk-card"><div class="sk-row"><div class="sk" style="width:46px;height:46px;border-radius:12px"></div><div style="flex:1"><div class="sk" style="width:38%;height:13px;margin-bottom:8px"></div><div class="sk" style="width:24%;height:11px"></div></div></div></div>
+      <div class="card sk-card"><div class="sk" style="width:22%;height:13px"></div><div class="sk" style="width:100%;height:36px"></div><div class="sk" style="width:100%;height:36px"></div></div>
+      <div class="card sk-card"><div class="sk" style="width:30%;height:13px"></div><div class="sk" style="width:100%;height:28px"></div><div class="sk" style="width:100%;height:28px"></div></div>
+    </div>
+
+    <div class="load-err" id="loadError" role="alert" hidden>
+      <svg class="ic ic-lg" aria-hidden="true"><use href="#i-alert"></use></svg>
+      <div><strong id="loadErrorMsg">Could not load account</strong><span>Your settings were not changed.</span></div>
+      <button type="button" class="btn ghost" id="loadRetry"><svg class="ic" aria-hidden="true"><use href="#i-refresh"></use></svg>Retry</button>
+    </div>
+
+    <div id="panels" hidden>
+      <div class="card" style="margin-bottom:18px">
+        <div class="identity">
+          <div class="avatar" id="avatar">--</div>
+          <div class="row-main">
+            <span class="who-name" id="whoName"></span>
+            <span class="who-mail mono" id="whoMail"></span>
+          </div>
+          <span class="badge plan" id="planBadge"><svg class="ic" aria-hidden="true"><use href="#i-shield"></use></svg><span id="planName"></span></span>
+        </div>
+      </div>
+
+      <section class="card" id="profile" style="margin-bottom:18px" aria-labelledby="hProfile">
+        <div class="card-head"><svg class="ic" aria-hidden="true"><use href="#i-user"></use></svg><h2 id="hProfile">Profile</h2></div>
+        <form id="profileForm" novalidate>
+          <div class="card-body">
+            <div class="grid-2">
+              <div class="field" id="fName">
+                <label for="inName">Name</label>
+                <input id="inName" name="name" type="text" autocomplete="name" spellcheck="false">
+                <span class="field-err" id="errName"><svg class="ic" aria-hidden="true"><use href="#i-alert"></use></svg><span>Name is required</span></span>
+              </div>
+              <div class="field" id="fMail">
+                <label for="inMail">Email</label>
+                <input id="inMail" name="email" type="email" autocomplete="email" spellcheck="false">
+                <span class="field-err" id="errMail"><svg class="ic" aria-hidden="true"><use href="#i-alert"></use></svg><span>Enter a valid email address</span></span>
+              </div>
+            </div>
+          </div>
+          <div class="form-foot">
+            <span class="status" id="profileStatus" role="status" aria-live="polite"></span>
+            <div class="foot-actions">
+              <button type="button" class="btn ghost sm" id="profileRetry" hidden><svg class="ic" aria-hidden="true"><use href="#i-refresh"></use></svg>Try again</button>
+              <button type="button" class="btn ghost" id="discardProfile" hidden>Discard</button>
+              <button type="submit" class="btn primary" id="saveProfile">
+                <svg class="ic spin" id="saveSpinner" aria-hidden="true" hidden><use href="#i-spin"></use></svg>
+                <span>Save changes</span>
+              </button>
+            </div>
+          </div>
+        </form>
+      </section>
+
+      <section class="card" id="prefs" style="margin-bottom:18px" aria-labelledby="hPrefs">
+        <div class="card-head"><svg class="ic" aria-hidden="true"><use href="#i-sliders"></use></svg><h2 id="hPrefs">Preferences</h2></div>
+        <div class="rows" id="prefRows"></div>
+      </section>
+
+      <section class="card" id="projects" style="margin-bottom:18px" aria-labelledby="hProjects">
+        <div class="card-head">
+          <svg class="ic" aria-hidden="true"><use href="#i-folder"></use></svg><h2 id="hProjects">Projects</h2>
+          <span class="badge count" id="projCount">0</span>
+        </div>
+        <div id="projList"></div>
+      </section>
+
+      <section class="card danger-card" id="danger" aria-labelledby="hDanger">
+        <div class="hatch"></div>
+        <div class="card-head"><svg class="ic" aria-hidden="true"><use href="#i-alert"></use></svg><h2 id="hDanger">Danger zone</h2></div>
+        <div class="danger-body">
+          <div class="row-main">
+            <span class="row-label">Delete account</span>
+            <p>Removes your account and all projects. Cannot be undone.</p>
+          </div>
+          <button type="button" class="btn danger-ghost" id="openDeleteAccount"><svg class="ic" aria-hidden="true"><use href="#i-trash"></use></svg>Delete account</button>
+        </div>
+      </section>
+    </div>
+  </div>
+</main>
+
+<div class="gone" id="goneScreen" hidden>
+  <div class="gone-card">
+    <div class="gone-mark"><svg class="ic" aria-hidden="true"><use href="#i-check"></use></svg></div>
+    <h1>Account deleted</h1>
+    <p id="goneLine"></p>
+    <div class="gone-list" id="goneList"></div>
+  </div>
+</div>
+
+<div class="toasts" id="toasts" role="region" aria-label="Notifications"></div>
+
+<dialog class="dlg" id="dlgProject" aria-labelledby="dpTitle">
+  <div class="dlg-head">
+    <div class="dlg-icon"><svg class="ic" aria-hidden="true"><use href="#i-trash"></use></svg></div>
+    <h2 id="dpTitle">Delete project?</h2>
+    <button type="button" class="icon-btn" data-close="dlgProject" aria-label="Close"><svg class="ic" aria-hidden="true"><use href="#i-x"></use></svg></button>
+  </div>
+  <div class="dlg-body">
+    <div class="target"><span class="pj-mark" id="dpMark"></span><div class="row-main"><span class="pj-name" id="dpName"></span><span class="pj-meta mono" id="dpMeta"></span></div></div>
+    <div class="note"><svg class="ic" aria-hidden="true"><use href="#i-alert"></use></svg>Cannot be undone.</div>
+    <div class="dlg-error" id="dpError" role="alert" hidden><svg class="ic" aria-hidden="true"><use href="#i-alert"></use></svg><span id="dpErrorMsg"></span></div>
+  </div>
+  <div class="dlg-foot">
+    <button type="button" class="btn ghost" data-close="dlgProject">Cancel</button>
+    <button type="button" class="btn danger" id="dpConfirm">
+      <svg class="ic spin" id="dpSpinner" aria-hidden="true" hidden><use href="#i-spin"></use></svg>
+      <span id="dpConfirmLabel">Delete</span>
+    </button>
+  </div>
+</dialog>
+
+<dialog class="dlg" id="dlgAccount" aria-labelledby="daTitle">
+  <div class="dlg-head">
+    <div class="dlg-icon"><svg class="ic" aria-hidden="true"><use href="#i-alert"></use></svg></div>
+    <h2 id="daTitle">Delete account?</h2>
+    <button type="button" class="icon-btn" data-close="dlgAccount" aria-label="Close"><svg class="ic" aria-hidden="true"><use href="#i-x"></use></svg></button>
+  </div>
+  <div class="dlg-body">
+    <ul class="facts" id="daFacts"></ul>
+    <div class="confirm-field">
+      <label for="daInput">Type your email to confirm</label>
+      <div class="confirm-wrap">
+        <input id="daInput" type="text" autocomplete="off" spellcheck="false" aria-describedby="daHint">
+        <span class="match" id="daMatch"><svg class="ic" aria-hidden="true"><use href="#i-check"></use></svg></span>
+      </div>
+      <span class="row-sub mono" id="daHint"></span>
+    </div>
+    <div class="dlg-error" id="daError" role="alert" hidden><svg class="ic" aria-hidden="true"><use href="#i-alert"></use></svg><span id="daErrorMsg"></span></div>
+  </div>
+  <div class="dlg-foot">
+    <button type="button" class="btn ghost" data-close="dlgAccount">Cancel</button>
+    <button type="button" class="btn danger" id="daConfirm" disabled>
+      <svg class="ic spin" id="daSpinner" aria-hidden="true" hidden><use href="#i-spin"></use></svg>
+      <span id="daConfirmLabel">Delete account</span>
+    </button>
+  </div>
+</dialog>
+
+<script>
+(function(){
+"use strict";
+var api = window.api;
+var $ = function(s,r){ return (r||document).querySelector(s); };
+var $$ = function(s,r){ return Array.prototype.slice.call((r||document).querySelectorAll(s)); };
+function esc(s){ return String(s).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function ic(n,c){ return '<svg class="ic '+(c||'')+'" aria-hidden="true"><use href="#i-'+n+'"></use></svg>'; }
+function show(el,on){ if(!el) return; if(on) el.removeAttribute('hidden'); else el.setAttribute('hidden',''); }
+
+var S = {
+  user:null, projects:[],
+  prefs:{ notifyEmail:true, digest:false, theme:'system' },
+  baseline:{ name:'', email:'' },
+  savingProfile:false,
+  pendingPref:{},
+  deleteTarget:null, deletingProject:false, deletingProjectId:null,
+  deletingAccount:false
+};
+
+function errText(e, tail){
+  if(e && e.name === 'AbortError') return 'Request cancelled. ' + tail;
+  var base = (e && e.message) ? String(e.message) : 'Unexpected error';
+  return base.replace(/\.$/,'') + '. ' + tail;
+}
+function initials(name){
+  var parts = String(name||'').trim().split(/\s+/).filter(Boolean);
+  if(!parts.length) return '?';
+  return (parts[0][0] + (parts.length > 1 ? parts[parts.length-1][0] : '')).toUpperCase();
+}
+function hue(str){
+  var h = 0, s = String(str||'');
+  for(var i=0;i<s.length;i++){ h = (h * 31 + s.charCodeAt(i)) >>> 0; }
+  return h % 360;
+}
+function fmtDate(iso){
+  var d = new Date(iso);
+  if(isNaN(d.getTime())) return String(iso||'');
+  try{ return new Intl.DateTimeFormat(undefined,{day:'numeric',month:'short',year:'numeric'}).format(d); }
+  catch(_){ return d.toDateString(); }
+}
+
+var toasts = $('#toasts');
+function toast(text, kind, action){
+  var el = document.createElement('div');
+  el.className = 'toast ' + (kind || 'ok');
+  el.innerHTML = ic(kind === 'err' ? 'alert' : 'check') + '<span class="txt">' + esc(text) + '</span>';
+  if(action){
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'btn ghost sm'; b.textContent = action.label;
+    b.addEventListener('click', function(){ close_(); action.run(); });
+    el.appendChild(b);
+  }
+  var x = document.createElement('button');
+  x.type = 'button'; x.className = 'icon-btn'; x.setAttribute('aria-label','Dismiss');
+  x.innerHTML = ic('x');
+  x.addEventListener('click', function(){ close_(); });
+  el.appendChild(x);
+  toasts.appendChild(el);
+  var timer = setTimeout(close_, action ? 14000 : 6000);
+  function close_(){ clearTimeout(timer); if(el.parentNode) el.parentNode.removeChild(el); }
+  return close_;
+}
+
+function openDlg(dlg){ if(!dlg.open) dlg.showModal(); }
+function closeDlg(dlg){ if(dlg.open) dlg.close(); }
+$$('[data-close]').forEach(function(b){
+  b.addEventListener('click', function(){
+    var dlg = document.getElementById(b.getAttribute('data-close'));
+    if(dlg && !dlg.dataset.busy) closeDlg(dlg);
+  });
+});
+$$('dialog.dlg').forEach(function(dlg){
+  dlg.addEventListener('cancel', function(e){ if(dlg.dataset.busy) e.preventDefault(); });
+  dlg.addEventListener('click', function(e){ if(e.target === dlg && !dlg.dataset.busy) closeDlg(dlg); });
+});
+
+var skeleton = $('#skeleton'), panels = $('#panels'), loadError = $('#loadError');
+
+function load(){
+  show(skeleton, true); show(panels, false); show(loadError, false);
+  Promise.resolve().then(function(){ return api.getUser(); }).then(function(u){
+    S.user = u;
+    S.projects = Array.isArray(u.projects) ? u.projects.slice() : [];
+    S.baseline = { name: u.name || '', email: u.email || '' };
+    show(skeleton, false); show(loadError, false); show(panels, true);
+    renderIdentity(); renderProfileForm(); renderPrefs(); renderProjects();
+  }).catch(function(e){
+    show(skeleton, false); show(panels, false);
+    $('#loadErrorMsg').textContent = errText(e, 'Account not loaded.');
+    show(loadError, true);
+  });
+}
+$('#loadRetry').addEventListener('click', load);
+
+function renderIdentity(){
+  $('#avatar').textContent = initials(S.user.name);
+  $('#whoName').textContent = S.user.name || '';
+  $('#whoMail').textContent = S.user.email || '';
+  $('#planName').textContent = (S.user.plan || 'Free') + ' plan';
+  $('#topWho').innerHTML = '<span class="mono">' + esc(S.user.email || '') + '</span>';
+}
+
+var form = $('#profileForm'), inName = $('#inName'), inMail = $('#inMail');
+var saveBtn = $('#saveProfile'), saveSpinner = $('#saveSpinner'), discardBtn = $('#discardProfile');
+var profileStatus = $('#profileStatus'), profileRetry = $('#profileRetry');
+
+function renderProfileForm(){
+  inName.value = S.baseline.name;
+  inMail.value = S.baseline.email;
+  clearFieldErrors();
+  syncDirty();
+}
+function isDirty(){
+  return inName.value.trim() !== S.baseline.name || inMail.value.trim() !== S.baseline.email;
+}
+function syncDirty(){
+  var dirty = isDirty();
+  show(discardBtn, dirty && !S.savingProfile);
+  if(dirty && profileStatus.dataset.state === 'saved') setStatus(null);
+}
+function setStatus(state, text){
+  if(!state){ delete profileStatus.dataset.state; profileStatus.innerHTML = ''; show(profileRetry, false); return; }
+  profileStatus.dataset.state = state;
+  var glyph = state === 'saving' ? ic('spin','spin') : state === 'saved' ? ic('check') : ic('alert');
+  profileStatus.innerHTML = glyph + '<span>' + esc(text) + '</span>';
+  show(profileRetry, state === 'error');
+}
+function clearFieldErrors(){
+  $('#fName').removeAttribute('data-invalid'); inName.removeAttribute('aria-invalid');
+  $('#fMail').removeAttribute('data-invalid'); inMail.removeAttribute('aria-invalid');
+}
+function validateProfile(){
+  clearFieldErrors();
+  var bad = null;
+  if(!inName.value.trim()){ $('#fName').setAttribute('data-invalid',''); inName.setAttribute('aria-invalid','true'); bad = bad || inName; }
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(inMail.value.trim())){ $('#fMail').setAttribute('data-invalid',''); inMail.setAttribute('aria-invalid','true'); bad = bad || inMail; }
+  if(bad){ bad.focus(); return false; }
+  return true;
+}
+inName.addEventListener('input', syncDirty);
+inMail.addEventListener('input', syncDirty);
+discardBtn.addEventListener('click', function(){ renderProfileForm(); setStatus(null); });
+profileRetry.addEventListener('click', function(){ saveProfile(); });
+form.addEventListener('submit', function(e){ e.preventDefault(); saveProfile(); });
+
+function saveProfile(){
+  if(S.savingProfile) return;
+  if(!validateProfile()){ setStatus('error','Fix the fields above.'); return; }
+  var patch = { name: inName.value.trim(), email: inMail.value.trim() };
+  S.savingProfile = true;
+  saveBtn.disabled = true;
+  show(saveSpinner, true);
+  show(discardBtn, false);
+  show(profileRetry, false);
+  inName.disabled = true; inMail.disabled = true;
+  form.setAttribute('aria-busy','true');
+  setStatus('saving','Saving');
+  Promise.resolve().then(function(){ return api.updateSettings(patch); }).then(function(){
+    S.baseline = { name: patch.name, email: patch.email };
+    S.user.name = patch.name; S.user.email = patch.email;
+    renderIdentity();
+    setStatus('saved','Saved');
+    setTimeout(function(){ if(profileStatus.dataset.state === 'saved') setStatus(null); }, 4000);
+  }).catch(function(e){
+    setStatus('error', errText(e, 'Changes not saved.'));
+  }).then(function(){
+    S.savingProfile = false;
+    saveBtn.disabled = false;
+    show(saveSpinner, false);
+    inName.disabled = false; inMail.disabled = false;
+    form.removeAttribute('aria-busy');
+    syncDirty();
+  });
+}
+
+var PREFS = [
+  { key:'notifyEmail', label:'Email notifications', sub:'Job results and mentions' },
+  { key:'digest', label:'Weekly digest', sub:'Monday summary of activity' }
+];
+var THEMES = [['system','Match system'],['light','Light'],['dark','Dark']];
+var prefRows = $('#prefRows');
+
+function applyTheme(){
+  var t = S.prefs.theme;
+  if(t === 'system'){
+    var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    t = dark ? 'dark' : 'light';
+  }
+  document.documentElement.setAttribute('data-theme', t);
+}
+if(window.matchMedia){
+  try{ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(){ if(S.prefs.theme === 'system') applyTheme(); }); }catch(_){}
+}
+
+function renderPrefs(){
+  var html = '';
+  PREFS.forEach(function(p){
+    html += '<div class="row" data-pref="' + p.key + '">' +
+      '<div class="row-main"><span class="row-label">' + esc(p.label) + '</span><span class="row-sub">' + esc(p.sub) + '</span></div>' +
+      '<div class="row-end">' +
+        '<button type="button" class="switch" role="switch" aria-checked="' + (S.prefs[p.key] ? 'true' : 'false') + '" aria-label="' + esc(p.label) + '">' +
+          '<span class="knob">' + ic('spin','spin') + '</span>' +
+        '</button>' +
+      '</div></div>' +
+      '<div class="row-err" data-err="' + p.key + '" hidden></div>';
+  });
+  html += '<div class="row" data-pref="theme">' +
+    '<div class="row-main"><span class="row-label">Theme</span><span class="row-sub">Applied after saving</span></div>' +
+    '<div class="row-end">' +
+      ic('spin','spin theme-spin') +
+      '<select id="themeSelect" aria-label="Theme">' + THEMES.map(function(t){
+        return '<option value="' + t[0] + '"' + (S.prefs.theme === t[0] ? ' selected' : '') + '>' + esc(t[1]) + '</option>';
+      }).join('') + '</select>' +
+    '</div></div>' +
+    '<div class="row-err" data-err="theme" hidden></div>';
+  prefRows.innerHTML = html;
+  show($('.theme-spin', prefRows), false);
+
+  $$('.switch', prefRows).forEach(function(sw){
+    var key = sw.closest('.row').getAttribute('data-pref');
+    sw.addEventListener('click', function(){ setPref(key, !S.prefs[key]); });
+  });
+  $('#themeSelect').addEventListener('change', function(e){ setPref('theme', e.target.value); });
+}
+
+function prefErr(key, msg, retry){
+  var box = prefRows.querySelector('[data-err="' + key + '"]');
+  if(!box) return;
+  if(!msg){ show(box, false); box.innerHTML = ''; return; }
+  box.innerHTML = ic('alert') + '<span>' + esc(msg) + '</span>';
+  var b = document.createElement('button');
+  b.type = 'button'; b.className = 'btn ghost sm'; b.textContent = 'Try again';
+  b.addEventListener('click', retry);
+  box.appendChild(b);
+  show(box, true);
+}
+
+function setPref(key, next){
+  if(S.pendingPref[key]) return;
+  var row = prefRows.querySelector('[data-pref="' + key + '"]');
+  var sw = row ? row.querySelector('.switch') : null;
+  var sel = key === 'theme' ? $('#themeSelect') : null;
+  var spin = key === 'theme' ? $('.theme-spin', prefRows) : null;
+  S.pendingPref[key] = true;
+  prefErr(key, null);
+  row.setAttribute('data-pending','');
+  if(sw){ sw.setAttribute('data-pending',''); sw.disabled = true; sw.setAttribute('aria-busy','true'); }
+  if(sel){ sel.disabled = true; sel.value = S.prefs.theme; }
+  show(spin, true);
+  var patch = {}; patch[key] = next;
+  Promise.resolve().then(function(){ return api.updateSettings(patch); }).then(function(){
+    S.prefs[key] = next;
+    if(sw) sw.setAttribute('aria-checked', next ? 'true' : 'false');
+    if(sel) sel.value = next;
+    if(key === 'theme') applyTheme();
+  }).catch(function(e){
+    if(sel) sel.value = S.prefs.theme;
+    prefErr(key, errText(e, 'Setting unchanged.'), function(){ setPref(key, next); });
+  }).then(function(){
+    delete S.pendingPref[key];
+    row.removeAttribute('data-pending');
+    if(sw){ sw.removeAttribute('data-pending'); sw.disabled = false; sw.removeAttribute('aria-busy'); }
+    if(sel){ sel.disabled = false; }
+    show(spin, false);
+  });
+}
+
+var projList = $('#projList'), projCount = $('#projCount');
+
+function renderProjects(){
+  projCount.textContent = String(S.projects.length);
+  if(!S.projects.length){
+    projList.innerHTML = '<div class="empty">' + ic('folder') +
+      '<strong>No projects</strong><span>Projects you create appear here.</span></div>';
+    return;
+  }
+  projList.innerHTML = S.projects.map(function(p){
+    var h = hue(p.id);
+    return '<div class="pj" data-id="' + esc(p.id) + '">' +
+      '<span class="pj-mark" style="background:hsl(' + h + ' 58% 42%)">' + esc(initials(p.name)) + '</span>' +
+      '<div class="row-main"><span class="pj-name">' + esc(p.name) + '</span>' +
+      '<span class="pj-meta mono">' + esc(fmtDate(p.createdAt)) + ' &middot; ' + esc(p.id) + '</span></div>' +
+      '<div class="row-end">' +
+        '<svg class="ic spin pj-spin" aria-hidden="true" hidden><use href="#i-spin"></use></svg>' +
+        '<button type="button" class="btn ghost sm pj-del" aria-label="Delete ' + esc(p.name) + '">' + ic('trash') + 'Delete</button>' +
+      '</div></div>';
+  }).join('');
+  $$('.pj-del', projList).forEach(function(b){
+    b.addEventListener('click', function(){
+      var id = b.closest('.pj').getAttribute('data-id');
+      var p = S.projects.filter(function(x){ return x.id === id; })[0];
+      if(p) askDeleteProject(p);
+    });
+  });
+  if(S.deletingProject && S.deletingProjectId) markProjectPending(S.deletingProjectId, true);
+}
+
+function markProjectPending(id, on){
+  var row = projList.querySelector('.pj[data-id="' + id + '"]');
+  if(!row) return;
+  show(row.querySelector('.pj-spin'), on);
+  var btn = row.querySelector('.pj-del');
+  if(btn) btn.disabled = on;
+  if(on) row.setAttribute('data-pending',''); else row.removeAttribute('data-pending');
+}
+
+var dlgProject = $('#dlgProject'), dpConfirm = $('#dpConfirm'), dpSpinner = $('#dpSpinner');
+var dpError = $('#dpError'), dpErrorMsg = $('#dpErrorMsg'), dpConfirmLabel = $('#dpConfirmLabel');
+
+function askDeleteProject(p){
+  S.deleteTarget = p;
+  $('#dpName').textContent = p.name;
+  $('#dpMeta').textContent = fmtDate(p.createdAt) + ' \u00b7 ' + p.id;
+  var mark = $('#dpMark');
+  mark.textContent = initials(p.name);
+  mark.style.background = 'hsl(' + hue(p.id) + ' 58% 42%)';
+  show(dpError, false);
+  dpConfirmLabel.textContent = 'Delete';
+  dpConfirm.disabled = false;
+  openDlg(dlgProject);
+}
+
+dpConfirm.addEventListener('click', function(){ confirmDeleteProject(); });
+
+function confirmDeleteProject(){
+  if(S.deletingProject || !S.deleteTarget) return;
+  var p = S.deleteTarget;
+  S.deletingProject = true; S.deletingProjectId = p.id;
+  dlgProject.dataset.busy = '1';
+  dpConfirm.disabled = true;
+  show(dpSpinner, true);
+  dpConfirmLabel.textContent = 'Deleting';
+  show(dpError, false);
+  $$('[data-close="dlgProject"]').forEach(function(b){ b.disabled = true; });
+  markProjectPending(p.id, true);
+  Promise.resolve().then(function(){ return api.deleteProject(p.id); }).then(function(){
+    delete dlgProject.dataset.busy;
+    closeDlg(dlgProject);
+    toast('Deleted ' + p.name, 'ok');
+    return refreshProjects();
+  }).catch(function(e){
+    markProjectPending(p.id, false);
+    dpErrorMsg.textContent = errText(e, 'Project not deleted.');
+    show(dpError, true);
+    dpConfirmLabel.textContent = 'Try again';
+    dpConfirm.disabled = false;
+  }).then(function(){
+    S.deletingProject = false; S.deletingProjectId = null;
+    delete dlgProject.dataset.busy;
+    show(dpSpinner, false);
+    $$('[data-close="dlgProject"]').forEach(function(b){ b.disabled = false; });
+  });
+}
+
+function refreshProjects(){
+  return Promise.resolve().then(function(){ return api.getUser(); }).then(function(u){
+    S.user.plan = u.plan;
+    S.projects = Array.isArray(u.projects) ? u.projects.slice() : [];
+    renderProjects();
+  }).catch(function(e){
+    toast(errText(e, 'Project list may be stale.'), 'err', { label:'Refresh', run: function(){ refreshProjects(); } });
+  });
+}
+
+var dlgAccount = $('#dlgAccount'), daInput = $('#daInput'), daMatch = $('#daMatch');
+var daConfirm = $('#daConfirm'), daSpinner = $('#daSpinner'), daConfirmLabel = $('#daConfirmLabel');
+var daError = $('#daError'), daErrorMsg = $('#daErrorMsg');
+
+$('#openDeleteAccount').addEventListener('click', function(){
+  var n = S.projects.length;
+  $('#daFacts').innerHTML =
+    '<li>' + ic('mail') + '<b>' + esc(S.user.email || '') + '</b></li>' +
+    '<li>' + ic('folder') + '<b>' + n + '</b> project' + (n === 1 ? '' : 's') + ' deleted</li>' +
+    '<li>' + ic('alert') + 'Cannot be undone</li>';
+  $('#daHint').textContent = S.user.email || '';
+  daInput.value = '';
+  daInput.disabled = false;
+  daMatch.removeAttribute('data-state');
+  daConfirm.disabled = true;
+  daConfirmLabel.textContent = 'Delete account';
+  show(daError, false);
+  openDlg(dlgAccount);
+  setTimeout(function(){ daInput.focus(); }, 30);
+});
+
+function emailMatches(){
+  var v = daInput.value.trim().toLowerCase();
+  return v !== '' && v === String((S.user && S.user.email) || '').toLowerCase();
+}
+daInput.addEventListener('input', function(){
+  var ok = emailMatches();
+  daConfirm.disabled = !ok || S.deletingAccount;
+  if(!daInput.value) daMatch.removeAttribute('data-state');
+  else daMatch.setAttribute('data-state', ok ? 'ok' : 'no');
+});
+daInput.addEventListener('keydown', function(e){
+  if(e.key === 'Enter' && emailMatches() && !S.deletingAccount){ e.preventDefault(); confirmDeleteAccount(); }
+});
+daConfirm.addEventListener('click', function(){ confirmDeleteAccount(); });
+
+function confirmDeleteAccount(){
+  if(S.deletingAccount || !emailMatches()) return;
+  S.deletingAccount = true;
+  dlgAccount.dataset.busy = '1';
+  daConfirm.disabled = true;
+  show(daSpinner, true);
+  daConfirmLabel.textContent = 'Deleting account';
+  daInput.disabled = true;
+  show(daError, false);
+  $$('[data-close="dlgAccount"]').forEach(function(b){ b.disabled = true; });
+  var projectCount = S.projects.length;
+  var email = S.user.email || '';
+  Promise.resolve().then(function(){ return api.deleteAccount(); }).then(function(){
+    delete dlgAccount.dataset.busy;
+    closeDlg(dlgAccount);
+    showGone(email, projectCount);
+  }).catch(function(e){
+    daErrorMsg.textContent = errText(e, 'Account not deleted.');
+    show(daError, true);
+    daConfirmLabel.textContent = 'Try again';
+    daInput.disabled = false;
+    daConfirm.disabled = !emailMatches();
+    S.deletingAccount = false;
+    delete dlgAccount.dataset.busy;
+    $$('[data-close="dlgAccount"]').forEach(function(b){ b.disabled = false; });
+  }).then(function(){
+    show(daSpinner, false);
+  });
+}
+
+function showGone(email, projectCount){
+  show($('#topbar'), false);
+  show($('#shell'), false);
+  toasts.innerHTML = '';
+  $('#goneLine').textContent = email + ' is gone.';
+  $('#goneList').innerHTML = '<span>' + projectCount + ' project' + (projectCount === 1 ? '' : 's') + ' deleted</span>';
+  show($('#goneScreen'), true);
+  document.title = 'Account deleted';
+}
+
+var links = $$('.nav-link');
+var sections = links.map(function(a){ return document.getElementById(a.getAttribute('data-nav')); });
+function setActive(id){
+  links.forEach(function(a){
+    if(a.getAttribute('data-nav') === id) a.setAttribute('aria-current','true');
+    else a.removeAttribute('aria-current');
+  });
+}
+setActive('profile');
+if(window.IntersectionObserver){
+  var obs = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){ if(en.isIntersecting) setActive(en.target.id); });
+  }, { rootMargin: '-42% 0px -50% 0px', threshold: 0 });
+  sections.forEach(function(s){ if(s) obs.observe(s); });
+}
+links.forEach(function(a){
+  a.addEventListener('click', function(e){
+    var t = document.getElementById(a.getAttribute('data-nav'));
+    if(!t) return;
+    e.preventDefault();
+    t.scrollIntoView({ behavior:'smooth', block:'start' });
+    setActive(a.getAttribute('data-nav'));
+  });
+});
+
+applyTheme();
+load();
+})();
+</script>
+</body>
+</html>

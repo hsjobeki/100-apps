@@ -1,0 +1,66 @@
+{
+  "id": "c1221ec5",
+  "items": [
+    {
+      "n": 1,
+      "verdict": "PASS",
+      "reason": "Initial slow load shows a 'Loading queue' banner with skeleton rows immediately, and clicking Retry flips the button to a disabled 'Retrying' state well within 300 ms (observed at ~280 ms and at the first 400 ms sample).",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/c1221ec5_1.png"
+    },
+    {
+      "n": 2,
+      "verdict": "PASS",
+      "reason": "Three clicks on a row's Retry button within 280 ms under slow latency produced exactly one retryJob call in __apiLog; the button was disabled and labeled 'Retrying' while pending.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/c1221ec5_2.png"
+    },
+    {
+      "n": 3,
+      "verdict": "PASS",
+      "reason": "Every job row has a role=progressbar with a numeric percentage (e.g. 'Progress 81%'), and the values advance over time for running jobs (40% observed later at 87%).",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/c1221ec5_3.png"
+    },
+    {
+      "n": 4,
+      "verdict": "PASS",
+      "reason": "Queued/running jobs have a per-row Cancel button; clicking it shows a disabled 'Cancelling' pending state and the job ends 'Cancelled by admin' with a Retry action offered.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/c1221ec5_4.png"
+    },
+    {
+      "n": 5,
+      "verdict": "PASS",
+      "reason": "At fail=1 a failed retry inserts an inline row directly under the affected job reading 'Network error — the queue server did not respond' plus a role=alert 'Retry failed: job_35484f', so the error is specific and adjacent to the element.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/c1221ec5_5.png"
+    },
+    {
+      "n": 6,
+      "verdict": "PASS",
+      "reason": "The inline error row carries a 'Retry again' button that re-invoked retryJob (call count went 1→2 in __apiLog) without any page reload.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/c1221ec5_6.png"
+    },
+    {
+      "n": 7,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief; the page has no form fields at all, only a job-ID search box, so there is nothing to map VALIDATION errors onto.",
+      "evidence": "Only input on page: <input id=\"q\" type=\"search\" placeholder=\"Job ID\" autocomplete=\"off\"> — no <form>, <select>, or <textarea> elements exist."
+    },
+    {
+      "n": 8,
+      "verdict": "PASS",
+      "reason": "With auto-refresh on, __apiLog shows listJobs polled roughly every 2 s and running jobs visibly transitioned to Succeeded/Failed (e.g. job_25601c Running 85% → Succeeded 100%, job_8c1e89 Running 40% → Failed 87%) with no manual refresh; header shows 'Live · updated just now'.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/c1221ec5_8.png"
+    },
+    {
+      "n": 9,
+      "verdict": "PASS",
+      "reason": "While a slow retry was pending I opened another job's detail panel, switched to the Running filter, closed the panel, and returned to All: the pending row still showed 'Retrying', the filter showed only correct rows, the retry later resolved to Queued, and zero pageerror/console errors occurred.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/c1221ec5_9.png"
+    },
+    {
+      "n": 10,
+      "verdict": "PASS",
+      "reason": "With retryJob instrumented for resolution time, the row kept showing 'Failed … Retrying' for the full 7.2 s the call was pending and only flipped to 'Queued 0%' after the promise resolved — no optimistic completion.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/c1221ec5_10.png"
+    }
+  ],
+  "failCount": 0
+}

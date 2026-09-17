@@ -1,0 +1,66 @@
+{
+  "id": "d2b7b52b",
+  "items": [
+    {
+      "n": 1,
+      "verdict": "FAIL",
+      "reason": "Initial load shows 'Loading your workspace…' and the create step flips to 'Creating…' within ~5 ms, but the profile step's Continue (updateSettings) shows no loading indicator at all: 1 s and even 5.3 s into the slow pending call the body text is byte-identical to the idle form and the button still reads 'Continue', enabled.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/d2b7b52b_1.png"
+    },
+    {
+      "n": 2,
+      "verdict": "FAIL",
+      "reason": "On the profile step, four rapid clicks on Continue under slow latency fired four parallel updateSettings calls in __apiLog; the button was never disabled (disabled:false at 250 ms). The create step does deduplicate (3 clicks → 1 call), but the profile primary action is unprotected.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/d2b7b52b_2.png"
+    },
+    {
+      "n": 3,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief; the page has no upload or job-progress surface.",
+      "evidence": "DOM check: document.querySelector('input[type=file]') → null; document.querySelector('progress,[role=progressbar],meter') → null"
+    },
+    {
+      "n": 4,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief; there is no long-running upload/processing action to cancel.",
+      "evidence": "DOM check: no input[type=file] and no progress/[role=progressbar]/meter elements anywhere in the document"
+    },
+    {
+      "n": 5,
+      "verdict": "FAIL",
+      "reason": "Failures surface the raw generic message 'Network request failed' in an auto-dismissing toast at the bottom-right corner (rect ~1252,845) far from the form and its Continue button (rect ~879,537); it does not say which action failed or point at any element.",
+      "evidence": "<span>Network request failed</span> toast at (1252,845); Continue button at (879,537) — see /home/johannes/git/failure/ux-study/async/evidence/d2b7b52b_5.png"
+    },
+    {
+      "n": 6,
+      "verdict": "PASS",
+      "reason": "After a failed save or failed project creation the wizard stays on the same step with all entered values preserved (project name 'Launch Plan' still in the input, button back to 'Create project'), and clicking the button again re-fires the API call without a reload — retry succeeded at fail=0.5 after 2 tries.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/d2b7b52b_6b.png"
+    },
+    {
+      "n": 7,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief; the page has no checkout form and never calls submitOrder, so no API field-validation errors exist to map.",
+      "evidence": "Only inputs in the whole flow: text:obName, email:obEmail, selects obRole/obTimezone, text:projName — no OrderPayload fields"
+    },
+    {
+      "n": 8,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief; the page has no jobs/metrics view that polls server state.",
+      "evidence": "__apiLog over the full happy path contains only getUser plus updateSettings calls — no getJob/listJobs/getMetrics polling"
+    },
+    {
+      "n": 9,
+      "verdict": "FAIL",
+      "reason": "Clicking Continue (pending updateSettings, slow) and then Back returns the user to the welcome screen, but when the background call resolves seconds later the UI yanks them forward to the 'Create your first project' step with no user input — the abandoned action clobbers the user's chosen view.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/d2b7b52b_9.png"
+    },
+    {
+      "n": 10,
+      "verdict": "PASS",
+      "reason": "Instrumented timing shows the success toast and dashboard render 27 ms after the API promise resolves (6048 ms vs 6021 ms after click), and on failure no success state ever appears; the page waits for server confirmation. (The confirmed dashboard does contradict the 'Project \"Launch Plan\" created!' toast by showing 'No projects yet', but the success state is not premature.)",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/d2b7b52b_10.png"
+    }
+  ],
+  "failCount": 4
+}

@@ -1,0 +1,66 @@
+{
+  "id": "a0145723",
+  "items": [
+    {
+      "n": 1,
+      "verdict": "PASS",
+      "reason": "At 300 ms after initial navigation under slow latency the page showed 'Checking' in the header and 'Loading' in the content area; a manual Refresh showed a spinner and 'Loading' label within 100 ms.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/a0145723_1.png"
+    },
+    {
+      "n": 2,
+      "verdict": "PASS",
+      "reason": "During a pending refresh the button is disabled with aria-busy=true; three rapid clicks produced exactly one getMetrics call in __apiLog.",
+      "evidence": "<button class=\"btn\" id=\"refresh\" type=\"button\" data-fkey=\"refresh\" aria-busy=\"true\" disabled=\"\"><span id=\"refreshIcon\" data-icon=\"spin\"><svg class=\"spin\"...></span><span id=\"refreshLabel\">Loading</span></button> — 3 clicks, apiLog grew 3→4"
+    },
+    {
+      "n": 3,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief.",
+      "evidence": "N/A per task instructions"
+    },
+    {
+      "n": 4,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief.",
+      "evidence": "N/A per task instructions"
+    },
+    {
+      "n": 5,
+      "verdict": "PASS",
+      "reason": "Under fail=1 the data area shows a warning icon with 'Metrics API unreachable' and the concrete cause 'Network request failed (NETWORK)' exactly where the service cards would render, plus a 'Update failed' toast; the header honestly says 'No data'.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/a0145723_5.png"
+    },
+    {
+      "n": 6,
+      "verdict": "PASS",
+      "reason": "The error block has a Retry button that re-fires getMetrics without reloading; under fail=0.5 one Retry click recovered the full dashboard (6 cards, 'Updated just now') in the same page session.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/a0145723_6.png"
+    },
+    {
+      "n": 7,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief.",
+      "evidence": "N/A per task instructions"
+    },
+    {
+      "n": 8,
+      "verdict": "PASS",
+      "reason": "With Auto on, __apiLog shows getMetrics fired every ~16 s with no interaction, and the 'Updated Ns ago' counter was observed resetting to 'Updated just now' when a poll landed, re-rendering fresh data.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/a0145723_8.png"
+    },
+    {
+      "n": 9,
+      "verdict": "PASS",
+      "reason": "Switching 7d→1h with the 7d request still in flight settled with 1h pressed and cards showing 'Uptime 1h' (later request won, no stale data); opening the media-worker detail dialog, starting a refresh, and closing the dialog with Escape mid-flight left the refresh to complete normally with all 6 cards intact.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/a0145723_9.png"
+    },
+    {
+      "n": 10,
+      "verdict": "PASS",
+      "reason": "During a slow range fetch the page shows 'Loading' and hides the 'Updated' stamp instead of pretending fresh data; 'Updated just now' and new card values appear only after the response, and on failure it shows 'No data' rather than a stale success state.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/a0145723_10.png"
+    }
+  ],
+  "failCount": 0
+}

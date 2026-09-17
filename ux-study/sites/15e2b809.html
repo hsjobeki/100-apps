@@ -1,0 +1,806 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Welcome — ProjectHub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f8f9fb;--surface:#fff;--border:#e2e5ea;
+  --text:#1a1d23;--text-secondary:#5f6672;--text-tertiary:#8a91a0;
+  --primary:#4f46e5;--primary-hover:#4338ca;--primary-light:#eef2ff;--primary-ring:rgba(79,70,229,.25);
+  --success:#059669;--success-light:#ecfdf5;
+  --danger:#dc2626;--danger-light:#fef2f2;
+  --warning:#d97706;--warning-light:#fffbeb;
+  --radius:10px;--radius-lg:16px;
+  --shadow-sm:0 1px 2px rgba(0,0,0,.05);
+  --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
+  --shadow-lg:0 10px 25px rgba(0,0,0,.08),0 4px 10px rgba(0,0,0,.04);
+  --transition:200ms ease;
+}
+html{font-family:'Inter',system-ui,sans-serif;font-size:15px;color:var(--text);background:var(--bg);-webkit-font-smoothing:antialiased}
+body{min-height:100vh;display:flex;flex-direction:column}
+
+/* Loading screen */
+#loading-screen{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:var(--bg);z-index:100;transition:opacity .3s}
+#loading-screen.hidden{opacity:0;pointer-events:none}
+.loader{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Error banner */
+.error-banner{position:fixed;top:0;left:0;right:0;padding:12px 20px;background:var(--danger);color:#fff;font-size:14px;display:flex;align-items:center;gap:10px;z-index:200;transform:translateY(-100%);transition:transform .3s}
+.error-banner.show{transform:translateY(0)}
+.error-banner button{background:rgba(255,255,255,.2);border:none;color:#fff;padding:5px 12px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:500}
+.error-banner button:hover{background:rgba(255,255,255,.35)}
+.error-banner .close-err{margin-left:auto;background:none;padding:4px;font-size:18px;line-height:1}
+
+/* Onboarding wizard */
+#onboarding{display:none;min-height:100vh;align-items:center;justify-content:center;padding:24px;background:linear-gradient(135deg,#eef2ff 0%,#f8f9fb 40%,#ecfdf5 100%)}
+#onboarding.active{display:flex}
+
+.wizard{background:var(--surface);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);max-width:540px;width:100%;overflow:hidden;position:relative}
+.wizard-body{padding:40px 36px 32px}
+
+.step{display:none;animation:fadeUp .35s ease}
+.step.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+/* Progress dots */
+.progress-dots{display:flex;gap:6px;justify-content:center;padding:20px 0 0}
+.progress-dots .dot{width:8px;height:8px;border-radius:50%;background:var(--border);transition:all var(--transition)}
+.progress-dots .dot.done{background:var(--success)}
+.progress-dots .dot.current{background:var(--primary);width:24px;border-radius:4px}
+
+/* Step 1: Welcome */
+.welcome-icon{width:64px;height:64px;background:var(--primary-light);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px}
+.welcome-icon svg{width:32px;height:32px;color:var(--primary)}
+.step h1{font-size:22px;font-weight:700;text-align:center;margin-bottom:6px}
+.step .subtitle{color:var(--text-secondary);text-align:center;font-size:14px;margin-bottom:28px;line-height:1.5}
+.user-badge{display:inline-flex;align-items:center;gap:8px;background:var(--primary-light);color:var(--primary);font-weight:600;font-size:14px;padding:6px 14px;border-radius:20px;margin:0 auto 24px;display:flex;width:fit-content}
+.user-badge svg{width:16px;height:16px}
+.plan-tag{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;background:var(--primary);color:#fff;padding:2px 8px;border-radius:10px}
+
+/* Features grid */
+.features{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px}
+.feature-card{padding:14px;border:1px solid var(--border);border-radius:var(--radius);display:flex;gap:10px;align-items:flex-start;transition:border-color var(--transition)}
+.feature-card:hover{border-color:var(--primary)}
+.feature-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.feature-icon svg{width:16px;height:16px}
+.feature-icon.purple{background:#f3e8ff;color:#7c3aed}
+.feature-icon.blue{background:#dbeafe;color:#2563eb}
+.feature-icon.green{background:#dcfce7;color:#16a34a}
+.feature-icon.orange{background:#ffedd5;color:#ea580c}
+.feature-card h3{font-size:13px;font-weight:600;margin-bottom:2px}
+.feature-card p{font-size:12px;color:var(--text-secondary);line-height:1.4}
+
+/* Step 2: Preferences */
+.pref-group{margin-bottom:20px}
+.pref-group label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--text)}
+.pref-group .hint{font-size:12px;color:var(--text-tertiary);margin-bottom:8px}
+.pref-options{display:flex;gap:8px;flex-wrap:wrap}
+.pref-chip{padding:8px 16px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface);cursor:pointer;font-size:13px;font-weight:500;color:var(--text-secondary);transition:all var(--transition);user-select:none}
+.pref-chip:hover{border-color:var(--primary);color:var(--text)}
+.pref-chip.selected{border-color:var(--primary);background:var(--primary-light);color:var(--primary)}
+.pref-chip input{display:none}
+
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)}
+.toggle-row:last-child{border-bottom:none}
+.toggle-row span{font-size:13px;font-weight:500}
+.toggle{width:40px;height:22px;background:var(--border);border-radius:11px;position:relative;cursor:pointer;transition:background var(--transition);border:none;padding:0}
+.toggle::after{content:'';position:absolute;width:18px;height:18px;background:#fff;border-radius:50%;top:2px;left:2px;transition:transform var(--transition);box-shadow:var(--shadow-sm)}
+.toggle.on{background:var(--primary)}
+.toggle.on::after{transform:translateX(18px)}
+
+/* Step 3: Create project */
+.input-group{margin-bottom:16px}
+.input-group label{display:block;font-size:13px;font-weight:600;margin-bottom:5px}
+.input-group input,.input-group textarea,.input-group select{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;color:var(--text);background:var(--surface);transition:border-color var(--transition),box-shadow var(--transition);outline:none}
+.input-group input:focus,.input-group textarea:focus,.input-group select:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-ring)}
+.input-group textarea{resize:vertical;min-height:60px}
+.template-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:20px}
+.template-card{padding:12px;border:1.5px solid var(--border);border-radius:var(--radius);cursor:pointer;text-align:center;transition:all var(--transition)}
+.template-card:hover{border-color:var(--primary)}
+.template-card.selected{border-color:var(--primary);background:var(--primary-light)}
+.template-card svg{width:24px;height:24px;color:var(--text-secondary);margin-bottom:4px}
+.template-card.selected svg{color:var(--primary)}
+.template-card span{font-size:12px;font-weight:500;display:block}
+
+/* Buttons */
+.btn{padding:10px 20px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;border:none;transition:all var(--transition);font-family:inherit;display:inline-flex;align-items:center;gap:6px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover:not(:disabled){background:var(--primary-hover)}
+.btn-secondary{background:transparent;color:var(--text-secondary);border:1.5px solid var(--border)}
+.btn-secondary:hover{color:var(--text);border-color:var(--text-tertiary)}
+.btn-text{background:none;border:none;color:var(--text-secondary);font-weight:500;padding:10px 8px}
+.btn-text:hover{color:var(--primary)}
+.btn-row{display:flex;justify-content:space-between;align-items:center;padding-top:8px}
+.btn .spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
+
+/* Dashboard */
+#dashboard{display:none;min-height:100vh;flex-direction:column}
+#dashboard.active{display:flex}
+
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between}
+.topbar-left{display:flex;align-items:center;gap:12px}
+.logo{display:flex;align-items:center;gap:8px;font-weight:700;font-size:16px;color:var(--primary)}
+.logo svg{width:24px;height:24px}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.avatar{width:32px;height:32px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600}
+
+.dash-content{flex:1;max-width:800px;margin:0 auto;width:100%;padding:32px 24px}
+.dash-header{margin-bottom:28px}
+.dash-header h1{font-size:22px;font-weight:700;margin-bottom:4px}
+.dash-header p{color:var(--text-secondary);font-size:14px}
+
+/* Empty state */
+.empty-state{text-align:center;padding:48px 24px;border:2px dashed var(--border);border-radius:var(--radius-lg);background:var(--surface)}
+.empty-icon{width:72px;height:72px;border-radius:50%;background:var(--primary-light);display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+.empty-icon svg{width:32px;height:32px;color:var(--primary)}
+.empty-state h2{font-size:17px;font-weight:600;margin-bottom:6px}
+.empty-state p{color:var(--text-secondary);font-size:14px;margin-bottom:20px;max-width:320px;margin-left:auto;margin-right:auto;line-height:1.5}
+
+/* Checklist */
+.checklist{margin-top:28px}
+.checklist-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.checklist-header h3{font-size:15px;font-weight:600}
+.checklist-progress{font-size:12px;color:var(--text-tertiary);font-weight:500}
+.progress-bar{height:4px;background:var(--border);border-radius:2px;margin-bottom:16px;overflow:hidden}
+.progress-bar-fill{height:100%;background:var(--primary);border-radius:2px;transition:width .4s ease}
+.checklist-item{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:8px;transition:all var(--transition)}
+.checklist-item:hover{border-color:var(--primary)}
+.check-circle{width:22px;height:22px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--transition)}
+.check-circle svg{width:12px;height:12px;color:#fff;opacity:0;transition:opacity var(--transition)}
+.checklist-item.done .check-circle{background:var(--success);border-color:var(--success)}
+.checklist-item.done .check-circle svg{opacity:1}
+.checklist-item .item-text{font-size:13px;font-weight:500;flex:1}
+.checklist-item.done .item-text{color:var(--text-tertiary);text-decoration:line-through}
+.checklist-item .item-action{font-size:12px;color:var(--primary);font-weight:600;cursor:pointer;white-space:nowrap}
+
+/* Quick actions */
+.quick-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}
+.quick-action{padding:16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;transition:all var(--transition);display:flex;align-items:center;gap:12px}
+.quick-action:hover{border-color:var(--primary);box-shadow:var(--shadow)}
+.quick-action-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.quick-action-icon svg{width:20px;height:20px}
+.quick-action h4{font-size:13px;font-weight:600;margin-bottom:2px}
+.quick-action p{font-size:12px;color:var(--text-secondary)}
+
+/* Success modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;z-index:300;opacity:0;pointer-events:none;transition:opacity .25s}
+.modal-overlay.show{opacity:1;pointer-events:auto}
+.modal{background:var(--surface);border-radius:var(--radius-lg);padding:32px;max-width:400px;width:90%;text-align:center;transform:scale(.95);transition:transform .25s}
+.modal-overlay.show .modal{transform:scale(1)}
+.success-check{width:56px;height:56px;border-radius:50%;background:var(--success-light);display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+.success-check svg{width:28px;height:28px;color:var(--success)}
+.modal h2{font-size:18px;font-weight:700;margin-bottom:6px}
+.modal p{color:var(--text-secondary);font-size:14px;margin-bottom:20px}
+
+/* Responsive */
+@media(max-width:600px){
+  .wizard-body{padding:28px 20px 24px}
+  .features{grid-template-columns:1fr}
+  .template-grid{grid-template-columns:1fr 1fr}
+  .quick-actions{grid-template-columns:1fr}
+  .step h1{font-size:19px}
+}
+</style>
+</head>
+<body>
+
+<div id="loading-screen"><div class="loader"></div></div>
+
+<div class="error-banner" id="error-banner">
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M8 4.5v4M8 10.5v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+  <span id="error-msg"></span>
+  <button id="error-retry">Retry</button>
+  <button class="close-err" id="error-close">&times;</button>
+</div>
+
+<div id="onboarding">
+  <div class="wizard">
+    <div class="wizard-body">
+      
+      <div class="step active" data-step="0">
+        <div class="welcome-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        </div>
+        <h1 id="welcome-title">Welcome!</h1>
+        <p class="subtitle">Let's get your workspace set up in under a minute.</p>
+        <div class="user-badge" id="user-badge">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5.5" r="3"/><path d="M2.5 14c0-3 2.5-5 5.5-5s5.5 2 5.5 5"/></svg>
+          <span id="user-name-badge"></span>
+          <span class="plan-tag" id="user-plan-badge"></span>
+        </div>
+        <div class="features">
+          <div class="feature-card"><div class="feature-icon purple"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="12" height="12" rx="2"/><path d="M5 8h6M8 5v6"/></svg></div><div><h3>Projects</h3><p>Organize work into focused spaces</p></div></div>
+          <div class="feature-card"><div class="feature-icon blue"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="12" height="10" rx="1.5"/><path d="M5 7h6M5 10h3"/></svg></div><div><h3>Tasks</h3><p>Track to-dos and deadlines</p></div></div>
+          <div class="feature-card"><div class="feature-icon green"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 8h8M4 5h8M4 11h5"/></svg></div><div><h3>Timeline</h3><p>Visualize schedules at a glance</p></div></div>
+          <div class="feature-card"><div class="feature-icon orange"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/></svg></div><div><h3>Reports</h3><p>Measure progress over time</p></div></div>
+        </div>
+        <div class="btn-row" style="justify-content:center">
+          <button class="btn btn-primary" id="btn-start">Get started</button>
+        </div>
+      </div>
+
+      
+      <div class="step" data-step="1">
+        <h1>Your preferences</h1>
+        <p class="subtitle">Customize your experience. Change anytime in Settings.</p>
+        <div class="pref-group">
+          <label>What do you manage?</label>
+          <div class="pref-options" id="role-chips">
+            <label class="pref-chip"><input type="radio" name="role" value="software">Software</label>
+            <label class="pref-chip"><input type="radio" name="role" value="marketing">Marketing</label>
+            <label class="pref-chip"><input type="radio" name="role" value="design">Design</label>
+            <label class="pref-chip"><input type="radio" name="role" value="operations">Operations</label>
+            <label class="pref-chip"><input type="radio" name="role" value="other">Other</label>
+          </div>
+        </div>
+        <div class="pref-group">
+          <label>Notifications</label>
+          <div>
+            <div class="toggle-row"><span>Email digests</span><button class="toggle on" data-key="emailDigests" role="switch" aria-checked="true"></button></div>
+            <div class="toggle-row"><span>Browser alerts</span><button class="toggle" data-key="browserAlerts" role="switch" aria-checked="false"></button></div>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-text" id="btn-back-1">Back</button>
+          <button class="btn btn-primary" id="btn-next-1">Continue</button>
+        </div>
+      </div>
+
+      
+      <div class="step" data-step="2">
+        <h1>Create your first project</h1>
+        <p class="subtitle">Start with a template or go blank.</p>
+        <div class="template-grid" id="templates">
+          <div class="template-card selected" data-tpl="blank">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M12 8v8M8 12h8"/></svg>
+            <span>Blank</span>
+          </div>
+          <div class="template-card" data-tpl="kanban">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="5" height="18" rx="1"/><rect x="10" y="3" width="5" height="12" rx="1"/><rect x="17" y="3" width="5" height="15" rx="1"/></svg>
+            <span>Kanban</span>
+          </div>
+          <div class="template-card" data-tpl="sprint">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+            <span>Sprint</span>
+          </div>
+        </div>
+        <div class="input-group">
+          <label for="project-name">Project name</label>
+          <input type="text" id="project-name" placeholder="e.g. Q4 Launch" maxlength="60" autocomplete="off">
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-text" id="btn-back-2">Back</button>
+          <button class="btn btn-primary" id="btn-finish" disabled>Create project</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="progress-dots" id="progress-dots">
+      <div class="dot current"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+    <div style="height:20px"></div>
+  </div>
+</div>
+
+
+<div id="dashboard">
+  <nav class="topbar">
+    <div class="topbar-left">
+      <div class="logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        ProjectHub
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="avatar" id="avatar"></div>
+    </div>
+  </nav>
+  <div class="dash-content">
+    <div class="dash-header">
+      <h1 id="dash-greeting"></h1>
+      <p>Here's your workspace overview.</p>
+    </div>
+
+    <div class="empty-state" id="empty-state">
+      <div class="empty-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+      </div>
+      <h2>No projects yet</h2>
+      <p>Create your first project to start organizing your work.</p>
+      <button class="btn btn-primary" id="btn-new-project">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3v10M3 8h10"/></svg>
+        New project
+      </button>
+    </div>
+
+    <div class="checklist" id="checklist">
+      <div class="checklist-header">
+        <h3>Getting started</h3>
+        <span class="checklist-progress" id="checklist-count">0 of 3</span>
+      </div>
+      <div class="progress-bar"><div class="progress-bar-fill" id="checklist-bar" style="width:0%"></div></div>
+      <div class="checklist-item done" data-task="account">
+        <div class="check-circle"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2.5 6l2.5 2.5 4.5-5"/></svg></div>
+        <span class="item-text">Create your account</span>
+      </div>
+      <div class="checklist-item" data-task="settings" id="cl-settings">
+        <div class="check-circle"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2.5 6l2.5 2.5 4.5-5"/></svg></div>
+        <span class="item-text">Set your preferences</span>
+        <span class="item-action">Open settings</span>
+      </div>
+      <div class="checklist-item" data-task="project" id="cl-project">
+        <div class="check-circle"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2.5 6l2.5 2.5 4.5-5"/></svg></div>
+        <span class="item-text">Create a project</span>
+        <span class="item-action">Create now</span>
+      </div>
+    </div>
+
+    <div class="quick-actions">
+      <div class="quick-action" id="qa-import">
+        <div class="quick-action-icon" style="background:#dbeafe;color:#2563eb"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 3v10M6 9l4 4 4-4"/><path d="M3 14v2a1 1 0 001 1h12a1 1 0 001-1v-2"/></svg></div>
+        <div><h4>Import data</h4><p>Upload a CSV to get started fast</p></div>
+      </div>
+      <div class="quick-action" id="qa-invite">
+        <div class="quick-action-icon" style="background:#f3e8ff;color:#7c3aed"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="3.5"/><path d="M1.5 17c0-3 2.5-5.5 5.5-5.5s5.5 2.5 5.5 5.5"/><path d="M15 7v6M12 10h6"/></svg></div>
+        <div><h4>Invite teammates</h4><p>Collaborate in real time</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal-overlay" id="success-modal">
+  <div class="modal">
+    <div class="success-check">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12l5 5L19 7"/></svg>
+    </div>
+    <h2 id="modal-title">Project created!</h2>
+    <p id="modal-body">Your workspace is ready. Start adding tasks and tracking progress.</p>
+    <button class="btn btn-primary" id="modal-close">Go to dashboard</button>
+  </div>
+</div>
+
+
+<div class="modal-overlay" id="settings-modal">
+  <div class="modal" style="text-align:left;max-width:440px">
+    <h2 style="margin-bottom:16px">Preferences</h2>
+    <div class="pref-group">
+      <label>What do you manage?</label>
+      <div class="pref-options" id="role-chips-2">
+        <label class="pref-chip"><input type="radio" name="role2" value="software">Software</label>
+        <label class="pref-chip"><input type="radio" name="role2" value="marketing">Marketing</label>
+        <label class="pref-chip"><input type="radio" name="role2" value="design">Design</label>
+        <label class="pref-chip"><input type="radio" name="role2" value="operations">Operations</label>
+        <label class="pref-chip"><input type="radio" name="role2" value="other">Other</label>
+      </div>
+    </div>
+    <div class="pref-group">
+      <label>Notifications</label>
+      <div>
+        <div class="toggle-row"><span>Email digests</span><button class="toggle on" data-key="emailDigests2" role="switch" aria-checked="true"></button></div>
+        <div class="toggle-row"><span>Browser alerts</span><button class="toggle" data-key="browserAlerts2" role="switch" aria-checked="false"></button></div>
+      </div>
+    </div>
+    <div class="btn-row" style="justify-content:flex-end;gap:8px">
+      <button class="btn btn-secondary" id="settings-cancel">Cancel</button>
+      <button class="btn btn-primary" id="settings-save">Save</button>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal-overlay" id="create-modal">
+  <div class="modal" style="text-align:left;max-width:440px">
+    <h2 style="margin-bottom:16px">New project</h2>
+    <div class="template-grid" id="templates-2">
+      <div class="template-card selected" data-tpl="blank">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M12 8v8M8 12h8"/></svg>
+        <span>Blank</span>
+      </div>
+      <div class="template-card" data-tpl="kanban">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="5" height="18" rx="1"/><rect x="10" y="3" width="5" height="12" rx="1"/><rect x="17" y="3" width="5" height="15" rx="1"/></svg>
+        <span>Kanban</span>
+      </div>
+      <div class="template-card" data-tpl="sprint">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+        <span>Sprint</span>
+      </div>
+    </div>
+    <div class="input-group">
+      <label for="project-name-2">Project name</label>
+      <input type="text" id="project-name-2" placeholder="e.g. Q4 Launch" maxlength="60" autocomplete="off">
+    </div>
+    <div class="btn-row" style="justify-content:flex-end;gap:8px">
+      <button class="btn btn-secondary" id="create-cancel">Cancel</button>
+      <button class="btn btn-primary" id="create-confirm" disabled>Create</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const $ = s => document.querySelector(s);
+  const $$ = s => document.querySelectorAll(s);
+
+  let user = null;
+  let currentStep = 0;
+  let selectedRole = null;
+  let preferences = { emailDigests: true, browserAlerts: false };
+  let selectedTemplate = 'blank';
+  let savingSettings = false;
+  let creatingProject = false;
+  let checklistState = { account: true, settings: false, project: false };
+
+  // Error handling
+  let lastRetry = null;
+  function showError(msg, retryFn) {
+    $('#error-msg').textContent = msg;
+    $('#error-banner').classList.add('show');
+    lastRetry = retryFn || null;
+    $('#error-retry').style.display = retryFn ? '' : 'none';
+  }
+  function hideError() {
+    $('#error-banner').classList.remove('show');
+    lastRetry = null;
+  }
+  $('#error-retry').addEventListener('click', () => { hideError(); if (lastRetry) lastRetry(); });
+  $('#error-close').addEventListener('click', hideError);
+
+  // Init
+  async function init() {
+    try {
+      user = await api.getUser();
+      $('#loading-screen').classList.add('hidden');
+      if (user.hasCompletedOnboarding && user.projects && user.projects.length > 0) {
+        showDashboard();
+      } else if (user.hasCompletedOnboarding) {
+        showDashboard();
+        checklistState.settings = true;
+        updateChecklist();
+      } else {
+        showOnboarding();
+      }
+    } catch (e) {
+      showError('Could not load your account. Please try again.', init);
+      $('#loading-screen').classList.add('hidden');
+    }
+  }
+
+  function showOnboarding() {
+    $('#onboarding').classList.add('active');
+    $('#welcome-title').textContent = 'Welcome, ' + user.name.split(' ')[0] + '!';
+    $('#user-name-badge').textContent = user.email;
+    $('#user-plan-badge').textContent = user.plan;
+    setStep(0);
+  }
+
+  function showDashboard() {
+    $('#dashboard').classList.add('active');
+    const first = user.name.split(' ')[0];
+    $('#dash-greeting').textContent = 'Hey, ' + first;
+    $('#avatar').textContent = user.name.split(' ').map(w => w[0]).join('').slice(0, 2);
+    updateChecklist();
+  }
+
+  // Steps
+  function setStep(n) {
+    currentStep = n;
+    $$('.step').forEach(s => s.classList.remove('active'));
+    $$('.step')[n].classList.add('active');
+    const dots = $$('#progress-dots .dot');
+    dots.forEach((d, i) => {
+      d.className = 'dot';
+      if (i < n) d.classList.add('done');
+      if (i === n) d.classList.add('current');
+    });
+  }
+
+  $('#btn-start').addEventListener('click', () => setStep(1));
+  $('#btn-back-1').addEventListener('click', () => setStep(0));
+  $('#btn-back-2').addEventListener('click', () => setStep(1));
+
+  // Chip selection for onboarding
+  function setupChips(container) {
+    container.querySelectorAll('.pref-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        container.querySelectorAll('.pref-chip').forEach(c => c.classList.remove('selected'));
+        chip.classList.add('selected');
+        const input = chip.querySelector('input');
+        if (input) {
+          input.checked = true;
+          selectedRole = input.value;
+        }
+      });
+    });
+  }
+  setupChips($('#role-chips'));
+  setupChips($('#role-chips-2'));
+
+  // Toggle buttons
+  $$('.toggle').forEach(t => {
+    t.addEventListener('click', () => {
+      const isOn = t.classList.toggle('on');
+      t.setAttribute('aria-checked', isOn);
+      const key = t.dataset.key;
+      if (key === 'emailDigests' || key === 'emailDigests2') preferences.emailDigests = isOn;
+      if (key === 'browserAlerts' || key === 'browserAlerts2') preferences.browserAlerts = isOn;
+    });
+  });
+
+  // Step 2 continue
+  $('#btn-next-1').addEventListener('click', async () => {
+    if (savingSettings) return;
+    savingSettings = true;
+    const btn = $('#btn-next-1');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Saving';
+    try {
+      await api.updateSettings({ role: selectedRole, ...preferences });
+      checklistState.settings = true;
+      setStep(2);
+    } catch (e) {
+      if (e.code === 'NETWORK') {
+        showError('Could not save preferences. Check your connection.', () => $('#btn-next-1').click());
+      } else {
+        showError('Something went wrong saving preferences.');
+      }
+    } finally {
+      savingSettings = false;
+      btn.disabled = false;
+      btn.textContent = 'Continue';
+    }
+  });
+
+  // Template selection
+  function setupTemplates(container) {
+    container.querySelectorAll('.template-card').forEach(card => {
+      card.addEventListener('click', () => {
+        container.querySelectorAll('.template-card').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        selectedTemplate = card.dataset.tpl;
+      });
+    });
+  }
+  setupTemplates($('#templates'));
+  setupTemplates($('#templates-2'));
+
+  // Project name input enables button
+  const projInput = $('#project-name');
+  const finishBtn = $('#btn-finish');
+  projInput.addEventListener('input', () => {
+    finishBtn.disabled = !projInput.value.trim();
+  });
+
+  const projInput2 = $('#project-name-2');
+  const createBtn = $('#create-confirm');
+  projInput2.addEventListener('input', () => {
+    createBtn.disabled = !projInput2.value.trim();
+  });
+
+  // Finish onboarding — create project
+  finishBtn.addEventListener('click', async () => {
+    if (creatingProject) return;
+    const name = projInput.value.trim();
+    if (!name) return;
+    creatingProject = true;
+    finishBtn.disabled = true;
+    finishBtn.innerHTML = '<span class="spinner"></span> Creating';
+
+    try {
+      await api.updateSettings({
+        onboardingComplete: true,
+        firstProject: { name, template: selectedTemplate }
+      });
+      checklistState.project = true;
+
+      // Transition to dashboard
+      $('#onboarding').classList.remove('active');
+      showDashboard();
+      // Show success modal
+      $('#modal-title').textContent = 'You\'re all set!';
+      $('#modal-body').textContent = '"' + name + '" has been created. Start adding tasks and tracking progress.';
+      $('#success-modal').classList.add('show');
+    } catch (e) {
+      if (e.code === 'NETWORK') {
+        showError('Network issue. Your project wasn\'t created.', () => finishBtn.click());
+      } else {
+        showError('Could not create project. Please try again.');
+      }
+    } finally {
+      creatingProject = false;
+      finishBtn.disabled = !projInput.value.trim();
+      finishBtn.textContent = 'Create project';
+    }
+  });
+
+  // Modal close
+  $('#modal-close').addEventListener('click', () => {
+    $('#success-modal').classList.remove('show');
+  });
+
+  // Dashboard checklist
+  function updateChecklist() {
+    const done = Object.values(checklistState).filter(Boolean).length;
+    const total = Object.keys(checklistState).length;
+    $('#checklist-count').textContent = done + ' of ' + total;
+    $('#checklist-bar').style.width = Math.round(done / total * 100) + '%';
+    Object.entries(checklistState).forEach(([key, val]) => {
+      const item = $(`.checklist-item[data-task="${key}"]`);
+      if (item) {
+        if (val) item.classList.add('done');
+        else item.classList.remove('done');
+      }
+    });
+    if (done === total) {
+      $('#checklist').style.display = 'none';
+    }
+  }
+
+  // Checklist actions
+  $('#cl-settings').addEventListener('click', () => {
+    if (checklistState.settings) return;
+    openSettingsModal();
+  });
+  $('#cl-project').addEventListener('click', () => {
+    if (checklistState.project) return;
+    openCreateModal();
+  });
+
+  // New project button in empty state
+  $('#btn-new-project').addEventListener('click', openCreateModal);
+
+  // Settings modal
+  function openSettingsModal() {
+    $('#settings-modal').classList.add('show');
+  }
+  $('#settings-cancel').addEventListener('click', () => {
+    $('#settings-modal').classList.remove('show');
+  });
+  $('#settings-save').addEventListener('click', async () => {
+    const btn = $('#settings-save');
+    if (btn.disabled) return;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Saving';
+    try {
+      const role2 = document.querySelector('input[name="role2"]:checked');
+      await api.updateSettings({
+        role: role2 ? role2.value : null,
+        ...preferences
+      });
+      checklistState.settings = true;
+      updateChecklist();
+      $('#settings-modal').classList.remove('show');
+    } catch (e) {
+      showError('Could not save preferences.', () => $('#settings-save').click());
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Save';
+    }
+  });
+
+  // Create project modal
+  function openCreateModal() {
+    projInput2.value = '';
+    createBtn.disabled = true;
+    $('#create-modal').classList.add('show');
+  }
+  $('#create-cancel').addEventListener('click', () => {
+    $('#create-modal').classList.remove('show');
+  });
+  createBtn.addEventListener('click', async () => {
+    const name = projInput2.value.trim();
+    if (!name || createBtn.disabled) return;
+    createBtn.disabled = true;
+    createBtn.innerHTML = '<span class="spinner"></span> Creating';
+    try {
+      await api.updateSettings({
+        newProject: { name, template: selectedTemplate }
+      });
+      checklistState.project = true;
+      updateChecklist();
+      $('#create-modal').classList.remove('show');
+      // Update empty state
+      $('#empty-state').style.display = 'none';
+      // Show success
+      $('#modal-title').textContent = 'Project created!';
+      $('#modal-body').textContent = '"' + name + '" is ready. Start adding tasks and tracking progress.';
+      $('#success-modal').classList.add('show');
+    } catch (e) {
+      showError('Could not create project.', () => createBtn.click());
+    } finally {
+      createBtn.disabled = !projInput2.value.trim();
+      createBtn.textContent = 'Create';
+    }
+  });
+
+  // Quick actions
+  $('#qa-import').addEventListener('click', () => {
+    // Trigger file upload flow
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.csv,.xlsx';
+    input.addEventListener('change', async () => {
+      if (!input.files.length) return;
+      const file = input.files[0];
+      const btn = $('#qa-import');
+      btn.style.opacity = '0.6';
+      btn.style.pointerEvents = 'none';
+      try {
+        const { fileId } = await api.uploadFile(file, {
+          onProgress(pct) {
+            btn.querySelector('h4').textContent = 'Uploading ' + pct + '%';
+          }
+        });
+        const { jobId } = await api.processFile(fileId, {});
+        btn.querySelector('h4').textContent = 'Processing...';
+        // Poll
+        const poll = async () => {
+          const job = await api.getJob(jobId);
+          if (job.status === 'succeeded') {
+            btn.querySelector('h4').textContent = 'Import complete';
+            btn.querySelector('p').textContent = job.result.rows + ' rows imported';
+            setTimeout(() => {
+              btn.querySelector('h4').textContent = 'Import data';
+              btn.querySelector('p').textContent = 'Upload a CSV to get started fast';
+              btn.style.opacity = '1';
+              btn.style.pointerEvents = '';
+            }, 3000);
+          } else if (job.status === 'failed') {
+            showError('Import failed: ' + (job.error || 'Unknown error'));
+            btn.querySelector('h4').textContent = 'Import data';
+            btn.style.opacity = '1';
+            btn.style.pointerEvents = '';
+          } else {
+            if (job.progress > 0) {
+              btn.querySelector('h4').textContent = 'Processing ' + job.progress + '%';
+            }
+            setTimeout(poll, 1000);
+          }
+        };
+        poll();
+      } catch (e) {
+        showError('Upload failed. Please try again.');
+        btn.querySelector('h4').textContent = 'Import data';
+        btn.style.opacity = '1';
+        btn.style.pointerEvents = '';
+      }
+    });
+    input.click();
+  });
+
+  $('#qa-invite').addEventListener('click', () => {
+    showError('Team invites coming soon!');
+    setTimeout(hideError, 2000);
+  });
+
+  // Close modals on overlay click
+  $$('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) {
+        overlay.classList.remove('show');
+      }
+    });
+  });
+
+  // Keyboard: Escape closes modals
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      $$('.modal-overlay.show').forEach(o => o.classList.remove('show'));
+    }
+  });
+
+  init();
+})();
+</script>
+</body>
+</html>

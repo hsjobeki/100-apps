@@ -1,0 +1,708 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CSV Processor</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f8f9fb;
+  --surface: #fff;
+  --border: #e2e5ea;
+  --border-focus: #4f7df9;
+  --text: #1a1d23;
+  --text-secondary: #5f6878;
+  --primary: #4f7df9;
+  --primary-hover: #3b68e0;
+  --primary-light: #eef2ff;
+  --success: #16a34a;
+  --success-bg: #ecfdf5;
+  --error: #dc2626;
+  --error-bg: #fef2f2;
+  --warning: #ea580c;
+  --warning-bg: #fff7ed;
+  --radius: 10px;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-lg: 0 4px 12px rgba(0,0,0,0.1);
+}
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  min-height: 100vh;
+}
+.app {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 32px 20px 60px;
+}
+header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+header svg { flex-shrink: 0; }
+header h1 { font-size: 22px; font-weight: 700; }
+header p { color: var(--text-secondary); font-size: 14px; margin-top: 2px; }
+
+/* Upload zone */
+.upload-zone {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  padding: 48px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  position: relative;
+}
+.upload-zone:hover, .upload-zone.dragover {
+  border-color: var(--primary);
+  background: var(--primary-light);
+}
+.upload-zone.disabled {
+  pointer-events: none;
+  opacity: 0.5;
+}
+.upload-zone input { display: none; }
+.upload-icon {
+  width: 48px; height: 48px;
+  margin: 0 auto 16px;
+  color: var(--primary);
+}
+.upload-zone h2 { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+.upload-zone p { font-size: 13px; color: var(--text-secondary); }
+
+/* Active upload card */
+.active-upload {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-top: 16px;
+  box-shadow: var(--shadow);
+}
+.active-upload .file-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.file-icon {
+  width: 40px; height: 40px;
+  background: var(--primary-light);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--primary);
+}
+.file-name { font-weight: 600; font-size: 14px; word-break: break-all; }
+.file-size { font-size: 12px; color: var(--text-secondary); }
+.file-meta { flex: 1; min-width: 0; }
+.cancel-btn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.cancel-btn:hover { border-color: var(--error); color: var(--error); }
+
+/* Progress bar */
+.progress-wrap { margin-bottom: 8px; }
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+.progress-track {
+  height: 6px;
+  background: #e5e7eb;
+  border-radius: 3px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--primary);
+  border-radius: 3px;
+  transition: width 0.2s ease;
+  width: 0%;
+}
+.progress-fill.success { background: var(--success); }
+.progress-fill.error { background: var(--error); }
+
+/* Status badges */
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: 99px;
+}
+.status-queued { background: #f3f4f6; color: #6b7280; }
+.status-running { background: #dbeafe; color: #2563eb; }
+.status-succeeded { background: var(--success-bg); color: var(--success); }
+.status-failed { background: var(--error-bg); color: var(--error); }
+.status-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.status-running .status-dot { animation: pulse 1.5s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+/* Job list */
+.jobs-section { margin-top: 32px; }
+.jobs-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.jobs-header h2 { font-size: 16px; font-weight: 600; }
+.refresh-btn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.15s;
+}
+.refresh-btn:hover { border-color: var(--primary); color: var(--primary); }
+.refresh-btn.spinning svg { animation: spin 0.6s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.job-list { display: flex; flex-direction: column; gap: 8px; }
+.job-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.15s;
+}
+.job-card:hover { box-shadow: var(--shadow); }
+.job-id {
+  font-size: 13px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  color: var(--text-secondary);
+  min-width: 90px;
+}
+.job-progress-col { flex: 1; min-width: 0; }
+.job-progress-col .progress-track { height: 4px; }
+.job-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.job-actions button {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-family: inherit;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.job-actions .retry-btn:hover { border-color: var(--primary); color: var(--primary); }
+.job-actions .cancel-job-btn:hover { border-color: var(--error); color: var(--error); }
+.job-actions .download-btn {
+  border-color: var(--success);
+  color: var(--success);
+  font-weight: 500;
+}
+.job-actions .download-btn:hover { background: var(--success-bg); }
+
+.job-error {
+  font-size: 12px;
+  color: var(--error);
+  margin-top: 4px;
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+}
+.job-error svg { flex-shrink: 0; margin-top: 1px; }
+
+.job-result-info {
+  font-size: 12px;
+  color: var(--success);
+  margin-top: 3px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+.empty-state svg { margin: 0 auto 12px; color: #d1d5db; }
+
+/* Alert banner */
+.alert {
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  font-size: 13px;
+  margin-top: 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.alert svg { flex-shrink: 0; margin-top: 1px; }
+.alert-error { background: var(--error-bg); color: var(--error); }
+.alert-success { background: var(--success-bg); color: var(--success); }
+.alert .retry-link {
+  text-decoration: underline;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+/* Loading skeleton */
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 6px;
+  height: 52px;
+}
+@keyframes shimmer { to { background-position: -200% 0; } }
+
+@media (max-width: 600px) {
+  .app { padding: 20px 16px 40px; }
+  .upload-zone { padding: 32px 16px; }
+  .job-card { flex-wrap: wrap; gap: 8px; }
+  .job-id { min-width: auto; }
+  .job-actions { width: 100%; justify-content: flex-end; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+      <rect width="32" height="32" rx="8" fill="#4f7df9"/>
+      <path d="M10 21l3-3m0 0l3 3m-3-3v8M21 15l-3 3m0 0l-3-3m3 3V10" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <div>
+      <h1>CSV Processor</h1>
+      <p>Upload, process, and download your data</p>
+    </div>
+  </header>
+
+  <div id="uploadArea"></div>
+  <div id="activeUpload"></div>
+  <div id="alertArea"></div>
+  <div id="jobsSection"></div>
+</div>
+
+<script>
+(function() {
+  const api = window.api;
+
+  // State
+  let uploadState = null; // null | { file, phase, progress, abortController, error, jobId }
+  let jobs = [];
+  let jobsLoading = true;
+  let refreshing = false;
+  let pollTimer = null;
+  let actionInFlight = new Set();
+
+  // ── Helpers ──
+  function h(tag, attrs, ...children) {
+    const el = document.createElement(tag);
+    if (attrs) for (const [k, v] of Object.entries(attrs)) {
+      if (k === 'className') el.className = v;
+      else if (k.startsWith('on')) el.addEventListener(k.slice(2).toLowerCase(), v);
+      else if (k === 'htmlContent') el.innerHTML = v;
+      else el.setAttribute(k, v);
+    }
+    for (const c of children.flat()) {
+      if (c == null || c === false) continue;
+      el.appendChild(typeof c === 'string' ? document.createTextNode(c) : c);
+    }
+    return el;
+  }
+
+  function formatSize(bytes) {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / 1048576).toFixed(1) + ' MB';
+  }
+
+  function statusBadge(status) {
+    return h('span', { className: 'status status-' + status },
+      h('span', { className: 'status-dot' }),
+      status.charAt(0).toUpperCase() + status.slice(1)
+    );
+  }
+
+  function errorIcon() {
+    const s = document.createElementNS('http://www.w3.org/2000/svg','svg');
+    s.setAttribute('width','14'); s.setAttribute('height','14'); s.setAttribute('viewBox','0 0 24 24');
+    s.setAttribute('fill','none'); s.setAttribute('stroke','currentColor');
+    s.setAttribute('stroke-width','2'); s.setAttribute('stroke-linecap','round');
+    s.innerHTML = '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>';
+    return s;
+  }
+
+  function refreshIcon() {
+    const s = document.createElementNS('http://www.w3.org/2000/svg','svg');
+    s.setAttribute('width','14'); s.setAttribute('height','14'); s.setAttribute('viewBox','0 0 24 24');
+    s.setAttribute('fill','none'); s.setAttribute('stroke','currentColor');
+    s.setAttribute('stroke-width','2'); s.setAttribute('stroke-linecap','round');
+    s.innerHTML = '<path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/>';
+    return s;
+  }
+
+  // ── Render ──
+  function render() {
+    renderUploadZone();
+    renderActiveUpload();
+    renderJobs();
+  }
+
+  function renderUploadZone() {
+    const root = document.getElementById('uploadArea');
+    const isUploading = uploadState && (uploadState.phase === 'uploading' || uploadState.phase === 'processing');
+
+    const input = h('input', { type: 'file', accept: '.csv,text/csv', id: 'fileInput' });
+    input.addEventListener('change', (e) => {
+      if (e.target.files[0]) startUpload(e.target.files[0]);
+    });
+
+    const zone = h('div', {
+      className: 'upload-zone' + (isUploading ? ' disabled' : ''),
+      onClick: () => { if (!isUploading) input.click(); }
+    },
+      input,
+      h('div', { className: 'upload-icon', htmlContent: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M24 32V16m0 0l-7 7m7-7l7 7"/><rect x="6" y="6" width="36" height="36" rx="6"/></svg>' }),
+      h('h2', null, 'Drop your CSV here'),
+      h('p', null, 'or click to browse')
+    );
+
+    zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('dragover'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+    zone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      zone.classList.remove('dragover');
+      if (!isUploading && e.dataTransfer.files[0]) startUpload(e.dataTransfer.files[0]);
+    });
+
+    root.replaceChildren(zone);
+  }
+
+  function renderActiveUpload() {
+    const root = document.getElementById('activeUpload');
+    if (!uploadState) { root.replaceChildren(); return; }
+
+    const s = uploadState;
+    const canCancel = s.phase === 'uploading' || s.phase === 'processing';
+
+    const progressPct = s.phase === 'uploading' ? s.progress
+      : s.phase === 'processing' ? s.progress
+      : s.phase === 'done' ? 100 : s.progress;
+
+    const label = s.phase === 'uploading' ? 'Uploading…'
+      : s.phase === 'processing' ? 'Processing…'
+      : s.phase === 'done' ? 'Complete'
+      : 'Failed';
+
+    const fillClass = s.phase === 'done' ? ' success' : s.phase === 'error' ? ' error' : '';
+
+    const card = h('div', { className: 'active-upload' },
+      h('div', { className: 'file-info' },
+        h('div', { className: 'file-icon', htmlContent: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>' }),
+        h('div', { className: 'file-meta' },
+          h('div', { className: 'file-name' }, s.file.name),
+          h('div', { className: 'file-size' }, formatSize(s.file.size))
+        ),
+        canCancel ? h('button', { className: 'cancel-btn', onClick: cancelUpload }, 'Cancel') : null
+      ),
+      h('div', { className: 'progress-wrap' },
+        h('div', { className: 'progress-label' },
+          h('span', null, label),
+          h('span', null, Math.round(progressPct) + '%')
+        ),
+        h('div', { className: 'progress-track' },
+          h('div', { className: 'progress-fill' + fillClass, style: 'width:' + progressPct + '%' })
+        )
+      )
+    );
+
+    if (s.phase === 'error' && s.error) {
+      const errDiv = h('div', { className: 'alert alert-error' },
+        errorIcon(),
+        h('span', null, s.error + ' '),
+        h('span', { className: 'retry-link', onClick: () => startUpload(s.file) }, 'Try again')
+      );
+      card.appendChild(errDiv);
+    }
+
+    if (s.phase === 'done' && s.result) {
+      const info = h('div', { className: 'job-result-info', style: 'margin-top:8px' },
+        s.result.rows.toLocaleString() + ' rows processed'
+      );
+      card.appendChild(info);
+      const dl = h('button', {
+        className: 'cancel-btn',
+        style: 'margin-top:8px; border-color:var(--success); color:var(--success);',
+        onClick: () => { if (s.result.downloadUrl) window.open(s.result.downloadUrl, '_blank'); }
+      }, '↓ Download');
+      card.appendChild(dl);
+    }
+
+    root.replaceChildren(card);
+  }
+
+  function renderJobs() {
+    const root = document.getElementById('jobsSection');
+
+    const header = h('div', { className: 'jobs-header' },
+      h('h2', null, 'Jobs'),
+      h('button', {
+        className: 'refresh-btn' + (refreshing ? ' spinning' : ''),
+        onClick: loadJobs
+      }, refreshIcon(), 'Refresh')
+    );
+
+    let body;
+    if (jobsLoading && jobs.length === 0) {
+      body = h('div', { className: 'job-list' },
+        h('div', { className: 'skeleton' }),
+        h('div', { className: 'skeleton' }),
+        h('div', { className: 'skeleton' })
+      );
+    } else if (jobs.length === 0) {
+      body = h('div', { className: 'empty-state' },
+        h('div', { htmlContent: '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M12 8v4m0 4h.01"/></svg>' }),
+        'No jobs yet. Upload a CSV to get started.'
+      );
+    } else {
+      body = h('div', { className: 'job-list' },
+        ...jobs.map(renderJobCard)
+      );
+    }
+
+    const section = h('div', { className: 'jobs-section' }, header, body);
+    root.replaceChildren(section);
+  }
+
+  function renderJobCard(job) {
+    const isActive = job.status === 'queued' || job.status === 'running';
+    const isFailed = job.status === 'failed';
+    const isSuccess = job.status === 'succeeded';
+
+    const actions = [];
+    if (isFailed) {
+      actions.push(h('button', {
+        className: 'retry-btn',
+        disabled: actionInFlight.has(job.id),
+        onClick: () => retryJob(job.id)
+      }, actionInFlight.has(job.id) ? 'Retrying…' : 'Retry'));
+    }
+    if (isActive) {
+      actions.push(h('button', {
+        className: 'cancel-job-btn',
+        disabled: actionInFlight.has(job.id),
+        onClick: () => cancelJob(job.id)
+      }, actionInFlight.has(job.id) ? 'Cancelling…' : 'Cancel'));
+    }
+    if (isSuccess && job.result) {
+      actions.push(h('button', {
+        className: 'download-btn',
+        onClick: () => { if (job.result.downloadUrl) window.open(job.result.downloadUrl, '_blank'); }
+      }, '↓ Download'));
+    }
+
+    const fillClass = isSuccess ? ' success' : isFailed ? ' error' : '';
+    const pct = isSuccess ? 100 : isFailed && job.progress === 0 ? 100 : job.progress;
+
+    const card = h('div', { className: 'job-card' },
+      h('span', { className: 'job-id' }, job.id),
+      h('div', { className: 'job-progress-col' },
+        h('div', { style: 'display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;' },
+          statusBadge(job.status),
+          isActive ? h('span', { style: 'font-size:12px; color:var(--text-secondary);' }, job.progress + '%') : null
+        ),
+        h('div', { className: 'progress-track' },
+          h('div', { className: 'progress-fill' + fillClass, style: 'width:' + pct + '%' })
+        ),
+        isFailed && job.error ? h('div', { className: 'job-error' }, errorIcon(), h('span', null, job.error)) : null,
+        isSuccess && job.result ? h('div', { className: 'job-result-info' }, job.result.rows.toLocaleString() + ' rows') : null
+      ),
+      actions.length ? h('div', { className: 'job-actions' }, ...actions) : null
+    );
+
+    return card;
+  }
+
+  // ── Actions ──
+  async function startUpload(file) {
+    if (uploadState && uploadState.abortController) {
+      uploadState.abortController.abort();
+    }
+
+    const ac = new AbortController();
+    uploadState = { file, phase: 'uploading', progress: 0, abortController: ac, error: null, jobId: null, result: null };
+    render();
+
+    try {
+      const { fileId } = await api.uploadFile(file, {
+        onProgress(pct) {
+          if (uploadState && uploadState.phase === 'uploading') {
+            uploadState.progress = pct;
+            renderActiveUpload();
+          }
+        },
+        signal: ac.signal
+      });
+
+      uploadState.phase = 'processing';
+      uploadState.progress = 0;
+      renderActiveUpload();
+
+      const { jobId } = await api.processFile(fileId, { signal: ac.signal });
+      uploadState.jobId = jobId;
+      renderActiveUpload();
+
+      await pollUploadJob(jobId);
+    } catch (err) {
+      if (err.name === 'AbortError') {
+        uploadState = null;
+        render();
+        return;
+      }
+      uploadState.phase = 'error';
+      uploadState.error = err.code === 'NETWORK' ? 'Network error. Check your connection and try again.' : (err.message || 'Upload failed');
+      render();
+    }
+  }
+
+  async function pollUploadJob(jobId) {
+    while (uploadState && uploadState.jobId === jobId) {
+      try {
+        const job = await api.getJob(jobId);
+        if (uploadState && uploadState.jobId === jobId) {
+          if (job.status === 'succeeded') {
+            uploadState.phase = 'done';
+            uploadState.progress = 100;
+            uploadState.result = job.result;
+            uploadState.abortController = null;
+            render();
+            loadJobs();
+            return;
+          } else if (job.status === 'failed') {
+            uploadState.phase = 'error';
+            uploadState.progress = job.progress;
+            uploadState.error = job.error || 'Processing failed';
+            uploadState.abortController = null;
+            render();
+            loadJobs();
+            return;
+          } else {
+            uploadState.progress = job.progress;
+            renderActiveUpload();
+          }
+        }
+      } catch (e) {
+        // getJob shouldn't fail, but if it does, just retry
+      }
+      await new Promise(r => setTimeout(r, 800));
+    }
+  }
+
+  function cancelUpload() {
+    if (uploadState && uploadState.abortController) {
+      uploadState.abortController.abort();
+      if (uploadState.jobId) {
+        api.cancelJob(uploadState.jobId).catch(() => {});
+        loadJobs();
+      }
+      uploadState = null;
+      render();
+    }
+  }
+
+  async function loadJobs() {
+    refreshing = true;
+    render();
+    try {
+      jobs = await api.listJobs();
+      jobs.sort((a, b) => {
+        const order = { running: 0, queued: 1, failed: 2, succeeded: 3 };
+        return (order[a.status] ?? 4) - (order[b.status] ?? 4);
+      });
+    } catch (e) {
+      // listJobs shouldn't fail per spec
+    }
+    jobsLoading = false;
+    refreshing = false;
+    render();
+    scheduleJobPoll();
+  }
+
+  function scheduleJobPoll() {
+    clearTimeout(pollTimer);
+    if (jobs.some(j => j.status === 'queued' || j.status === 'running')) {
+      pollTimer = setTimeout(loadJobs, 2000);
+    }
+  }
+
+  async function retryJob(jobId) {
+    actionInFlight.add(jobId);
+    render();
+    try {
+      await api.retryJob(jobId);
+    } catch (e) {
+      // ignore
+    }
+    actionInFlight.delete(jobId);
+    loadJobs();
+  }
+
+  async function cancelJob(jobId) {
+    actionInFlight.add(jobId);
+    render();
+    try {
+      await api.cancelJob(jobId);
+    } catch (e) {
+      // ignore
+    }
+    actionInFlight.delete(jobId);
+    loadJobs();
+  }
+
+  // ── Init ──
+  render();
+  loadJobs();
+})();
+</script>
+</body>
+</html>

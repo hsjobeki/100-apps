@@ -1,0 +1,93 @@
+{
+  "id": "66b0875a",
+  "f1": {
+    "score": 5,
+    "observations": [
+      "Raw ratio 4/4 inventory items graphical+text; measured graphical totals: 43 svg, 6 meter, 13 badges, 1 role=progressbar (total 63).",
+      "Per-service health is triple-encoded: shape-coded SVG glyphs (circle=healthy, triangle=degraded, octagon=down, GLYPH map in source) plus colored text badges 'DOWN'/'DEGRADED'/'HEALTHY' plus colored card left-borders, and repeated as clickable colored segments in the hero strip.",
+      "Latency trend on every card is an SVG sparkline (line + area fill + last-point tip circle) with a trend-arrow SVG chip ('▼12%', 'flat'), not just numbers; range text '675–1,311 ms' supports it.",
+      "Error-rate trend on every card is an SVG bar chart (barsSVG, 34 buckets, opacity scaled to magnitude) with a trend-arrow chip ('▲22%') and 'peak 63.0%' text support.",
+      "Uptime uses a native <meter min=97 max=100 low=99.5 high=99.9> with an SLO tick positioned at 99.9%, alongside the numeric '98.90%' and 'SLO 99.9%' text.",
+      "System-level state is also graphical: the hero mini-strip renders one colored segment per service (red/amber/green), and the error/loading states use icon glyphs (alert circle, spinner ring, skeleton cards)."
+    ]
+  },
+  "f2": {
+    "score": 5,
+    "observations": [
+      "Only 141 visible words for a six-service dashboard (desktop viewportWords=pageWords=141); helperWords 0, longLeafWords 0 — there is not a single explanatory paragraph anywhere.",
+      "All real control labels are ≤3 words: 'Refresh', 'Refreshing', 'Live', 'Paused', 'Retry', 'Retry now', 'Copy summary', '1h', '24h', '7d'. The measured labels.maxWords=16 comes from whole service cards being <button> elements whose innerText is the metric grid, not from verbose labels.",
+      "Status text is maximally compressed: hero reads '1 down · 1 degraded' with sub '4 healthy of 6 · just now'; header sub is '6 services · 24h window · just now'.",
+      "Error copy carries only data: 'Network request failed · NETWORK · attempt 1' and 'auto-retry in 3s' — no apology prose or narration.",
+      "Loading sub 'Fetching service metrics' is the longest helper string on the page at three words."
+    ]
+  },
+  "f3": {
+    "score": 4,
+    "observations": [
+      "One inconsistency found: the identical immediate-retry action is labeled 'Retry' in the error bar (#ebRetry) but 'Retry now' in the full-page error panel (#pmRetry).",
+      "Terminology is otherwise consistent: Down/Degraded/Healthy used identically in badges, hero text, strip tooltips, dialog subtitle, and aria-labels (LABEL map used everywhere).",
+      "Copy matches verified behavior: 'auto-retry in Ns' counts down and fires (async item 6), 'Refreshing' appears only while a request is pending (items 2, 10), 'Live'/'Paused' toggle matches the poll state, and 'Copied to clipboard' only after writeText resolves.",
+      "No filler, marketing tone, or placeholder text anywhere; even the empty state is a factual 'No services reporting / Nothing registered in this window.' The initial static 'Connecting' sub is overwritten by the first synchronous render() at boot and never user-visible."
+    ]
+  },
+  "f4": {
+    "score": 5,
+    "observations": [
+      "The layout is built around the on-call glance: cards are sorted worst-first (sortServices ranks down<degraded<healthy), and the hero computes a single verdict from the worst status ('1 down · 1 degraded', '4 healthy of 6').",
+      "Status glyphs are shape-coded (circle/triangle/octagon), so a red/green-colorblind engineer can still read health at a glance — a choice specific to this user.",
+      "Operational details no template has: SLO tick at 99.9% on every uptime meter with 'below SLO'/'meets SLO' verdicts in the detail drawer, a 'stale' chip plus 'Refresh failed — showing last known data' that keeps last-known data visible during outages, a status-change chip showing when a service transitioned, an auto-refresh countdown ring, an 'r' keyboard shortcut, and 'Copy summary' producing a paste-ready incident snippet.",
+      "Type and color serve the task: JetBrains Mono for all numerics and status text, dark NOC-style theme, red/amber/green mapped strictly to down/degraded/healthy.",
+      "Template remnants are minor: the 3-column card grid, Inter for UI chrome, pill-shaped tabs/buttons, and the stock emerald/amber/rose dashboard palette."
+    ]
+  },
+  "hierarchy": {
+    "score": 5,
+    "observations": [
+      "Purpose was instantly readable from the idle screenshot: 'Service health · 6 services · 24h window · just now' header over six per-service metric cards — exactly the brief.",
+      "What needs attention is unmissable: the red-bordered banner '1 down · 1 degraded' with alert glyph and a red+amber segment strip, and the two problem services (media-worker DOWN, notifier DEGRADED) sorted into the first two positions with red/amber borders and badges.",
+      "The primary interactive control (Refresh, top-right, filled-outline button next to the Live indicator and 1h/24h/7d range tabs) was obvious; the page correctly makes reading status, not clicking, the primary act for an on-call engineer.",
+      "All three pre-source answers checked out against the brief and the source with no corrections needed."
+    ]
+  },
+  "f1Inventory": [
+    {
+      "item": "per-service health",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "latency trend",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "error-rate trend",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "uptime",
+      "classification": "graphical+text"
+    }
+  ],
+  "f2Redundant": [],
+  "f3Issues": [
+    "Inconsistent naming for the same retry action: 'Retry' on the error-bar button (#ebRetry) vs 'Retry now' on the full-page error panel button (#pmRetry)."
+  ],
+  "f4TaskDriven": [
+    "Worst-first service sorting (down, then degraded, then healthy) so problems are always top-left",
+    "Hero verdict computed from worst status: '1 down · 1 degraded' with '4 healthy of 6' and a per-service colored segment strip",
+    "Shape-coded status glyphs (circle/triangle/octagon) readable without color perception",
+    "SLO 99.9% tick rendered on every uptime <meter>, with 'below SLO'/'meets SLO' verdict in the detail drawer",
+    "Stale-data degradation: 'Refresh failed — showing last known data' bar plus a 'stale' chip while keeping last-good metrics on screen with 'last good Ns ago'",
+    "Auto-refresh countdown ring on the Live button with exponential backoff after failures",
+    "Status-change chip showing 'changed Ns ago' for recent transitions",
+    "'r' keyboard shortcut for refresh",
+    "'Copy summary' button producing a paste-ready incident summary (status, latency now/avg/max, errors, uptime, ISO timestamp)",
+    "JetBrains Mono for all numerics and status strings; dark NOC-style theme with red/amber/green mapped to down/degraded/healthy",
+    "Trend arrows colored by direction-of-badness (latency up = bad red, down = good green)"
+  ],
+  "f4Template": [
+    "3-column responsive card grid",
+    "Inter as the generic UI chrome font",
+    "Pill-shaped tab group and buttons in the top bar",
+    "Stock emerald/amber/rose dark-dashboard palette"
+  ]
+}

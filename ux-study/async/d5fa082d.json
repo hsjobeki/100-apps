@@ -1,0 +1,66 @@
+{
+  "id": "d5fa082d",
+  "items": [
+    {
+      "n": 1,
+      "verdict": "PASS",
+      "reason": "Sampled 252 ms after clicking Process file, the panel already showed '0% Uploading' with a role=progressbar ring and a Cancel button; initial page load also shows skeleton rows while listJobs is pending.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/d5fa082d_1.png"
+    },
+    {
+      "n": 2,
+      "verdict": "PASS",
+      "reason": "Three clicks within 200 ms under slow latency produced exactly one uploadFile call in __apiLog; while pending the primary button swaps to Cancel, so a repeat click aborts rather than resubmits (minor caveat: an accidental double-click cancels the upload).",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/d5fa082d_dedup.png"
+    },
+    {
+      "n": 3,
+      "verdict": "PASS",
+      "reason": "Upload shows a ring progressbar advancing with onProgress (aria-valuenow 0→20→100), and queue rows show per-job progress that advanced Queued 0% → Running 26% → 67% → Done.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/d5fa082d_3.png"
+    },
+    {
+      "n": 4,
+      "verdict": "PASS",
+      "reason": "Clicking Cancel mid-upload aborted it and showed 'Upload cancelled — d5fa082d_sample.csv was not sent.' with Try again; running queue jobs each have a Cancel button that issued api.cancelJob.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/d5fa082d_4.png"
+    },
+    {
+      "n": 5,
+      "verdict": "PASS",
+      "reason": "At fail=1 the upload panel showed the inline note 'Network error — “d5fa082d_sample.csv” was not uploaded.' next to the staged file, and failed job rows carry specific server errors like 'Upstream timeout after 30s' and 'Worker ran out of memory at 1.8 GB'.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/d5fa082d_5.png"
+    },
+    {
+      "n": 6,
+      "verdict": "PASS",
+      "reason": "The inline 'Try again' button re-invoked uploadFile without a reload, and each failed job row has a Retry button calling retryJob; when that retry itself failed the row showed 'Network error — job was not restarted. Try again'.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/d5fa082d_6.png"
+    },
+    {
+      "n": 7,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief; the page has no API-driven field-level validation surface.",
+      "evidence": "<form id=\"upForm\" novalidate> single file input, no address/payment fields — item marked N/A by protocol"
+    },
+    {
+      "n": 8,
+      "verdict": "PASS",
+      "reason": "The queue polls listJobs (~every 1.5-2 s, 14 polls logged) and rows changed without any refresh: job_8c1e89 went Running 78% → Failed 'Worker ran out of memory at 1.8 GB', and the newly created job advanced Queued → Running → Done live.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/d5fa082d_8.png"
+    },
+    {
+      "n": 9,
+      "verdict": "PASS",
+      "reason": "Opened the job-detail dialog mid-upload (it showed live job status and Cancel), closed it, and the upload continued cleanly to '100% Starting job' and completed with a normal queue handoff — no stuck or inconsistent state.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/d5fa082d_9.png"
+    },
+    {
+      "n": 10,
+      "verdict": "PASS",
+      "reason": "After upload hit 100% the panel showed 'Starting job' (not success) until processFile resolved, then handed off to the queue where the row stayed Queued/Running until the server reported success; 'Done', row count, and the Download link appeared only after server confirmation.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/d5fa082d_10.png"
+    }
+  ],
+  "failCount": 0
+}

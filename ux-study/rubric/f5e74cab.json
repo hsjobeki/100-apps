@@ -1,0 +1,83 @@
+{
+  "id": "f5e74cab",
+  "f1": {
+    "score": 5,
+    "observations": [
+      "Save state is graphical+text in all three phases: pending shows a CSS `.spinner` inside the disabled button with 'Saving…' (setLoading()), success shows `#profile-save-status` / `#notify-save-status` with an inline checkmark SVG plus 'Saved', and failure shows `.error-inline` in red (--danger #e5443a) as seen in error_desktop ('Connection failed. Please try again.').",
+      "Destructive-action danger level is color- and icon-coded, not just worded: `.danger-zone` card has a red border (--danger-border #fecaca) and red 'Danger Zone' heading, row buttons use `.btn-danger-outline` (red outline) vs the filled red `.btn-danger` on modal confirm, and both delete modals lead with a red warning-triangle SVG in a red circular `.modal-icon.danger`.",
+      "Confirmation state is graphical+text: the delete-account confirm button starts `disabled` (opacity 0.5) and only enables when the typed phrase matches 'delete my account'; success is confirmed by a green-check toast ('Project deleted') and a full-screen green circle-check SVG with 'Account deleted'.",
+      "Metrics corroborate graphical presence even on the text-light idle view: graphical.total 5 (svg 3, badges 2), including the ★ 'Pro' `plan-badge` pill."
+    ]
+  },
+  "f2": {
+    "score": 4,
+    "observations": [
+      "Extremely lean by measurement: desktop pageWords 25, viewportWords 25, helperWords 11, longLeafWords 0, and all 5 button labels are exactly 1 word (meanWords 1, maxWords 1, longLabels []).",
+      "Modal copy earns its place: 'Are you sure you want to delete <name>? All data in this project will be permanently removed.' states a real consequence rather than narrating the UI.",
+      "Four short helper strings restate what headings or adjacent controls already show (listed in f2Redundant), which is exactly the anchor-4 territory of 'some redundant headings or helper text' — but there are no explanatory paragraphs anywhere."
+    ]
+  },
+  "f3": {
+    "score": 4,
+    "observations": [
+      "Terminology is consistent where it matters: the action is 'Delete' / 'Delete account' everywhere (row button, modal title 'Delete your account', modal confirm 'Delete account'), and error copy matches behavior — 'Connection failed. Please try again.' appears only on err.code === 'NETWORK' and retry genuinely works per async items 5 and 6.",
+      "One filler instance found: 'This action is permanent and irreversible.' in the delete-account modal is a tautology (permanent = irreversible).",
+      "No placeholder text issues: the input placeholder 'delete my account' is the functional phrase the gate requires; no marketing tone anywhere ('Danger Zone' is standard tool-UI convention)."
+    ]
+  },
+  "f4": {
+    "score": 4,
+    "observations": [
+      "The destructive-action design is clearly driven by this brief: two graded danger tiers — project delete gets a one-click confirm modal, account delete gets a type-'delete my account' gate with the confirm button disabled until the phrase matches — plus a dedicated red-bordered `.danger-zone` card isolated on the last tab.",
+      "Color use is task-driven: an escalation from red-outline row buttons (`.btn-danger-outline`) to filled red modal confirms (`.btn-danger`), with red reserved exclusively for destruction.",
+      "The visual shell is stock SaaS: Inter from Google Fonts, blue #4f7df9 accent, white cards on #f8f9fb gray, top underline tabs, top-right toasts, shimmer skeletons — interchangeable with any dashboard, which caps it below 5."
+    ]
+  },
+  "hierarchy": {
+    "score": 5,
+    "observations": [
+      "From the idle screenshot alone I read: (1) purpose = account settings ('Settings' h1, Profile/Projects/Account tabs, Name/Email/Plan fields, Notifications card); (2) primary action = the blue 'Save' buttons, the only filled-accent elements on the page; (3) nothing needs attention in idle. All three check out against the brief.",
+      "Destructive actions are correctly demoted: deletion lives behind the 'Account' tab rather than competing on the default view — appropriate hierarchy for a settings page with account deletion.",
+      "Minor note that did not obscure anything: two identical 'Save' buttons exist, but each is unambiguously scoped to its own card footer."
+    ]
+  },
+  "f1Inventory": [
+    {
+      "item": "save state",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "destructive-action danger level",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "confirmation state",
+      "classification": "graphical+text"
+    }
+  ],
+  "f2Redundant": [
+    "'Your personal information' — card subhead under 'Profile'; the Name/Email fields directly below already show this.",
+    "'Choose what you want to be notified about' — restates the 'Notifications' heading and the 'Email notifications' label beneath it.",
+    "'Manage your projects' — card subhead that restates the 'Projects' heading above it.",
+    "'Your account has been permanently removed.' — final screen line that restates the 'Account deleted' heading directly above it."
+  ],
+  "f3Issues": [
+    "Filler/tautology: 'This action is permanent and irreversible.' in the delete-account modal — 'permanent' and 'irreversible' say the same thing."
+  ],
+  "f4TaskDriven": [
+    "Graded destructive friction: plain confirm modal for project delete vs type-to-confirm ('delete my account') gate with disabled confirm button for account delete.",
+    "Dedicated `.danger-zone` card with red border and red 'Danger Zone' heading, isolated on its own 'Account' tab away from routine settings.",
+    "Danger-color escalation: red-outline buttons at row level, filled red only on the final modal confirm.",
+    "Per-card Save with inline 'Saved' check / inline error in the card footer — settings-specific save-state placement next to the action it reports on.",
+    "Consequence-specific modal copy naming the project being deleted ('Are you sure you want to delete <strong>name</strong>?').",
+    "Empty-state with folder icon and 'No projects yet' for the projects list."
+  ],
+  "f4Template": [
+    "Inter font from fonts.googleapis.com with a generic blue #4f7df9 accent.",
+    "White cards with 12px radius and subtle shadow on a #f8f9fb gray page background.",
+    "Top horizontal tab nav with active-underline styling.",
+    "Top-right toast notifications with slide-in animation.",
+    "Shimmer skeleton loading cards.",
+    "Centered 800px max-width single-column layout."
+  ]
+}

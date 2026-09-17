@@ -1,0 +1,66 @@
+{
+  "id": "37cf7e87",
+  "items": [
+    {
+      "n": 1,
+      "verdict": "PASS",
+      "reason": "At 280 ms after clicking Save under slow latency the button was already disabled and showed a spinner with 'Saving…'; the delete-confirm modal button likewise swaps to a spinner immediately on confirm.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/37cf7e87_1.png"
+    },
+    {
+      "n": 2,
+      "verdict": "PASS",
+      "reason": "Scripted triple-click under slow latency produced exactly 1 updateSettings call; observed the button disabled while pending, and starting a second project delete while one was in flight was blocked (no second modal, deleteProject count stayed 1).",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/37cf7e87_2.png"
+    },
+    {
+      "n": 3,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief.",
+      "evidence": "N/A per task instructions"
+    },
+    {
+      "n": 4,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief.",
+      "evidence": "N/A per task instructions"
+    },
+    {
+      "n": 5,
+      "verdict": "FAIL",
+      "reason": "Failures surface only as an auto-dismissing toast fixed at the top-right corner (rect x=1178, y=20) while the Save button sits at y≈354 and project rows mid-page, so the message is not near the relevant element; the save message ('Network error — please try again') also names no field or section.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/37cf7e87_5.png"
+    },
+    {
+      "n": 6,
+      "verdict": "PASS",
+      "reason": "After a failed save the button re-enabled and a second click fired a new updateSettings call without reload (log count went 1→2); after a failed delete the row stayed and Delete could be re-initiated, with the toast prompting 'please try again'.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/37cf7e87_6.png"
+    },
+    {
+      "n": 7,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief.",
+      "evidence": "N/A per task instructions"
+    },
+    {
+      "n": 8,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief.",
+      "evidence": "N/A per task instructions"
+    },
+    {
+      "n": 9,
+      "verdict": "PASS",
+      "reason": "With a delete in flight I dismissed the modal via overlay click, switched to Danger Zone and back, and tried a concurrent delete; after settling the list was consistent (2 rows, count '2 projects', no orphan overlay, no stuck-disabled buttons, zero page errors).",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/37cf7e87_9b.png"
+    },
+    {
+      "n": 10,
+      "verdict": "PASS",
+      "reason": "During a pending delete all 3 project rows remained with the modal spinner showing (no optimistic removal); the row disappeared and the count updated only after the server resolved, and save shows 'Saving…' with the success toast only after resolution.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/37cf7e87_10.png"
+    }
+  ],
+  "failCount": 1
+}

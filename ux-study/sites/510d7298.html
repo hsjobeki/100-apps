@@ -1,0 +1,966 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CSV Pipeline</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+:root{
+  --bg:#f4f3ef; --surface:#fff; --ink:#15191f; --muted:#5d6774; --faint:#8b94a1;
+  --line:#e4e2db; --line2:#eeece6;
+  --accent:#0d7d74; --accent-d:#095e58; --accent-w:#e3f2f0; --accent-b:#cfe6e3;
+  --queued:#6b7482; --running:#1f6feb; --ok:#11784f; --fail:#c53929;
+  --r:10px; --shadow:0 1px 2px rgba(20,25,35,.05), 0 6px 18px -12px rgba(20,25,35,.3);
+}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.45 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+.mono{font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.86em}
+.sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.spacer{flex:1}
+
+header{position:sticky;top:0;z-index:5;background:rgba(255,255,255,.93);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+.hbar{max-width:1140px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:10px}
+.mark{width:26px;height:26px;color:var(--accent);flex:none}
+.brand{font-weight:650;letter-spacing:-.01em}
+.who{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:13px}
+.avatar{width:26px;height:26px;border-radius:50%;background:var(--accent-w);color:var(--accent-d);display:grid;place-items:center;font-size:11px;font-weight:650}
+.plan{border:1px solid var(--accent-b);border-radius:999px;padding:1px 8px;font-size:11px;font-weight:600;color:var(--accent-d);background:var(--accent-w)}
+.sync{display:inline-flex;color:var(--faint)}
+
+main{max-width:1140px;margin:0 auto;padding:22px 20px 60px;display:grid;grid-template-columns:392px minmax(0,1fr);gap:22px;align-items:start}
+@media (max-width:920px){main{grid-template-columns:minmax(0,1fr);padding:16px 14px 48px;gap:16px}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);min-width:0}
+.phead{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid var(--line2);min-height:43px}
+h1,h2{margin:0;font-size:13px;font-weight:650;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.pbody{padding:14px}
+
+.drop{border:1.5px dashed #cfcdc4;border-radius:var(--r);padding:20px 16px;text-align:center;
+  background:repeating-linear-gradient(90deg,#fbfaf7 0 26px,#f4f2ec 26px 27px);transition:border-color .12s,background .12s,opacity .12s}
+.drop.over{border-color:var(--accent);background:var(--accent-w)}
+.drop.locked{opacity:.5}
+.dropglyph{width:46px;height:34px;color:var(--accent);opacity:.9}
+.dtitle{font-weight:600;margin:8px 0 2px}
+.dsub{color:var(--faint);font-size:12.5px}
+.dact{display:flex;gap:8px;justify-content:center;margin-top:12px;flex-wrap:wrap}
+
+.btn{-webkit-appearance:none;appearance:none;font:inherit;font-size:13.5px;font-weight:600;
+  display:inline-flex;align-items:center;gap:6px;justify-content:center;text-decoration:none;
+  padding:7px 12px;border-radius:8px;border:1px solid var(--line);background:#fff;color:var(--ink);
+  cursor:pointer;transition:background .12s,border-color .12s}
+.btn:hover{background:#faf9f6;border-color:#d6d3c9}
+.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary:hover{background:var(--accent-d);border-color:var(--accent-d)}
+.btn.danger{color:var(--fail);border-color:#f0d5d1}
+.btn.danger:hover{background:#fdf3f1}
+.btn.sm{padding:5px 9px;font-size:12.5px;border-radius:7px}
+.btn:disabled,.btn[aria-disabled=true]{opacity:.5;cursor:not-allowed}
+.btn:disabled:hover,.btn[aria-disabled=true]:hover{background:#fff;border-color:var(--line)}
+.btn.primary:disabled:hover{background:var(--accent);border-color:var(--accent)}
+.iconbtn{border:1px solid var(--line);background:#fff;border-radius:7px;width:27px;height:27px;padding:0;display:inline-grid;place-items:center;cursor:pointer;color:var(--muted);vertical-align:middle}
+.iconbtn:hover{background:#faf9f6}
+.ic{width:15px;height:15px;flex:none}
+.ic.lg{width:19px;height:19px}
+.spin{animation:sp .9s linear infinite;transform-origin:50% 50%}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+.run{border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin-bottom:14px}
+.runtop{display:flex;align-items:center;gap:11px;padding:12px}
+.file{min-width:0;flex:1}
+.fname{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fsub{color:var(--muted);font-size:12.5px;display:flex;align-items:center;gap:7px;margin-top:6px;flex-wrap:wrap}
+.ringwrap{position:relative;width:44px;height:44px;flex:none;display:grid;place-items:center}
+.ring{width:44px;height:44px;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:4;stroke-linecap:round}
+.ring .bgc{stroke:#e9e7e0}
+.ring .fgc{stroke:var(--accent);transition:stroke-dashoffset .3s linear}
+.pctxt{position:absolute;font-size:11px;font-weight:650;font-family:"JetBrains Mono",monospace}
+.glyphbox{width:44px;height:44px;flex:none;display:grid;place-items:center;border-radius:50%}
+.glyphbox.ok{background:#e9f5ef;color:var(--ok)}
+.glyphbox.bad{background:#fdeeeb;color:var(--fail)}
+.glyphbox.run{background:#eaf1fe;color:var(--running)}
+
+.bar{height:7px;border-radius:99px;background:#eceae3;overflow:hidden}
+.bar>i{display:block;height:100%;border-radius:99px;background:var(--accent);transition:width .3s linear}
+.bar.indet>i{width:34%;animation:slide 1.15s ease-in-out infinite;background:var(--running)}
+@keyframes slide{0%{margin-left:-34%}100%{margin-left:100%}}
+.bar.s-running>i{background:var(--running)}
+.bar.s-succeeded>i{background:var(--ok)}
+.bar.s-failed>i{background:var(--fail)}
+.bar.s-queued>i{background:var(--queued)}
+
+.steps{display:flex;align-items:center;padding:10px 12px;border-top:1px solid var(--line2);background:#fcfbf9}
+.step{display:flex;align-items:center;gap:7px;flex:none}
+.dot{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;border:1.5px solid #dcd9d0;color:var(--faint);background:#fff}
+.dot .ic{width:12px;height:12px}
+.step .lb{font-size:12px;font-weight:600;color:var(--faint)}
+.step.active .dot{border-color:var(--running);color:var(--running)}
+.step.active .lb{color:var(--running)}
+.step.done .dot{border-color:var(--ok);background:var(--ok);color:#fff}
+.step.done .lb{color:var(--ink)}
+.step.fail .dot{border-color:var(--fail);background:var(--fail);color:#fff}
+.step.fail .lb{color:var(--fail)}
+.link{flex:1;height:2px;background:#e5e2da;margin:0 8px;min-width:12px}
+.link.on{background:var(--ok)}
+
+.badge{display:inline-flex;align-items:center;gap:5px;padding:2px 8px 2px 6px;border-radius:999px;font-size:12px;font-weight:600;border:1px solid;white-space:nowrap}
+.badge .ic{width:13px;height:13px}
+.s-queued{color:var(--queued);background:#f3f4f6;border-color:#e6e7ea}
+.s-running{color:var(--running);background:#eaf1fe;border-color:#d6e3fb}
+.s-succeeded{color:var(--ok);background:#e9f5ef;border-color:#d3e9dd}
+.s-failed{color:var(--fail);background:#fdeeeb;border-color:#f7d8d2}
+
+.msg{display:flex;gap:9px;align-items:flex-start;border-radius:8px;padding:10px 11px;font-size:13.5px}
+.msg .ic{margin-top:1px}
+.msg.err{background:#fdeeeb;border:1px solid #f7d8d2;color:#8d2a1e}
+.msg.info{background:#f7f6f2;border:1px solid var(--line);color:var(--muted)}
+.msg .body{min-width:0;flex:1}
+.msg .t{font-weight:650}
+.msg .d{margin-top:2px;overflow-wrap:anywhere}
+.code{font-family:"JetBrains Mono",monospace;font-size:10px;font-weight:600;border:1px solid currentColor;border-radius:4px;padding:0 4px;margin-left:6px;opacity:.7}
+.acts{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center}
+
+.summary{display:flex;gap:6px;flex-wrap:wrap;padding:12px 14px 0}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:4px 10px;font:inherit;font-size:12.5px;font-weight:600;color:var(--muted);cursor:pointer}
+.chip .pip{width:8px;height:8px;border-radius:50%;background:currentColor;flex:none}
+.chip .n{font-family:"JetBrains Mono",monospace;color:var(--ink)}
+.chip[aria-pressed=true]{box-shadow:inset 0 0 0 1.5px currentColor}
+.chip.c-queued{color:var(--queued)} .chip.c-running{color:var(--running)}
+.chip.c-succeeded{color:var(--ok)} .chip.c-failed{color:var(--fail)}
+.stack{display:flex;height:6px;border-radius:99px;overflow:hidden;background:#eceae3;margin:11px 14px 0}
+.stack>span{display:block;height:100%}
+.stack .q{background:var(--queued)} .stack .r{background:var(--running)}
+.stack .s{background:var(--ok)} .stack .f{background:var(--fail)}
+
+#runsWrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;margin-top:12px}
+thead th{text-align:left;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--faint);font-weight:650;padding:10px 14px;border-bottom:1px solid var(--line2)}
+tbody{border-bottom:1px solid var(--line2)}
+tbody:last-child{border-bottom:0}
+td{padding:9px 14px;vertical-align:middle}
+tbody.g:hover{background:#fcfbf9}
+th.pcol,td.pcell{width:180px}
+th.rcol,td.rcell{width:92px;text-align:right}
+td.rcell{color:var(--muted)}
+td.acell{width:1%;white-space:nowrap;text-align:right}
+.pwrap{display:flex;align-items:center;gap:8px}
+.pwrap .bar{flex:1}
+.pct{width:36px;text-align:right;color:var(--muted)}
+.idcell{white-space:nowrap}
+.tag{font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--accent-d);background:var(--accent-w);border:1px solid var(--accent-b);border-radius:4px;padding:0 4px;margin-left:7px}
+tr.sub td{padding:0 14px 10px}
+.rowmsg{display:flex;align-items:flex-start;gap:8px;background:#fdeeeb;border:1px solid #f7d8d2;color:#8d2a1e;border-radius:7px;padding:7px 9px;font-size:12.5px}
+.rowmsg .ic{margin-top:1px}
+.rowmsg .body{flex:1;min-width:0;overflow-wrap:anywhere}
+@media (max-width:600px){
+  th.rcol,td.rcell{display:none}
+  th.pcol,td.pcell{width:54px}
+  td,thead th{padding-left:6px;padding-right:6px}
+  tr.sub td{padding-left:6px;padding-right:6px}
+  .pct{display:none}
+  .tag{display:none}
+  .acell .iconbtn{display:none}
+  .idcell .mono{font-size:.78em}
+  .badge{font-size:11px;padding:2px 7px 2px 5px;gap:4px}
+  .badge .ic{width:12px;height:12px}
+  .btn.sm{padding:5px 7px;font-size:12px}
+}
+.empty{padding:38px 16px;text-align:center;color:var(--faint)}
+.empty svg{width:46px;height:46px;opacity:.45;color:var(--muted)}
+.emptyt{margin-top:10px;font-weight:600;color:var(--muted)}
+.skelrow{display:flex;gap:14px;padding:12px 14px;align-items:center}
+.skel{height:12px;border-radius:5px;background:linear-gradient(90deg,#efeee9,#f8f7f4,#efeee9);background-size:200% 100%;animation:sh 1.2s linear infinite}
+@keyframes sh{to{background-position:-200% 0}}
+
+dialog{border:1px solid var(--line);border-radius:12px;padding:0;width:min(440px,92vw);box-shadow:0 24px 60px -20px rgba(20,25,35,.45)}
+dialog::backdrop{background:rgba(20,25,35,.35)}
+.dhead{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line2)}
+.kv{display:grid;grid-template-columns:86px 1fr;gap:10px 12px;padding:14px;font-size:13.5px;margin:0}
+.kv dt{color:var(--faint);font-size:12.5px}
+.kv dd{margin:0}
+.dfoot{display:flex;gap:8px;justify-content:flex-end;padding:12px 14px;border-top:1px solid var(--line2);background:#fcfbf9;border-radius:0 0 11px 11px}
+.banner{max-width:1140px;margin:16px auto 0;padding:0 20px}
+</style>
+</head>
+<body>
+<header>
+  <div class="hbar">
+    <svg class="mark" viewBox="0 0 24 24" aria-hidden="true">
+      <rect x="2.5" y="3.5" width="19" height="17" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.7"/>
+      <path d="M2.5 8.5h19M9 8.5V20.5M15.5 8.5V20.5" fill="none" stroke="currentColor" stroke-width="1.4" opacity=".65"/>
+    </svg>
+    <div class="brand">CSV Pipeline</div>
+    <div class="spacer"></div>
+    <div class="who" id="who"></div>
+  </div>
+</header>
+
+<div class="banner" id="banner"></div>
+
+<main>
+  <section class="panel" aria-labelledby="uph">
+    <div class="phead"><h1 id="uph">Upload</h1></div>
+    <div class="pbody">
+      <div id="activeCard"></div>
+      <div class="drop" id="drop">
+        <svg class="dropglyph" viewBox="0 0 48 34" aria-hidden="true">
+          <rect x="1" y="1" width="46" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="2"/>
+          <path d="M1 10h46M17 10v23M32 10v23" fill="none" stroke="currentColor" stroke-width="1.6" opacity=".55"/>
+        </svg>
+        <div class="dtitle">Drop CSV here</div>
+        <div class="dsub">or pick a file</div>
+        <div class="dact">
+          <button class="btn primary" id="sampleBtn" data-act="sample">
+            <svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 13.4V4.6m0 0L4.8 7.8M8 4.6l3.2 3.2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Use sample CSV
+          </button>
+          <label class="btn" id="chooseLbl" for="fileInput">Choose file</label>
+        </div>
+      </div>
+      <div id="pickMsg"></div>
+      <input id="fileInput" class="sr" type="file" accept=".csv,text/csv" aria-label="CSV file">
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="rnh">
+    <div class="phead">
+      <h2 id="rnh">Runs</h2>
+      <div class="spacer"></div>
+      <span id="pollState" aria-hidden="true"></span>
+    </div>
+    <div class="summary" id="summary"></div>
+    <div class="stack" id="stack" aria-hidden="true"></div>
+    <div id="runsWrap"></div>
+  </section>
+</main>
+
+<dialog id="dlg" aria-labelledby="dlgTitle"><div id="dlgContent"></div></dialog>
+<div class="sr" id="live" aria-live="polite"></div>
+
+<script>
+(function () {
+  "use strict";
+
+  var api = window.api;
+  var $ = function (s) { return document.querySelector(s); };
+
+  var I = {
+    check: '<svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.2 8.6l3.1 3.1L12.9 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    alert: '<svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2.4l6 11.2H2z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M8 6.4v3.3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="8" cy="11.8" r=".95" fill="currentColor"/></svg>',
+    clock: '<svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 4.6V8l2.3 1.6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
+    spin: '<svg class="ic spin" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-opacity=".28" stroke-width="2"/><path d="M14 8a6 6 0 0 0-6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+    dl: '<svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2v8m0 0L4.8 6.9M8 10l3.2-3.1" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.6 12.4V14h10.8v-1.6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>',
+    retry: '<svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M13.4 8a5.4 5.4 0 1 1-1.7-3.9" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M13.6 2.2v3.1h-3.1" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    x: '<svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M4.2 4.2l7.6 7.6M11.8 4.2l-7.6 7.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+    info: '<svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 7.3v4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="8" cy="4.8" r=".9" fill="currentColor"/></svg>',
+    chev: '<svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5L10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    tray: '<svg viewBox="0 0 48 48" aria-hidden="true"><rect x="5" y="9" width="38" height="30" rx="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M5 19h38M18 19v20M31 19v20" fill="none" stroke="currentColor" stroke-width="1.6" opacity=".5"/></svg>'
+  };
+  var SICON = { queued: I.clock, running: I.spin, succeeded: I.check, failed: I.alert };
+  var SLABEL = { queued: "Queued", running: "Running", succeeded: "Succeeded", failed: "Failed" };
+  var RING_C = 119.4;
+
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) {
+      return c === "&" ? "&amp;" : c === "<" ? "&lt;" : c === ">" ? "&gt;" : "&quot;";
+    });
+  }
+  function bytes(n) {
+    if (typeof n !== "number" || !isFinite(n)) return "";
+    if (n < 1024) return n + " B";
+    if (n < 1048576) return (n / 1024).toFixed(1) + " KB";
+    return (n / 1048576).toFixed(1) + " MB";
+  }
+  function isAbort(e) { return !!e && (e.name === "AbortError" || e.code === 20); }
+  function reason(e) {
+    if (!e) return "Unknown error";
+    if (e.code === "NETWORK") return "The server could not be reached";
+    return e.message || String(e);
+  }
+  function codeOf(e) { return e && typeof e.code === "string" ? e.code : ""; }
+  function say(t) { $("#live").textContent = t; }
+  function pctOf(j) {
+    if (j.status === "succeeded") return 100;
+    var p = Math.round(Number(j.progress) || 0);
+    return p < 0 ? 0 : p > 100 ? 100 : p;
+  }
+  function badge(st) {
+    var s = SLABEL[st] ? st : "queued";
+    return '<span class="badge s-' + s + '">' + SICON[s] + SLABEL[s] + "</span>";
+  }
+  function setHTML(el, html) {
+    if (!el || el._h === html) return;
+    el.innerHTML = html;
+    el._h = html;
+  }
+
+  var S = {
+    jobs: [],
+    loaded: false,
+    listError: null,
+    file: null,
+    fileId: null,
+    phase: "idle",          /* idle | uploading | processing | tracking | error */
+    pct: 0,
+    activeJobId: null,
+    err: null,              /* { stage, message, code } */
+    pick: null,             /* { kind, title, text } */
+    ctrl: null,
+    mine: [],
+    rowBusy: {},
+    rowErr: {},
+    filter: null,
+    dlgId: null
+  };
+
+  function jobById(id) {
+    for (var i = 0; i < S.jobs.length; i++) if (S.jobs[i].id === id) return S.jobs[i];
+    return null;
+  }
+  function activeJob() { return S.activeJobId ? jobById(S.activeJobId) : null; }
+  function mergeJob(j) {
+    if (!j || !j.id) return;
+    for (var i = 0; i < S.jobs.length; i++) {
+      if (S.jobs[i].id === j.id) { S.jobs[i] = j; return; }
+    }
+    S.jobs.unshift(j);
+  }
+  function isBusy() {
+    if (S.phase === "uploading" || S.phase === "processing") return true;
+    if (S.phase === "tracking") {
+      var j = activeJob();
+      return !j || (j.status !== "succeeded" && j.status !== "failed");
+    }
+    return false;
+  }
+
+  /* ---------------- upload panel ---------------- */
+
+  function ringHTML(pct) {
+    var p = Math.round(pct);
+    return '<div class="ringwrap">' +
+      '<svg class="ring" viewBox="0 0 44 44" role="progressbar" aria-label="Upload progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + p + '">' +
+      '<circle class="bgc" cx="22" cy="22" r="19"></circle>' +
+      '<circle class="fgc" cx="22" cy="22" r="19" stroke-dasharray="' + RING_C + '" stroke-dashoffset="' + (RING_C * (1 - p / 100)).toFixed(1) + '"></circle>' +
+      '</svg><span class="pctxt">' + p + "</span></div>";
+  }
+
+  function stepStates() {
+    var j = activeJob(), e = S.err, s = ["pending", "pending", "pending"];
+    if (S.phase === "uploading") s[0] = "active";
+    else if (e && e.stage === "upload") s[0] = "fail";
+    else if (S.fileId || S.activeJobId) s[0] = "done";
+
+    if (S.phase === "processing") s[1] = "active";
+    else if (e && e.stage === "process") s[1] = "fail";
+    else if (j) s[1] = (j.status === "queued" || j.status === "running") ? "active" : "done";
+
+    if (j && j.status === "succeeded") s[2] = "done";
+    else if (j && j.status === "failed") s[2] = "fail";
+    return s;
+  }
+
+  function stepperHTML() {
+    var st = stepStates(), names = ["Upload", "Process", "Ready"], out = '<div class="steps">';
+    for (var i = 0; i < 3; i++) {
+      var mark = st[i] === "done" ? I.check
+        : st[i] === "fail" ? I.x
+        : st[i] === "active" ? I.spin
+        : '<span class="mono" style="font-size:10px">' + (i + 1) + "</span>";
+      out += '<div class="step ' + st[i] + '"><span class="dot">' + mark + "</span>" +
+        '<span class="lb">' + names[i] + "</span></div>";
+      if (i < 2) out += '<span class="link' + (st[i] === "done" ? " on" : "") + '"></span>';
+    }
+    return out + "</div>";
+  }
+
+  function fileHTML() {
+    if (!S.file) return '<div class="file"></div>';
+    return '<div class="file"><div class="fname">' + esc(S.file.name) + "</div>" +
+      '<div class="fsub mono" style="margin-top:2px">' + bytes(S.file.size) + "</div></div>";
+  }
+
+  function errHTML(title, detail, code, actions) {
+    return '<div class="msg err" role="alert">' + I.alert +
+      '<div class="body"><div class="t">' + esc(title) +
+      (code ? '<span class="code">' + esc(code) + "</span>" : "") + "</div>" +
+      '<div class="d">' + esc(detail) + "</div>" +
+      (actions ? '<div class="acts">' + actions + "</div>" : "") + "</div></div>";
+  }
+
+  function renderActive() {
+    var host = $("#activeCard"), html = "", j = activeJob();
+
+    if (S.phase === "uploading") {
+      html = '<div class="run" data-kind="uploading"><div class="runtop">' + ringHTML(S.pct) + fileHTML() +
+        '<button class="btn danger sm" data-act="cancel">Cancel</button></div>' +
+        '<div style="padding:0 12px 12px">' +
+        '<div class="bar"><i style="width:' + S.pct + '%"></i></div>' +
+        '<div class="fsub">' + badge("running").replace("Running", "Uploading") +
+        '<span class="mono pctlabel">' + Math.round(S.pct) + "%</span></div></div>" + stepperHTML() + "</div>";
+    } else if (S.phase === "processing") {
+      html = '<div class="run"><div class="runtop">' +
+        '<span class="glyphbox run">' + I.spin.replace('class="ic spin"', 'class="ic lg spin"') + "</span>" +
+        fileHTML() + '<button class="btn danger sm" data-act="cancel">Cancel</button></div>' +
+        '<div style="padding:0 12px 12px">' +
+        '<div class="bar indet" role="progressbar" aria-label="Queueing job"><i></i></div>' +
+        '<div class="fsub">' + badge("running").replace("Running", "Queueing") + "</div></div>" +
+        stepperHTML() + "</div>";
+    } else if (S.phase === "error" && S.err) {
+      var title = S.err.stage === "upload" ? "Upload failed" : "Processing failed";
+      html = '<div class="run"><div class="runtop">' +
+        '<span class="glyphbox bad">' + I.alert.replace('class="ic"', 'class="ic lg"') + "</span>" +
+        fileHTML() + "</div>" +
+        '<div style="padding:0 12px 12px">' +
+        errHTML(title, S.err.message, S.err.code,
+          '<button class="btn primary sm" data-act="retry-stage">' + I.retry + "Retry</button>" +
+          '<button class="btn sm" data-act="reset">Discard</button>') +
+        "</div>" + stepperHTML() + "</div>";
+    } else if (S.phase === "tracking") {
+      if (!j) {
+        html = '<div class="run"><div class="runtop">' +
+          '<span class="glyphbox run">' + I.spin.replace('class="ic spin"', 'class="ic lg spin"') + "</span>" +
+          fileHTML() + "</div>" +
+          '<div style="padding:0 12px 12px"><div class="bar indet"><i></i></div></div>' +
+          stepperHTML() + "</div>";
+      } else {
+        var p = pctOf(j);
+        var terminal = j.status === "succeeded" || j.status === "failed";
+        var lead = terminal
+          ? '<span class="glyphbox ' + (j.status === "succeeded" ? "ok" : "bad") + '">' +
+            (j.status === "succeeded" ? I.check : I.alert).replace('class="ic"', 'class="ic lg"') + "</span>"
+          : ringHTML(p);
+        var cancelBtn = terminal ? "" : '<button class="btn danger sm" data-act="cancel">Cancel</button>';
+
+        html = '<div class="run"><div class="runtop">' + lead + fileHTML() + cancelBtn + "</div>" +
+          '<div style="padding:0 12px 12px">' +
+          '<div class="bar s-' + j.status + '" role="progressbar" aria-label="Job progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + p + '">' +
+          '<i style="width:' + p + '%"></i></div>' +
+          '<div class="fsub">' + badge(j.status) +
+          '<span class="mono">' + esc(j.id) + "</span>" +
+          (terminal ? "" : '<span class="mono">' + p + "%</span>") + "</div>";
+
+        if (j.status === "failed") {
+          html += '<div style="margin-top:10px">' +
+            errHTML("Job failed", j.error || "No reason reported", "",
+              '<button class="btn primary sm" data-act="row-retry" data-id="' + esc(j.id) + '">' + I.retry + "Retry</button>" +
+              '<button class="btn sm" data-act="reset">Dismiss</button>') +
+            "</div>";
+        } else if (j.status === "succeeded" && j.result) {
+          html += '<div class="acts">' +
+            '<a class="btn primary sm" data-act="download" href="' + esc(j.result.downloadUrl) + '" download="' + esc(j.id) + '.csv">' +
+            I.dl + "Download</a>" +
+            '<button class="btn sm" data-act="reset">Dismiss</button>' +
+            '<span class="mono" style="margin-left:auto;color:var(--muted)">' +
+            Number(j.result.rows || 0).toLocaleString() + " rows</span></div>";
+        }
+        html += "</div>" + stepperHTML() + "</div>";
+      }
+    }
+    setHTML(host, html);
+  }
+
+  /* keeps the upload ring smooth without rebuilding the card */
+  function patchUploadProgress() {
+    var card = $('#activeCard [data-kind="uploading"]');
+    if (!card) { renderActive(); return; }
+    var p = Math.round(S.pct);
+    card.querySelector(".fgc").setAttribute("stroke-dashoffset", (RING_C * (1 - p / 100)).toFixed(1));
+    card.querySelector(".ring").setAttribute("aria-valuenow", p);
+    card.querySelector(".pctxt").textContent = p;
+    card.querySelector(".bar > i").style.width = p + "%";
+    card.querySelector(".pctlabel").textContent = p + "%";
+    $("#activeCard")._h = null;
+  }
+
+  function renderDrop() {
+    var locked = isBusy();
+    $("#drop").classList.toggle("locked", locked);
+    $("#sampleBtn").disabled = locked;
+    $("#fileInput").disabled = locked;
+    $("#chooseLbl").setAttribute("aria-disabled", locked ? "true" : "false");
+
+    var html = "";
+    if (S.pick && S.pick.kind === "error") {
+      html = '<div style="margin-top:12px">' + errHTML(S.pick.title, S.pick.text, "", "") + "</div>";
+    } else if (S.pick) {
+      html = '<div class="msg info" style="margin-top:12px">' + I.info +
+        '<div class="body"><div class="d">' + esc(S.pick.text) + "</div></div></div>";
+    }
+    setHTML($("#pickMsg"), html);
+  }
+
+  /* ---------------- runs panel ---------------- */
+
+  var groups = new Map();
+  var tableEl = null;
+
+  function rowActionsHTML(j) {
+    var busy = S.rowBusy[j.id];
+    var details = '<button class="iconbtn" data-act="details" data-id="' + esc(j.id) +
+      '" aria-label="Job details" style="margin-left:6px">' + I.chev + "</button>";
+    if (busy) {
+      return '<button class="btn sm" disabled>' + I.spin + (busy === "retry" ? "Retrying" : "Cancelling") + "</button>" + details;
+    }
+    if (j.status === "succeeded") {
+      return (j.result && j.result.downloadUrl
+        ? '<a class="btn sm" data-act="download" href="' + esc(j.result.downloadUrl) + '" download="' + esc(j.id) + '.csv">' + I.dl + "Download</a>"
+        : "") + details;
+    }
+    if (j.status === "failed") {
+      return '<button class="btn sm" data-act="row-retry" data-id="' + esc(j.id) + '">' + I.retry + "Retry</button>" + details;
+    }
+    return '<button class="btn sm danger" data-act="row-cancel" data-id="' + esc(j.id) + '">Cancel</button>' + details;
+  }
+
+  function makeGroup(id) {
+    var tb = document.createElement("tbody");
+    tb.className = "g";
+    tb.setAttribute("data-id", id);
+    tb.innerHTML =
+      '<tr><td class="idcell"></td><td class="scell"></td>' +
+      '<td class="pcell"><div class="pwrap">' +
+      '<div class="bar" role="progressbar" aria-label="Job progress" aria-valuemin="0" aria-valuemax="100"><i></i></div>' +
+      '<span class="pct mono"></span></div></td>' +
+      '<td class="rcell mono"></td><td class="acell"></td></tr>' +
+      '<tr class="sub" hidden><td colspan="5"></td></tr>';
+    return tb;
+  }
+
+  function updateGroup(tb, j) {
+    var p = pctOf(j);
+    setHTML(tb.querySelector(".idcell"),
+      '<span class="mono">' + esc(j.id) + "</span>" +
+      (S.mine.indexOf(j.id) >= 0 ? '<span class="tag">yours</span>' : ""));
+    setHTML(tb.querySelector(".scell"), badge(j.status));
+
+    var bar = tb.querySelector(".bar");
+    bar.className = "bar s-" + (SLABEL[j.status] ? j.status : "queued");
+    bar.setAttribute("aria-valuenow", p);
+    bar.firstChild.style.width = p + "%";
+    tb.querySelector(".pct").textContent = p + "%";
+    tb.querySelector(".rcell").textContent =
+      j.result && j.result.rows ? Number(j.result.rows).toLocaleString() : "\u2014";
+    setHTML(tb.querySelector(".acell"), rowActionsHTML(j));
+
+    var sub = tb.querySelector("tr.sub");
+    var cell = sub.firstChild;
+    var note = S.rowErr[j.id] || (j.status === "failed" ? j.error : "");
+    if (note) {
+      setHTML(cell, '<div class="rowmsg">' + I.alert + '<div class="body">' + esc(note) + "</div></div>");
+      sub.hidden = false;
+    } else {
+      setHTML(cell, "");
+      sub.hidden = true;
+    }
+  }
+
+  function orderedJobs() {
+    var mine = [], rest = [], i;
+    for (i = 0; i < S.jobs.length; i++) {
+      if (S.mine.indexOf(S.jobs[i].id) >= 0) mine.push(S.jobs[i]); else rest.push(S.jobs[i]);
+    }
+    mine.sort(function (a, b) { return S.mine.indexOf(a.id) - S.mine.indexOf(b.id); });
+    return mine.concat(rest);
+  }
+
+  function resetRunsHost(html) {
+    setHTML($("#runsWrap"), html);
+    tableEl = null;
+    groups.clear();
+  }
+
+  function renderRuns() {
+    var wrap = $("#runsWrap");
+
+    if (!S.loaded) {
+      var sk = "";
+      for (var i = 0; i < 4; i++) {
+        sk += '<div class="skelrow"><div class="skel" style="width:92px"></div>' +
+          '<div class="skel" style="width:74px"></div><div class="skel" style="flex:1"></div>' +
+          '<div class="skel" style="width:46px"></div></div>';
+      }
+      resetRunsHost('<div style="padding:8px 0" aria-busy="true">' + sk + "</div>");
+      return;
+    }
+
+    if (S.listError) {
+      resetRunsHost('<div style="padding:14px">' +
+        errHTML("Could not load runs", S.listError, "",
+          '<button class="btn primary sm" data-act="reload-jobs">' + I.retry + "Retry</button>") + "</div>");
+      return;
+    }
+
+    var list = orderedJobs().filter(function (j) { return !S.filter || j.status === S.filter; });
+
+    if (!list.length) {
+      resetRunsHost('<div class="empty">' + I.tray + '<div class="emptyt">' +
+        (S.filter ? "Nothing " + SLABEL[S.filter].toLowerCase() : "No runs yet") + "</div></div>");
+      return;
+    }
+
+    if (!tableEl || !wrap.contains(tableEl)) {
+      wrap.innerHTML = "<table><thead><tr><th>Job</th><th>Status</th>" +
+        '<th class="pcol">Progress</th><th class="rcol">Rows</th><th></th></tr></thead></table>';
+      wrap._h = null;
+      tableEl = wrap.querySelector("table");
+      groups.clear();
+    }
+
+    var seen = {};
+    for (var k = 0; k < list.length; k++) {
+      var j = list[k];
+      seen[j.id] = true;
+      var g = groups.get(j.id);
+      if (!g) { g = makeGroup(j.id); groups.set(j.id, g); }
+      updateGroup(g, j);
+      var at = tableEl.children[k + 1];
+      if (at !== g) tableEl.insertBefore(g, at || null);
+    }
+    groups.forEach(function (g, id) {
+      if (!seen[id]) { g.remove(); groups.delete(id); }
+    });
+  }
+
+  function renderSummary() {
+    if (!S.loaded || S.listError) {
+      setHTML($("#summary"), "");
+      setHTML($("#stack"), "");
+      return;
+    }
+    var c = { queued: 0, running: 0, succeeded: 0, failed: 0 };
+    S.jobs.forEach(function (j) { if (c[j.status] != null) c[j.status]++; });
+    var total = S.jobs.length || 1;
+    var html = "";
+    ["running", "queued", "failed", "succeeded"].forEach(function (s) {
+      html += '<button class="chip c-' + s + '" data-act="filter" data-status="' + s + '" aria-pressed="' +
+        (S.filter === s) + '"><span class="pip"></span>' + SLABEL[s] + '<span class="n">' + c[s] + "</span></button>";
+    });
+    setHTML($("#summary"), html);
+    setHTML($("#stack"),
+      '<span class="q" style="width:' + (c.queued / total * 100) + '%"></span>' +
+      '<span class="r" style="width:' + (c.running / total * 100) + '%"></span>' +
+      '<span class="f" style="width:' + (c.failed / total * 100) + '%"></span>' +
+      '<span class="s" style="width:' + (c.succeeded / total * 100) + '%"></span>');
+  }
+
+  /* ---------------- job dialog ---------------- */
+
+  function renderDialog() {
+    var dlg = $("#dlg");
+    if (!S.dlgId) { if (dlg.open) dlg.close(); return; }
+    var j = jobById(S.dlgId);
+    if (!j) { S.dlgId = null; if (dlg.open) dlg.close(); return; }
+
+    var p = pctOf(j), action;
+    if (j.status === "succeeded" && j.result) {
+      action = '<a class="btn primary sm" data-act="download" href="' + esc(j.result.downloadUrl) +
+        '" download="' + esc(j.id) + '.csv">' + I.dl + "Download</a>";
+    } else if (j.status === "failed") {
+      action = '<button class="btn primary sm" data-act="row-retry" data-id="' + esc(j.id) + '">' + I.retry + "Retry</button>";
+    } else {
+      action = '<button class="btn danger sm" data-act="row-cancel" data-id="' + esc(j.id) + '">Cancel</button>';
+    }
+
+    setHTML($("#dlgContent"),
+      '<div class="dhead">' + badge(j.status) +
+      '<span class="mono" id="dlgTitle">' + esc(j.id) + '</span><span class="spacer"></span>' +
+      '<button class="iconbtn" data-act="close" aria-label="Close">' + I.x + "</button></div>" +
+      '<dl class="kv"><dt>Progress</dt><dd><div class="pwrap">' +
+      '<div class="bar s-' + j.status + '" role="progressbar" aria-label="Job progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + p + '">' +
+      '<i style="width:' + p + '%"></i></div><span class="pct mono">' + p + "%</span></div></dd>" +
+      '<dt>Rows</dt><dd class="mono">' +
+      (j.result && j.result.rows ? Number(j.result.rows).toLocaleString() : "\u2014") + "</dd>" +
+      (j.error ? '<dt>Error</dt><dd style="color:var(--fail)">' + esc(j.error) + "</dd>" : "") +
+      '</dl><div class="dfoot">' + action +
+      '<button class="btn sm" data-act="close">Close</button></div>');
+
+    if (!dlg.open) dlg.showModal();
+  }
+
+  function render() {
+    renderActive();
+    renderDrop();
+    renderSummary();
+    renderRuns();
+    renderDialog();
+  }
+
+  /* ---------------- polling ---------------- */
+
+  var timer = null, inFlight = false;
+
+  function schedule() {
+    clearTimeout(timer);
+    var hot = isBusy() || !!S.dlgId || S.jobs.some(function (j) {
+      return j.status === "running" || j.status === "queued";
+    });
+    timer = setTimeout(poll, hot ? 1200 : 3000);
+  }
+
+  function pollNow() { clearTimeout(timer); poll(); }
+
+  function poll() {
+    if (inFlight) return;
+    inFlight = true;
+    setHTML($("#pollState"), '<span class="sync">' + I.spin + "</span>");
+
+    api.listJobs().then(function (jobs) {
+      S.jobs = Array.isArray(jobs) ? jobs.slice() : [];
+      S.loaded = true;
+      S.listError = null;
+      if (S.activeJobId && !jobById(S.activeJobId)) {
+        return api.getJob(S.activeJobId).then(function (j) { mergeJob(j); }, function () {});
+      }
+    }).catch(function (e) {
+      S.loaded = true;
+      S.listError = reason(e);
+    }).then(function () {
+      inFlight = false;
+      setHTML($("#pollState"), "");
+      render();
+      schedule();
+    });
+  }
+
+  /* ---------------- pipeline ---------------- */
+
+  function resetToIdle(notice) {
+    S.phase = "idle";
+    S.file = null; S.fileId = null; S.activeJobId = null;
+    S.err = null; S.ctrl = null; S.pct = 0;
+    S.pick = notice ? { kind: "info", text: notice } : null;
+    render();
+    if (notice) say(notice);
+  }
+
+  function startUpload(file) {
+    var ctrl = new AbortController();
+    S.file = file; S.fileId = null; S.activeJobId = null;
+    S.err = null; S.pick = null; S.pct = 0;
+    S.phase = "uploading"; S.ctrl = ctrl;
+    render();
+    say("Upload started");
+
+    api.uploadFile(file, {
+      signal: ctrl.signal,
+      onProgress: function (p) {
+        if (S.ctrl !== ctrl) return;
+        var v = Number(p);
+        S.pct = !isFinite(v) ? 0 : v < 0 ? 0 : v > 100 ? 100 : v;
+        patchUploadProgress();
+      }
+    }).then(function (res) {
+      if (S.ctrl !== ctrl) return null;
+      S.fileId = res.fileId;
+      S.pct = 100;
+      return startProcessing(ctrl);
+    }).catch(function (e) {
+      if (S.ctrl !== ctrl) return;
+      if (isAbort(e)) { resetToIdle("Upload canceled"); return; }
+      S.phase = "error";
+      S.err = { stage: "upload", message: reason(e), code: codeOf(e) };
+      S.ctrl = null;
+      render();
+      say("Upload failed");
+    });
+  }
+
+  function startProcessing(ctrl) {
+    S.phase = "processing";
+    S.err = null;
+    S.ctrl = ctrl;
+    render();
+    return api.processFile(S.fileId, { signal: ctrl.signal }).then(function (res) {
+      if (S.ctrl !== ctrl) return;
+      S.activeJobId = res.jobId;
+      if (S.mine.indexOf(res.jobId) < 0) S.mine.unshift(res.jobId);
+      S.phase = "tracking";
+      S.ctrl = null;
+      render();
+      say("Processing started");
+      pollNow();
+    }).catch(function (e) {
+      if (S.ctrl !== ctrl) return;
+      if (isAbort(e)) { resetToIdle("Processing canceled"); return; }
+      S.phase = "error";
+      S.err = { stage: "process", message: reason(e), code: codeOf(e) };
+      S.ctrl = null;
+      render();
+      say("Processing failed");
+    });
+  }
+
+  function cancelCurrent() {
+    if (S.phase === "uploading" || S.phase === "processing") {
+      var c = S.ctrl, was = S.phase;
+      S.ctrl = null;
+      if (c) c.abort();
+      resetToIdle(was === "uploading" ? "Upload canceled" : "Processing canceled");
+      return;
+    }
+    var j = activeJob();
+    if (j) rowCancel(j.id);
+  }
+
+  function retryStage() {
+    if (!S.err) return;
+    if (S.err.stage === "process" && S.fileId) {
+      startProcessing(new AbortController());
+    } else if (S.file) {
+      startUpload(S.file);
+    } else {
+      resetToIdle(null);
+    }
+  }
+
+  function rowRetry(id) {
+    if (S.rowBusy[id]) return;
+    S.rowBusy[id] = "retry";
+    delete S.rowErr[id];
+    render();
+    api.retryJob(id).then(function (j) {
+      mergeJob(j);
+      say("Retry queued");
+    }).catch(function (e) {
+      S.rowErr[id] = "Retry failed: " + reason(e);
+    }).then(function () {
+      delete S.rowBusy[id];
+      render();
+      pollNow();
+    });
+  }
+
+  function rowCancel(id) {
+    if (S.rowBusy[id]) return;
+    S.rowBusy[id] = "cancel";
+    delete S.rowErr[id];
+    render();
+    api.cancelJob(id).then(function (j) {
+      mergeJob(j);
+      say("Job cancelled");
+    }).catch(function (e) {
+      S.rowErr[id] = "Cancel failed: " + reason(e);
+    }).then(function () {
+      delete S.rowBusy[id];
+      render();
+      pollNow();
+    });
+  }
+
+  /* ---------------- file intake ---------------- */
+
+  var SAMPLE = [
+    "order_id,region,amount,currency,placed_at",
+    "10241,EMEA,412.50,EUR,2026-09-01T09:14:00Z",
+    "10242,AMER,88.00,USD,2026-09-01T09:31:22Z",
+    "10243,APAC,1290.75,JPY,2026-09-01T10:02:10Z",
+    "10244,EMEA,64.20,GBP,2026-09-01T10:44:51Z",
+    "10245,AMER,233.10,USD,2026-09-01T11:05:03Z",
+    "10246,APAC,17.99,AUD,2026-09-01T11:38:47Z",
+    "10247,EMEA,905.00,EUR,2026-09-01T12:19:30Z",
+    "10248,AMER,349.95,USD,2026-09-01T13:02:12Z"
+  ].join("\n");
+
+  function accept(file) {
+    if (!file || isBusy()) return;
+    var ok = /\.csv$/i.test(file.name || "") || /csv/i.test(file.type || "");
+    if (!ok) {
+      S.pick = { kind: "error", title: "Not a CSV file", text: (file.name || "This file") + " must have a .csv extension" };
+      renderDrop();
+      say("File rejected");
+      return;
+    }
+    startUpload(file);
+  }
+
+  $("#fileInput").addEventListener("change", function (ev) {
+    var f = ev.target.files && ev.target.files[0];
+    ev.target.value = "";
+    accept(f);
+  });
+
+  document.addEventListener("dragover", function (e) {
+    e.preventDefault();
+    if (!isBusy()) $("#drop").classList.add("over");
+  });
+  document.addEventListener("dragleave", function (e) {
+    if (!e.relatedTarget) $("#drop").classList.remove("over");
+  });
+  document.addEventListener("drop", function (e) {
+    e.preventDefault();
+    $("#drop").classList.remove("over");
+    var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+    accept(f);
+  });
+
+  /* ---------------- events ---------------- */
+
+  document.addEventListener("click", function (e) {
+    var el = e.target && e.target.nodeType === 1 ? e.target.closest("[data-act]") : null;
+    if (!el) return;
+    var act = el.getAttribute("data-act"), id = el.getAttribute("data-id");
+
+    if (act === "download") return;              /* let the browser handle it */
+    if (act === "sample") {
+      e.preventDefault();
+      accept(new File([SAMPLE], "sample-orders.csv", { type: "text/csv" }));
+    } else if (act === "cancel") {
+      cancelCurrent();
+    } else if (act === "retry-stage") {
+      retryStage();
+    } else if (act === "reset") {
+      resetToIdle(null);
+    } else if (act === "row-retry") {
+      rowRetry(id);
+    } else if (act === "row-cancel") {
+      rowCancel(id);
+    } else if (act === "details") {
+      S.dlgId = id;
+      renderDialog();
+      pollNow();
+    } else if (act === "close") {
+      S.dlgId = null;
+      $("#dlg").close();
+    } else if (act === "filter") {
+      var st = el.getAttribute("data-status");
+      S.filter = S.filter === st ? null : st;
+      renderSummary();
+      renderRuns();
+    } else if (act === "reload-jobs") {
+      S.listError = null;
+      S.loaded = false;
+      render();
+      pollNow();
+    }
+  });
+
+  $("#dlg").addEventListener("close", function () { S.dlgId = null; });
+  $("#dlg").addEventListener("cancel", function () { S.dlgId = null; });
+
+  /* ---------------- boot ---------------- */
+
+  if (!api || typeof api.listJobs !== "function") {
+    setHTML($("#banner"), errHTML("Backend unavailable", "window.api was not found on this page", "", ""));
+    $("#sampleBtn").disabled = true;
+    $("#fileInput").disabled = true;
+    $("#chooseLbl").setAttribute("aria-disabled", "true");
+  } else {
+    render();
+    api.getUser().then(function (u) {
+      if (!u) return;
+      var initials = String(u.name || "?").trim().split(/\s+/).map(function (w) { return w.charAt(0); })
+        .join("").slice(0, 2).toUpperCase();
+      setHTML($("#who"), '<span class="avatar">' + esc(initials) + "</span><span>" + esc(u.name) + "</span>" +
+        (u.plan ? '<span class="plan">' + esc(u.plan) + "</span>" : ""));
+    }).catch(function () { setHTML($("#who"), ""); });
+    poll();
+  }
+})();
+</script>
+</body>
+</html>

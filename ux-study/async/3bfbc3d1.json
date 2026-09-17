@@ -1,0 +1,66 @@
+{
+  "id": "3bfbc3d1",
+  "items": [
+    {
+      "n": 1,
+      "verdict": "PASS",
+      "reason": "At 280 ms after navigation under slow latency the table shows skeleton placeholder rows and the header reads 'loading jobs'; clicking Retry swapped the button to a spinner 'Retrying' state within 250 ms.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/3bfbc3d1_1.png"
+    },
+    {
+      "n": 2,
+      "verdict": "PASS",
+      "reason": "While a retry was pending the row's Retry button was replaced by a dimmed spinner 'Retrying' control, and repeated clicks (both on the old handle and via fresh DOM query) left window.__apiLog at exactly 1 retryJob call.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/3bfbc3d1_2.png"
+    },
+    {
+      "n": 3,
+      "verdict": "PASS",
+      "reason": "Every job row renders a role=progressbar with aria-valuenow plus a numeric percent (81%, 38%, 65%...), and the job-detail drawer shows 'Progress 100 / 100'; job progress is the only progress this brief's API provides.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/3bfbc3d1_3.png"
+    },
+    {
+      "n": 4,
+      "verdict": "PASS",
+      "reason": "Queued/running rows have a Cancel action that opens a confirmation dialog ('Cancel job? The job stops and is marked failed...'); confirming fired cancelJob and the row became 'Failed 74% Cancelled by admin' with a Retry offered.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/3bfbc3d1_4.png"
+    },
+    {
+      "n": 5,
+      "verdict": "PASS",
+      "reason": "With fail=1, a failed retry showed an inline warning in that job's actions cell: 'Network error — the retry never reached the server.' — specific about what failed and rendered directly beside the Retry button that triggered it.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/3bfbc3d1_5.png"
+    },
+    {
+      "n": 6,
+      "verdict": "PASS",
+      "reason": "The inline error includes a 'Try again' link; clicking it re-issued retryJob (call count 1→2 in __apiLog), showed the 'Retrying' pending state, and re-displayed the error — all without reloading the page.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/3bfbc3d1_6.png"
+    },
+    {
+      "n": 7,
+      "verdict": "N/A",
+      "reason": "Field-level validation mapping applies only to the checkout brief (B5); this job-queue admin page has no form submitting to the VALIDATION-capable endpoint.",
+      "evidence": "Marked NOT APPLICABLE for this page in the assignment; the page contains no OrderPayload form, only a job table: <table>...<th>JOB</th><th>STATUS</th><th>PROGRESS</th><th>DETAIL</th><th>ACTIONS</th>"
+    },
+    {
+      "n": 8,
+      "verdict": "PASS",
+      "reason": "The page polls listJobs (~2.5 s intervals in __apiLog) and reflected server changes without any manual refresh: running jobs moved to Succeeded (counts 3 Running/2 Succeeded → 0/4), and a retried job flipped Failed→Queued→Failed as the server advanced it.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/3bfbc3d1_8.png"
+    },
+    {
+      "n": 9,
+      "verdict": "PASS",
+      "reason": "With a retry pending under slow latency, switching the status filter, opening the job-detail drawer, closing it, and returning to All all worked; the pending retry then resolved to 'Queued 0% Waiting for a worker' with no stray errors, and a cancel-confirm dialog left open while its job completed in the background closed without firing a bogus cancelJob.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/3bfbc3d1_9.png"
+    },
+    {
+      "n": 10,
+      "verdict": "PASS",
+      "reason": "During a pending retry the row kept its true 'Failed' status with a 'Retrying' indicator — it never optimistically showed Queued; the Queued state and updated counts appeared only after retryJob resolved and a poll confirmed, and 'Cancelled by admin' appeared only after cancelJob resolved.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/3bfbc3d1_10.png"
+    }
+  ],
+  "failCount": 0
+}

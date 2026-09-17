@@ -1,0 +1,815 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Welcome — Launchpad</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f8f9fb;--surface:#fff;--border:#e2e5ea;
+  --text:#1a1d23;--text2:#5f6673;--text3:#8b919e;
+  --accent:#4f46e5;--accent-hover:#4338ca;--accent-light:#eef2ff;--accent-bg:#c7d2fe;
+  --success:#059669;--success-bg:#d1fae5;
+  --danger:#dc2626;--danger-bg:#fee2e2;--danger-hover:#b91c1c;
+  --warn:#d97706;--warn-bg:#fef3c7;
+  --radius:10px;--radius-lg:16px;
+  --shadow:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --shadow-lg:0 4px 16px rgba(0,0,0,.08);
+}
+html{font-family:'Inter',system-ui,sans-serif;font-size:15px;line-height:1.5;color:var(--text);background:var(--bg)}
+body{min-height:100vh;display:flex;flex-direction:column}
+
+/* Loading screen */
+#loading-screen{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:var(--bg);z-index:1000;transition:opacity .3s}
+#loading-screen.hidden{opacity:0;pointer-events:none}
+.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Error banner */
+.error-banner{background:var(--danger-bg);color:var(--danger);padding:12px 20px;border-radius:var(--radius);display:flex;align-items:center;gap:10px;margin:20px;font-size:.875rem}
+.error-banner svg{flex-shrink:0}
+.error-banner button{margin-left:auto;background:var(--danger);color:#fff;border:none;padding:6px 14px;border-radius:6px;font:inherit;font-size:.8125rem;font-weight:500;cursor:pointer}
+.error-banner button:hover{background:var(--danger-hover)}
+
+/* Onboarding overlay */
+#onboarding{position:fixed;inset:0;background:var(--bg);z-index:900;display:flex;align-items:center;justify-content:center;transition:opacity .4s}
+#onboarding.hidden{opacity:0;pointer-events:none}
+.onboard-card{background:var(--surface);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);width:100%;max-width:520px;padding:48px 40px 40px;text-align:center;position:relative;overflow:hidden}
+.onboard-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--accent),#7c3aed,#ec4899)}
+
+/* Progress dots */
+.step-dots{display:flex;gap:8px;justify-content:center;margin-bottom:32px}
+.step-dot{width:8px;height:8px;border-radius:50%;background:var(--border);transition:background .3s,transform .3s}
+.step-dot.active{background:var(--accent);transform:scale(1.25)}
+.step-dot.done{background:var(--accent-bg)}
+
+/* Step content */
+.step-icon{width:64px;height:64px;margin:0 auto 20px;background:var(--accent-light);border-radius:16px;display:flex;align-items:center;justify-content:center}
+.step-icon svg{width:32px;height:32px;color:var(--accent)}
+.step-title{font-size:1.4rem;font-weight:700;margin-bottom:8px}
+.step-subtitle{color:var(--text2);font-size:.9375rem;margin-bottom:28px;max-width:380px;margin-left:auto;margin-right:auto}
+
+/* Form elements */
+.field{text-align:left;margin-bottom:16px}
+.field label{display:block;font-size:.8125rem;font-weight:600;color:var(--text2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.03em}
+.field input,.field select{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font:inherit;font-size:.9375rem;background:var(--surface);transition:border-color .15s}
+.field input:focus,.field select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(79,70,229,.12)}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 24px;border-radius:8px;font:inherit;font-size:.9375rem;font-weight:600;cursor:pointer;border:none;transition:background .15s,opacity .15s,transform .1s}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:var(--accent-hover)}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-secondary{background:transparent;color:var(--text2);border:1.5px solid var(--border)}
+.btn-secondary:hover{background:var(--bg);color:var(--text)}
+.btn-ghost{background:transparent;color:var(--text2);padding:8px 12px}
+.btn-ghost:hover{color:var(--text);background:var(--bg)}
+.btn-danger{background:var(--danger);color:#fff}
+.btn-danger:hover{background:var(--danger-hover)}
+
+.btn-actions{display:flex;gap:10px;justify-content:center;margin-top:28px}
+
+/* Choice cards */
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;text-align:left;margin-bottom:8px}
+.choice{padding:14px 16px;border:1.5px solid var(--border);border-radius:var(--radius);cursor:pointer;transition:border-color .15s,background .15s}
+.choice:hover{border-color:var(--accent-bg)}
+.choice.selected{border-color:var(--accent);background:var(--accent-light)}
+.choice-label{font-weight:600;font-size:.875rem;margin-bottom:2px}
+.choice-desc{color:var(--text3);font-size:.75rem}
+
+/* Feature cards in tour */
+.features{display:grid;grid-template-columns:1fr 1fr;gap:10px;text-align:left}
+.feature{padding:14px;border-radius:var(--radius);background:var(--bg)}
+.feature svg{width:20px;height:20px;margin-bottom:6px;color:var(--accent)}
+.feature-name{font-weight:600;font-size:.8125rem;margin-bottom:2px}
+.feature-desc{color:var(--text3);font-size:.75rem}
+
+/* Dashboard */
+#dashboard{display:none;flex:1;flex-direction:column}
+#dashboard.visible{display:flex}
+
+/* Top bar */
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;height:56px;display:flex;align-items:center;gap:16px}
+.topbar-logo{font-weight:700;font-size:1.05rem;color:var(--accent);display:flex;align-items:center;gap:8px}
+.topbar-logo svg{width:22px;height:22px}
+.topbar-spacer{flex:1}
+.topbar-user{display:flex;align-items:center;gap:8px;font-size:.875rem;color:var(--text2)}
+.avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#7c3aed);display:flex;align-items:center;justify-content:center;color:#fff;font-size:.75rem;font-weight:700}
+
+/* Main content */
+.main{flex:1;padding:32px 24px;max-width:960px;width:100%;margin:0 auto}
+.page-title{font-size:1.25rem;font-weight:700;margin-bottom:4px}
+.page-subtitle{color:var(--text2);font-size:.875rem;margin-bottom:24px}
+
+/* Empty state */
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;text-align:center}
+.empty-icon{width:88px;height:88px;background:var(--accent-light);border-radius:24px;display:flex;align-items:center;justify-content:center;margin-bottom:24px}
+.empty-icon svg{width:40px;height:40px;color:var(--accent)}
+.empty-title{font-size:1.15rem;font-weight:700;margin-bottom:6px}
+.empty-desc{color:var(--text2);font-size:.9rem;margin-bottom:24px;max-width:340px}
+
+/* Project cards */
+.project-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.project-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;transition:box-shadow .15s,border-color .15s;position:relative}
+.project-card:hover{box-shadow:var(--shadow);border-color:var(--accent-bg)}
+.project-name{font-weight:600;font-size:.9375rem;margin-bottom:4px}
+.project-date{color:var(--text3);font-size:.75rem}
+.project-actions{position:absolute;top:12px;right:12px;display:flex;gap:4px}
+.project-actions button{width:28px;height:28px;border-radius:6px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text3);transition:background .15s,color .15s}
+.project-actions button:hover{background:var(--danger-bg);color:var(--danger)}
+
+/* Quick actions bar */
+.quick-actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:28px}
+.quick-action{display:flex;align-items:center;gap:12px;padding:16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;transition:box-shadow .15s,border-color .15s;text-decoration:none;color:inherit}
+.quick-action:hover{box-shadow:var(--shadow);border-color:var(--accent-bg)}
+.qa-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.qa-icon svg{width:18px;height:18px}
+.qa-label{font-weight:600;font-size:.8125rem}
+.qa-desc{color:var(--text3);font-size:.7rem}
+
+/* Checklist */
+.checklist{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;margin-bottom:28px}
+.checklist-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.checklist-title{font-weight:700;font-size:.95rem}
+.checklist-progress{font-size:.75rem;color:var(--text3)}
+.progress-bar{height:6px;background:var(--bg);border-radius:3px;overflow:hidden;margin-bottom:16px}
+.progress-fill{height:100%;background:var(--accent);border-radius:3px;transition:width .4s ease}
+.checklist-items{display:flex;flex-direction:column;gap:6px}
+.check-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;transition:background .15s}
+.check-item:hover{background:var(--bg)}
+.check-icon{width:22px;height:22px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .2s,border-color .2s}
+.check-item.done .check-icon{background:var(--success);border-color:var(--success)}
+.check-item.done .check-icon svg{display:block}
+.check-icon svg{display:none;width:12px;height:12px;color:#fff}
+.check-text{font-size:.875rem;font-weight:500}
+.check-item.done .check-text{color:var(--text3);text-decoration:line-through}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:800;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-overlay.visible{opacity:1;pointer-events:auto}
+.modal{background:var(--surface);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);width:100%;max-width:420px;padding:28px;transform:scale(.95);transition:transform .2s}
+.modal-overlay.visible .modal{transform:scale(1)}
+.modal-title{font-size:1.05rem;font-weight:700;margin-bottom:4px}
+.modal-desc{color:var(--text2);font-size:.875rem;margin-bottom:20px}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end}
+
+/* Toast */
+.toast-container{position:fixed;bottom:24px;right:24px;z-index:1100;display:flex;flex-direction:column;gap:8px}
+.toast{padding:12px 18px;border-radius:var(--radius);font-size:.875rem;font-weight:500;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:8px;animation:slideIn .3s ease;min-width:240px}
+.toast.success{background:var(--success);color:#fff}
+.toast.error{background:var(--danger);color:#fff}
+@keyframes slideIn{from{transform:translateY(12px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+/* Settings panel */
+.settings-panel{display:none}
+.settings-panel.visible{display:block}
+.settings-section{margin-bottom:28px}
+.settings-section-title{font-size:.8125rem;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.setting-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0}
+.setting-row+.setting-row{border-top:1px solid var(--border)}
+.setting-label{font-weight:500;font-size:.9rem}
+.setting-desc{color:var(--text3);font-size:.75rem}
+.toggle{width:40px;height:22px;border-radius:11px;background:var(--border);border:none;cursor:pointer;position:relative;transition:background .2s;flex-shrink:0}
+.toggle.on{background:var(--accent)}
+.toggle::after{content:'';position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.15);transition:transform .2s}
+.toggle.on::after{transform:translateX(18px)}
+
+/* Danger zone */
+.danger-zone{border:1.5px solid var(--danger);border-radius:var(--radius);padding:20px;margin-top:24px}
+.danger-zone-title{color:var(--danger);font-weight:700;font-size:.875rem;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.danger-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0}
+.danger-row+.danger-row{border-top:1px solid var(--border)}
+.danger-label{font-size:.875rem;font-weight:500}
+.danger-desc{color:var(--text3);font-size:.75rem}
+
+/* Confirm dialog specifics */
+.confirm-input{margin-top:12px}
+.confirm-input input{width:100%;padding:10px 12px;border:1.5px solid var(--danger);border-radius:8px;font:inherit;font-size:.9rem}
+.confirm-input input:focus{outline:none;box-shadow:0 0 0 3px rgba(220,38,38,.12)}
+
+/* Navigation tabs */
+.nav-tabs{display:flex;gap:2px;margin-bottom:24px;border-bottom:2px solid var(--border);padding-bottom:0}
+.nav-tab{padding:10px 16px;font-size:.875rem;font-weight:500;color:var(--text3);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-2px;transition:color .15s,border-color .15s}
+.nav-tab:hover{color:var(--text)}
+.nav-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+
+/* Responsive */
+@media(max-width:600px){
+  .onboard-card{padding:32px 24px 28px;margin:16px}
+  .choices{grid-template-columns:1fr}
+  .features{grid-template-columns:1fr}
+  .main{padding:20px 16px}
+  .quick-actions{grid-template-columns:1fr}
+  .topbar{padding:0 16px}
+}
+</style>
+</head>
+<body>
+
+
+<div id="loading-screen"><div class="spinner"></div></div>
+
+
+<div id="onboarding" class="hidden">
+  <div class="onboard-card">
+    <div class="step-dots" id="step-dots"></div>
+    <div id="step-content"></div>
+  </div>
+</div>
+
+
+<div id="dashboard">
+  <div class="topbar">
+    <div class="topbar-logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      Launchpad
+    </div>
+    <div class="topbar-spacer"></div>
+    <div class="topbar-user">
+      <span id="topbar-name"></span>
+      <div class="avatar" id="topbar-avatar"></div>
+    </div>
+  </div>
+  <div class="main">
+    <div class="nav-tabs">
+      <button class="nav-tab active" data-tab="projects">Projects</button>
+      <button class="nav-tab" data-tab="settings">Settings</button>
+    </div>
+
+    
+    <div id="tab-projects">
+      <div id="getting-started-checklist"></div>
+      <div id="projects-content"></div>
+    </div>
+
+    
+    <div id="tab-settings" class="settings-panel"></div>
+  </div>
+</div>
+
+
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal" id="modal-content"></div>
+</div>
+
+
+<div class="toast-container" id="toast-container"></div>
+
+<script>
+(function(){
+  const $ = s => document.querySelector(s);
+  const $$ = s => document.querySelectorAll(s);
+
+  let user = null;
+  let currentStep = 0;
+  let prefs = { role: 'personal', notifications: true };
+  let pendingAction = null;
+  let settingsSaving = false;
+  let activeTab = 'projects';
+
+  // ── Toast ──
+  function toast(msg, type='success') {
+    const el = document.createElement('div');
+    el.className = 'toast ' + type;
+    el.innerHTML = (type==='success'
+      ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>'
+      : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>'
+    ) + '<span>' + msg + '</span>';
+    $('#toast-container').appendChild(el);
+    setTimeout(() => { el.style.opacity='0'; el.style.transition='opacity .3s'; setTimeout(()=>el.remove(),300); }, 3000);
+  }
+
+  // ── Modal ──
+  function showModal(html) {
+    $('#modal-content').innerHTML = html;
+    $('#modal-overlay').classList.add('visible');
+  }
+  function hideModal() {
+    $('#modal-overlay').classList.remove('visible');
+  }
+  $('#modal-overlay').addEventListener('click', e => { if(e.target === $('#modal-overlay')) hideModal(); });
+
+  // ── Load user ──
+  async function loadUser() {
+    try {
+      user = await window.api.getUser();
+      return true;
+    } catch(e) {
+      return false;
+    }
+  }
+
+  // ── Initialization ──
+  async function init() {
+    const ok = await loadUser();
+    if (!ok) {
+      $('#loading-screen').innerHTML = `
+        <div class="error-banner" style="max-width:400px">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><circle cx="12" cy="16" r=".5" fill="currentColor"/></svg>
+          <span>Unable to load your account.</span>
+          <button onclick="location.reload()">Retry</button>
+        </div>`;
+      return;
+    }
+
+    $('#loading-screen').classList.add('hidden');
+    setTimeout(() => $('#loading-screen').remove(), 300);
+
+    if (!user.hasCompletedOnboarding) {
+      showOnboarding();
+    } else {
+      showDashboard();
+    }
+  }
+
+  // ── Onboarding ──
+  const steps = [
+    { id:'welcome', render: renderWelcome },
+    { id:'role', render: renderRoleStep },
+    { id:'tour', render: renderTourStep },
+    { id:'ready', render: renderReadyStep }
+  ];
+
+  function showOnboarding() {
+    $('#onboarding').classList.remove('hidden');
+    renderStep();
+  }
+
+  function renderStep() {
+    // Dots
+    let dots = '';
+    for (let i = 0; i < steps.length; i++) {
+      dots += `<div class="step-dot ${i===currentStep?'active':''} ${i<currentStep?'done':''}"></div>`;
+    }
+    $('#step-dots').innerHTML = dots;
+    steps[currentStep].render();
+  }
+
+  function renderWelcome() {
+    $('#step-content').innerHTML = `
+      <div class="step-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      </div>
+      <h2 class="step-title">Welcome, ${user.name.split(' ')[0]}!</h2>
+      <p class="step-subtitle">Let's set up your workspace in under a minute.</p>
+      <div class="btn-actions">
+        <button class="btn btn-primary" onclick="nextStep()">Get started</button>
+      </div>
+    `;
+  }
+
+  function renderRoleStep() {
+    $('#step-content').innerHTML = `
+      <div class="step-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+      </div>
+      <h2 class="step-title">How will you use Launchpad?</h2>
+      <p class="step-subtitle">We'll tailor the experience to fit.</p>
+      <div class="choices">
+        <div class="choice ${prefs.role==='personal'?'selected':''}" onclick="pickRole('personal')">
+          <div class="choice-label">Personal</div>
+          <div class="choice-desc">Side projects & tasks</div>
+        </div>
+        <div class="choice ${prefs.role==='team'?'selected':''}" onclick="pickRole('team')">
+          <div class="choice-label">Team</div>
+          <div class="choice-desc">Collaborate with others</div>
+        </div>
+        <div class="choice ${prefs.role==='freelance'?'selected':''}" onclick="pickRole('freelance')">
+          <div class="choice-label">Freelance</div>
+          <div class="choice-desc">Client work & billing</div>
+        </div>
+        <div class="choice ${prefs.role==='startup'?'selected':''}" onclick="pickRole('startup')">
+          <div class="choice-label">Startup</div>
+          <div class="choice-desc">Ship fast, iterate often</div>
+        </div>
+      </div>
+      <div class="btn-actions">
+        <button class="btn btn-ghost" onclick="prevStep()">Back</button>
+        <button class="btn btn-primary" onclick="nextStep()">Continue</button>
+      </div>
+    `;
+  }
+
+  function renderTourStep() {
+    $('#step-content').innerHTML = `
+      <div class="step-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+      </div>
+      <h2 class="step-title">What you can do</h2>
+      <p class="step-subtitle">Everything to manage your work in one place.</p>
+      <div class="features">
+        <div class="feature">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+          <div class="feature-name">Projects</div>
+          <div class="feature-desc">Organize work into focused spaces</div>
+        </div>
+        <div class="feature">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          <div class="feature-name">File Processing</div>
+          <div class="feature-desc">Upload CSVs and transform data</div>
+        </div>
+        <div class="feature">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          <div class="feature-name">Monitoring</div>
+          <div class="feature-desc">Track service health at a glance</div>
+        </div>
+        <div class="feature">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6m-7-10.9l5.2 3m1.6.9l5.2 3M1 12h6m6 0h6m-17.1-7l5.2 3m1.6.9l5.2 3"/></svg>
+          <div class="feature-name">Settings</div>
+          <div class="feature-desc">Make it yours</div>
+        </div>
+      </div>
+      <div class="btn-actions">
+        <button class="btn btn-ghost" onclick="prevStep()">Back</button>
+        <button class="btn btn-primary" onclick="nextStep()">Continue</button>
+      </div>
+    `;
+  }
+
+  function renderReadyStep() {
+    $('#step-content').innerHTML = `
+      <div class="step-icon" style="background:var(--success-bg)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      </div>
+      <h2 class="step-title">You're all set!</h2>
+      <p class="step-subtitle">Create your first project to get going.</p>
+      <div class="btn-actions">
+        <button class="btn btn-primary" id="finish-btn" onclick="finishOnboarding()">Open dashboard</button>
+      </div>
+    `;
+  }
+
+  window.pickRole = function(role) {
+    prefs.role = role;
+    renderStep();
+  };
+
+  window.nextStep = function() {
+    if (currentStep < steps.length - 1) { currentStep++; renderStep(); }
+  };
+  window.prevStep = function() {
+    if (currentStep > 0) { currentStep--; renderStep(); }
+  };
+
+  async function finishOnboarding() {
+    const btn = $('#finish-btn');
+    if (!btn) return;
+    btn.disabled = true;
+    btn.innerHTML = '<div class="spinner" style="width:18px;height:18px;border-width:2px"></div>';
+    try {
+      await window.api.updateSettings({ role: prefs.role, hasCompletedOnboarding: true });
+      user.hasCompletedOnboarding = true;
+      $('#onboarding').classList.add('hidden');
+      setTimeout(() => { $('#onboarding').remove(); showDashboard(); }, 400);
+    } catch(e) {
+      btn.disabled = false;
+      btn.textContent = 'Open dashboard';
+      if (e.code === 'NETWORK') {
+        toast('Network error — please try again.', 'error');
+      } else {
+        toast('Something went wrong.', 'error');
+      }
+    }
+  }
+  window.finishOnboarding = finishOnboarding;
+
+  // ── Dashboard ──
+  function showDashboard() {
+    const d = $('#dashboard');
+    d.classList.add('visible');
+    $('#topbar-name').textContent = user.name;
+    $('#topbar-avatar').textContent = user.name.split(' ').map(w=>w[0]).join('');
+
+    setupTabs();
+    renderProjectsTab();
+    renderSettingsTab();
+  }
+
+  function setupTabs() {
+    $$('.nav-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        activeTab = tab.dataset.tab;
+        $$('.nav-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        $('#tab-projects').style.display = activeTab==='projects' ? '' : 'none';
+        $('#tab-settings').style.display = activeTab==='settings' ? '' : 'none';
+        $('#tab-settings').classList.toggle('visible', activeTab==='settings');
+      });
+    });
+    $('#tab-settings').style.display = 'none';
+  }
+
+  // ── Projects Tab ──
+  function getChecklistItems() {
+    return [
+      { key:'profile', label:'Set up your profile', done: true },
+      { key:'prefs', label:'Choose workspace type', done: !!prefs.role },
+      { key:'project', label:'Create your first project', done: user.projects.length > 0 },
+    ];
+  }
+
+  function renderChecklist() {
+    const items = getChecklistItems();
+    const doneCount = items.filter(i=>i.done).length;
+    const allDone = doneCount === items.length;
+
+    if (allDone) { $('#getting-started-checklist').innerHTML = ''; return; }
+
+    const pct = Math.round((doneCount / items.length) * 100);
+    let html = `
+      <div class="checklist">
+        <div class="checklist-header">
+          <span class="checklist-title">Getting started</span>
+          <span class="checklist-progress">${doneCount}/${items.length} complete</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+        <div class="checklist-items">`;
+    items.forEach(item => {
+      html += `
+          <div class="check-item ${item.done?'done':''}">
+            <div class="check-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <span class="check-text">${item.label}</span>
+          </div>`;
+    });
+    html += '</div></div>';
+    $('#getting-started-checklist').innerHTML = html;
+  }
+
+  function renderProjectsTab() {
+    renderChecklist();
+
+    if (user.projects.length === 0) {
+      $('#projects-content').innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/>
+              <line x1="12" y1="11" x2="12" y2="17"/>
+              <line x1="9" y1="14" x2="15" y2="14"/>
+            </svg>
+          </div>
+          <h3 class="empty-title">No projects yet</h3>
+          <p class="empty-desc">Projects keep your files, jobs, and settings in one place.</p>
+          <button class="btn btn-primary" onclick="showCreateProjectModal()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            New project
+          </button>
+        </div>`;
+    } else {
+      let html = `
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+          <div>
+            <h2 class="page-title">Projects</h2>
+            <p class="page-subtitle">${user.projects.length} project${user.projects.length!==1?'s':''}</p>
+          </div>
+          <button class="btn btn-primary" onclick="showCreateProjectModal()" style="padding:9px 18px;font-size:.8125rem">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            New project
+          </button>
+        </div>
+        <div class="project-grid">`;
+      user.projects.forEach(p => {
+        const date = new Date(p.createdAt);
+        const dateStr = date.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+        html += `
+          <div class="project-card">
+            <div class="project-actions">
+              <button title="Delete project" onclick="confirmDeleteProject('${p.id}','${p.name.replace(/'/g,"\\'")}')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+              </button>
+            </div>
+            <div class="project-name">${escHtml(p.name)}</div>
+            <div class="project-date">Created ${dateStr}</div>
+          </div>`;
+      });
+      html += '</div>';
+      $('#projects-content').innerHTML = html;
+    }
+  }
+
+  window.showCreateProjectModal = function() {
+    showModal(`
+      <h3 class="modal-title">New project</h3>
+      <p class="modal-desc">Give it a name — you can change it later.</p>
+      <div class="field">
+        <label for="proj-name">Project name</label>
+        <input id="proj-name" type="text" placeholder="e.g. Q4 Campaign" autofocus>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="hideModal()">Cancel</button>
+        <button class="btn btn-primary" id="create-proj-btn" onclick="createProject()">Create</button>
+      </div>
+    `);
+    setTimeout(() => {
+      const inp = $('#proj-name');
+      if(inp) { inp.focus(); inp.addEventListener('keydown', e => { if(e.key==='Enter') createProject(); }); }
+    }, 100);
+  };
+
+  window.createProject = async function() {
+    const name = ($('#proj-name')?.value || '').trim();
+    if (!name) { $('#proj-name').style.borderColor = 'var(--danger)'; return; }
+    const btn = $('#create-proj-btn');
+    if (!btn || btn.disabled) return;
+    btn.disabled = true;
+    btn.innerHTML = '<div class="spinner" style="width:16px;height:16px;border-width:2px"></div>';
+
+    // Simulate project creation via settings
+    const newProj = {
+      id: 'proj_' + Math.random().toString(36).slice(2,8),
+      name: name,
+      createdAt: new Date().toISOString()
+    };
+
+    try {
+      await window.api.updateSettings({ lastCreatedProject: newProj.name });
+      user.projects.push(newProj);
+      hideModal();
+      toast('Project created!');
+      renderProjectsTab();
+    } catch(e) {
+      btn.disabled = false;
+      btn.textContent = 'Create';
+      if (e.code === 'NETWORK') {
+        toast('Network error — please try again.', 'error');
+      } else {
+        toast('Could not create project.', 'error');
+      }
+    }
+  };
+
+  window.confirmDeleteProject = function(id, name) {
+    showModal(`
+      <h3 class="modal-title">Delete project?</h3>
+      <p class="modal-desc">This will permanently delete <strong>${escHtml(name)}</strong> and all its data. This cannot be undone.</p>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="hideModal()">Cancel</button>
+        <button class="btn btn-danger" id="del-proj-btn" onclick="doDeleteProject('${id}')">Delete</button>
+      </div>
+    `);
+  };
+
+  window.doDeleteProject = async function(id) {
+    const btn = $('#del-proj-btn');
+    if (!btn || btn.disabled) return;
+    btn.disabled = true;
+    btn.innerHTML = '<div class="spinner" style="width:16px;height:16px;border-width:2px"></div>';
+    try {
+      await window.api.deleteProject(id);
+      user.projects = user.projects.filter(p => p.id !== id);
+      hideModal();
+      toast('Project deleted.');
+      renderProjectsTab();
+    } catch(e) {
+      btn.disabled = false;
+      btn.textContent = 'Delete';
+      if (e.code === 'NETWORK') {
+        toast('Network error — please try again.', 'error');
+      } else {
+        toast('Could not delete project.', 'error');
+      }
+    }
+  };
+
+  // ── Settings Tab ──
+  function renderSettingsTab() {
+    let html = `
+      <h2 class="page-title">Settings</h2>
+      <p class="page-subtitle">Manage your account and preferences.</p>
+
+      <div class="settings-section">
+        <div class="settings-section-title">Profile</div>
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">${escHtml(user.name)}</div>
+            <div class="setting-desc">${escHtml(user.email)} · ${escHtml(user.plan)} plan</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-title">Notifications</div>
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">Email notifications</div>
+            <div class="setting-desc">Get notified when jobs finish.</div>
+          </div>
+          <button class="toggle ${prefs.notifications?'on':''}" id="notif-toggle" onclick="toggleNotif()"></button>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-title">Workspace</div>
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">Type</div>
+            <div class="setting-desc">${prefs.role ? prefs.role.charAt(0).toUpperCase()+prefs.role.slice(1) : 'Not set'}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="danger-zone">
+        <div class="danger-zone-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Danger zone
+        </div>
+        <div class="danger-row">
+          <div>
+            <div class="danger-label">Delete account</div>
+            <div class="danger-desc">Permanently remove your account and all data.</div>
+          </div>
+          <button class="btn btn-danger" style="font-size:.8125rem;padding:7px 14px" onclick="confirmDeleteAccount()">Delete account</button>
+        </div>
+      </div>
+    `;
+    $('#tab-settings').innerHTML = html;
+  }
+
+  window.toggleNotif = async function() {
+    const toggle = $('#notif-toggle');
+    if (settingsSaving) return;
+    settingsSaving = true;
+    prefs.notifications = !prefs.notifications;
+    toggle.classList.toggle('on', prefs.notifications);
+    try {
+      await window.api.updateSettings({ notifications: prefs.notifications });
+    } catch(e) {
+      prefs.notifications = !prefs.notifications;
+      toggle.classList.toggle('on', prefs.notifications);
+      toast('Could not save setting.', 'error');
+    }
+    settingsSaving = false;
+  };
+
+  window.confirmDeleteAccount = function() {
+    showModal(`
+      <h3 class="modal-title" style="color:var(--danger)">Delete your account?</h3>
+      <p class="modal-desc">This action is permanent. All projects and data will be lost.</p>
+      <div class="confirm-input">
+        <label style="font-size:.8125rem;color:var(--text2);display:block;margin-bottom:4px">Type <strong>DELETE</strong> to confirm</label>
+        <input id="confirm-delete-input" type="text" placeholder="DELETE" autocomplete="off">
+      </div>
+      <div class="modal-actions" style="margin-top:16px">
+        <button class="btn btn-secondary" onclick="hideModal()">Cancel</button>
+        <button class="btn btn-danger" id="del-account-btn" onclick="doDeleteAccount()" disabled>Delete account</button>
+      </div>
+    `);
+    setTimeout(() => {
+      const inp = $('#confirm-delete-input');
+      if(inp) {
+        inp.focus();
+        inp.addEventListener('input', () => {
+          const btn = $('#del-account-btn');
+          if(btn) btn.disabled = inp.value.trim() !== 'DELETE';
+        });
+      }
+    }, 100);
+  };
+
+  window.doDeleteAccount = async function() {
+    const btn = $('#del-account-btn');
+    if (!btn || btn.disabled) return;
+    btn.disabled = true;
+    btn.innerHTML = '<div class="spinner" style="width:16px;height:16px;border-width:2px"></div>';
+    try {
+      await window.api.deleteAccount();
+      hideModal();
+      document.body.innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:center;height:100vh;text-align:center;padding:20px">
+          <div>
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="1.5" stroke-linecap="round" style="margin-bottom:16px"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
+            <h2 style="font-size:1.2rem;font-weight:700;margin-bottom:6px">Account deleted</h2>
+            <p style="color:var(--text2);font-size:.9rem">Your account and all data have been removed.</p>
+          </div>
+        </div>`;
+    } catch(e) {
+      btn.disabled = false;
+      btn.textContent = 'Delete account';
+      if (e.code === 'NETWORK') {
+        toast('Network error — please try again.', 'error');
+      } else {
+        toast('Could not delete account.', 'error');
+      }
+    }
+  };
+
+  // ── Helpers ──
+  function escHtml(s) {
+    const d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  window.hideModal = hideModal;
+
+  // ── Boot ──
+  init();
+})();
+</script>
+</body>
+</html>

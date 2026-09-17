@@ -1,0 +1,805 @@
+{
+  "a8143c63": {
+    "model": "claude-opus-4-6",
+    "brief": "B2",
+    "outTok": 8483,
+    "thinkCh": 799,
+    "textCh": 292,
+    "writeCh": 21633,
+    "nWrites": 1,
+    "writeSizes": [
+      21633
+    ],
+    "redundantCh": 0,
+    "fileBytes": 21637,
+    "hubOps": {},
+    "nHub": 0,
+    "processesStarted": [],
+    "thinkShare": 0.03139612558450233,
+    "redundantShare": 0
+  },
+  "9d4db2c7": {
+    "model": "claude-opus-4-6",
+    "brief": "B4",
+    "outTok": 14285,
+    "thinkCh": 1774,
+    "textCh": 280,
+    "writeCh": 38029,
+    "nWrites": 1,
+    "writeSizes": [
+      38029
+    ],
+    "redundantCh": 63,
+    "fileBytes": 37966,
+    "hubOps": {},
+    "nHub": 0,
+    "processesStarted": [],
+    "thinkShare": 0.041395403103488514,
+    "redundantShare": 0.0014700735036751837
+  },
+  "5c94302f": {
+    "model": "claude-opus-5",
+    "brief": "B5",
+    "outTok": 96856,
+    "thinkCh": 33069,
+    "textCh": 6001,
+    "writeCh": 156397,
+    "nWrites": 6,
+    "writeSizes": [
+      42284,
+      41735,
+      12072,
+      41946,
+      12628,
+      5732
+    ],
+    "redundantCh": 114451,
+    "fileBytes": 41946,
+    "hubOps": {
+      "start": 3,
+      "logs": 3
+    },
+    "nHub": 6,
+    "processesStarted": [
+      "node /tmp/probe_5c94302f.mjs",
+      "node /tmp/probe_5c94302f.mjs",
+      "node /tmp/layout_5c94302f.mjs"
+    ],
+    "thinkShare": 0.11380812752952837,
+    "redundantShare": 0.3938871451777209
+  },
+  "c1221ec5": {
+    "model": "claude-opus-5",
+    "brief": "B2",
+    "outTok": 111244,
+    "thinkCh": 31080,
+    "textCh": 482,
+    "writeCh": 180855,
+    "nWrites": 4,
+    "writeSizes": [
+      43382,
+      45676,
+      45862,
+      45935
+    ],
+    "redundantCh": 134920,
+    "fileBytes": 45935,
+    "hubOps": {},
+    "nHub": 0,
+    "processesStarted": [],
+    "thinkShare": 0.09312861817266549,
+    "redundantShare": 0.40427648532355304
+  },
+  "77c750eb": {
+    "model": "claude-opus-4-6",
+    "brief": "B5",
+    "outTok": 7275,
+    "thinkCh": 779,
+    "textCh": 228,
+    "writeCh": 20161,
+    "nWrites": 1,
+    "writeSizes": [
+      20161
+    ],
+    "redundantCh": 0,
+    "fileBytes": 20161,
+    "hubOps": {},
+    "nHub": 0,
+    "processesStarted": [],
+    "thinkShare": 0.0356930126002291,
+    "redundantShare": 0
+  },
+  "d5fa082d": {
+    "model": "claude-opus-5",
+    "brief": "B1",
+    "outTok": 31237,
+    "thinkCh": 16720,
+    "textCh": 291,
+    "writeCh": 37208,
+    "nWrites": 1,
+    "writeSizes": [
+      37208
+    ],
+    "redundantCh": 70,
+    "fileBytes": 37138,
+    "hubOps": {},
+    "nHub": 0,
+    "processesStarted": [],
+    "thinkShare": 0.17842088975680548,
+    "redundantShare": 0.0007469774092689225
+  },
+  "b1b613d1": {
+    "model": "claude-opus-4-6",
+    "brief": "B6",
+    "outTok": 10952,
+    "thinkCh": 396,
+    "textCh": 266,
+    "writeCh": 29899,
+    "nWrites": 1,
+    "writeSizes": [
+      29899
+    ],
+    "redundantCh": 0,
+    "fileBytes": 29907,
+    "hubOps": {},
+    "nHub": 0,
+    "processesStarted": [],
+    "thinkShare": 0.012052593133674214,
+    "redundantShare": 0
+  },
+  "7f0fe142": {
+    "model": "claude-opus-4-6",
+    "brief": "B1",
+    "outTok": 8795,
+    "thinkCh": 563,
+    "textCh": 287,
+    "writeCh": 23121,
+    "nWrites": 1,
+    "writeSizes": [
+      23121
+    ],
+    "redundantCh": 0,
+    "fileBytes": 23121,
+    "hubOps": {},
+    "nHub": 0,
+    "processesStarted": [],
+    "thinkShare": 0.02133788137199166,
+    "redundantShare": 0
+  },
+  "19f8347f": {
+    "model": "claude-opus-4-6",
+    "brief": "B3",
+    "outTok": 7532,
+    "thinkCh": 898,
+    "textCh": 296,
+    "writeCh": 18878,
+    "nWrites": 1,
+    "writeSizes": [
+      18878
+    ],
+    "redundantCh": 0,
+    "fileBytes": 18878,
+    "hubOps": {},
+    "nHub": 0,
+    "processesStarted": [],
+    "thinkShare": 0.039741547176491414,
+    "redundantShare": 0
+  },
+  "76d8fc74": {
+    "model": "claude-opus-5",
+    "brief": "B6",
+    "outTok": 132945,
+    "thinkCh": 30061,
+    "textCh": 15940,
+    "writeCh": 197107,
+    "nWrites": 18,
+    "writeSizes": [
+      45016,
+      2862,
+      3379,
+      4281,
+      4337,
+      4422,
+      8164,
+      5058,
+      44897,
+      3689,
+      2975,
+      3283,
+      3219,
+      44834,
+      3447,
+      3802,
+      4999,
+      4443
+    ],
+    "redundantCh": 152273,
+    "fileBytes": 44834,
+    "hubOps": {
+      "start": 15,
+      "logs": 15,
+      "wait": 10
+    },
+    "nHub": 40,
+    "processesStarted": [
+      "node /tmp/check-76d8fc74.mjs",
+      "node /tmp/check-76d8fc74.mjs",
+      "node /tmp/render-76d8fc74.mjs",
+      "node /tmp/render-76d8fc74.mjs",
+      "node /tmp/interact-76d8fc74.mjs",
+      "node /tmp/check-76d8fc74.mjs",
+      "node /tmp/check-76d8fc74.mjs",
+      "node /tmp/interact-76d8fc74.mjs",
+      "node /tmp/layoutrun-76d8fc74.mjs",
+      "node /tmp/mobilerun-76d8fc74.mjs",
+      "node /tmp/mobilerun-76d8fc74.mjs",
+      "node /tmp/mobilerun-76d8fc74.mjs",
+      "node /tmp/desktop-76d8fc74.mjs",
+      "node /tmp/interact-76d8fc74.mjs",
+      "node /tmp/check-76d8fc74.mjs"
+    ],
+    "thinkShare": 0.07537202101119511,
+    "redundantShare": 0.38179447641255154
+  },
+  "bba65fe8": {
+    "model": "claude-opus-4-6",
+    "brief": "B3",
+    "outTok": 6548,
+    "thinkCh": 976,
+    "textCh": 296,
+    "writeCh": 16693,
+    "nWrites": 1,
+    "writeSizes": [
+      16693
+    ],
+    "redundantCh": 0,
+    "fileBytes": 16696,
+    "hubOps": {},
+    "nHub": 0,
+    "processesStarted": [],
+    "thinkShare": 0.04968438199959275,
+    "redundantShare": 0
+  },
+  "b1629d56": {
+    "model": "claude-opus-4-6",
+    "brief": "B2",
+    "outTok": 8980,
+    "thinkCh": 1407,
+    "textCh": 292,
+    "writeCh": 24165,
+    "nWrites": 1,
+    "writeSizes": [
+      24165
+    ],
+    "redundantCh": 0,
+    "fileBytes": 24195,
+    "hubOps": {},
+    "nHub": 0,
+    "processesStarted": [],
+    "thinkShare": 0.0522271714922049,
+    "redundantShare": 0
+  },
+  "d3baa7c9": {
+    "model": "claude-opus-4-6",
+    "brief": "B3",
+    "outTok": 6211,
+    "thinkCh": 812,
+    "textCh": 296,
+    "writeCh": 15918,
+    "nWrites": 1,
+    "writeSizes": [
+      15918
+    ],
+    "redundantCh": 0,
+    "fileBytes": 15922,
+    "hubOps": {},
+    "nHub": 0,
+    "processesStarted": [],
+    "thinkShare": 0.0435785971126496,
+    "redundantShare": 0
+  },
+  "3b6eac7c": {
+    "model": "claude-opus-5",
+    "brief": "B5",
+    "outTok": 70665,
+    "thinkCh": 15313,
+    "textCh": 471,
+    "writeCh": 129105,
+    "nWrites": 3,
+    "writeSizes": [
+      43468,
+      42897,
+      42740
+    ],
+    "redundantCh": 86387,
+    "fileBytes": 42718,
+    "hubOps": {},
+    "nHub": 0,
+    "processesStarted": [],
+    "thinkShare": 0.07223283568008679,
+    "redundantShare": 0.40749545979858015
+  },
+  "15e2b809": {
+    "model": "claude-opus-4-6",
+    "brief": "B4",
+    "outTok": 14000,
+    "thinkCh": 1533,
+    "textCh": 280,
+    "writeCh": 39072,
+    "nWrites": 1,
+    "writeSizes": [
+      39072
+    ],
+    "redundantCh": 260,
+    "fileBytes": 38812,
+    "hubOps": {},
+    "nHub": 0,
+    "processesStarted": [],
+    "thinkShare": 0.0365,
+    "redundantShare": 0.006190476190476191
+  },
+  "66b0875a": {
+    "model": "claude-opus-5",
+    "brief": "B3",
+    "outTok": 74979,
+    "thinkCh": 19597,
+    "textCh": 533,
+    "writeCh": 128599,
+    "nWrites": 2,
+    "writeSizes": [
+      64578,
+      64021
+    ],
+    "redundantCh": 64546,
+    "fileBytes": 64053,
+    "hubOps": {},
+    "nHub": 0,
+    "processesStarted": [],
+    "thinkShare": 0.08712217198593383,
+    "redundantShare": 0.28695145751921647
+  },
+  "90dfbb8c": {
+    "model": "claude-opus-5",
+    "brief": "B6",
+    "outTok": 50488,
+    "thinkCh": 15927,
+    "textCh": 503,
+    "writeCh": 84226,
+    "nWrites": 2,
+    "writeSizes": [
+      42366,
+      41860
+    ],
+    "redundantCh": 42364,
+    "fileBytes": 41862,
+    "hubOps": {},
+    "nHub": 0,
+    "processesStarted": [],
+    "thinkShare": 0.10515369988908256,
+    "redundantShare": 0.27969682564833886
+  },
+  "f5e74cab": {
+    "model": "claude-opus-4-6",
+    "brief": "B6",
+    "outTok": 9837,
+    "thinkCh": 426,
+    "textCh": 266,
+    "writeCh": 27026,
+    "nWrites": 1,
+    "writeSizes": [
+      27026
+    ],
+    "redundantCh": 19,
+    "fileBytes": 27007,
+    "hubOps": {},
+    "nHub": 0,
+    "processesStarted": [],
+    "thinkShare": 0.014435295313611873,
+    "redundantShare": 0.0006438277252549897
+  },
+  "e4ba8894": {
+    "model": "claude-opus-5",
+    "brief": "B6",
+    "outTok": 30954,
+    "thinkCh": 13477,
+    "textCh": 2266,
+    "writeCh": 42663,
+    "nWrites": 1,
+    "writeSizes": [
+      42663
+    ],
+    "redundantCh": 0,
+    "fileBytes": 42669,
+    "hubOps": {},
+    "nHub": 0,
+    "processesStarted": [],
+    "thinkShare": 0.14512933169649586,
+    "redundantShare": 0
+  },
+  "d2b7b52b": {
+    "model": "claude-opus-4-6",
+    "brief": "B4",
+    "outTok": 10526,
+    "thinkCh": 921,
+    "textCh": 280,
+    "writeCh": 28983,
+    "nWrites": 1,
+    "writeSizes": [
+      28983
+    ],
+    "redundantCh": 0,
+    "fileBytes": 28995,
+    "hubOps": {},
+    "nHub": 0,
+    "processesStarted": [],
+    "thinkShare": 0.029165874976249288,
+    "redundantShare": 0
+  },
+  "3bfbc3d1": {
+    "model": "claude-opus-5",
+    "brief": "B2",
+    "outTok": 66647,
+    "thinkCh": 23875,
+    "textCh": 2958,
+    "writeCh": 99306,
+    "nWrites": 2,
+    "writeSizes": [
+      49838,
+      49468
+    ],
+    "redundantCh": 49815,
+    "fileBytes": 49491,
+    "hubOps": {},
+    "nHub": 0,
+    "processesStarted": [],
+    "thinkShare": 0.11941022601667492,
+    "redundantShare": 0.24914849880714812
+  },
+  "d0847622": {
+    "model": "claude-opus-5",
+    "brief": "B2",
+    "outTok": 77177,
+    "thinkCh": 18062,
+    "textCh": 420,
+    "writeCh": 136221,
+    "nWrites": 3,
+    "writeSizes": [
+      44808,
+      45711,
+      45702
+    ],
+    "redundantCh": 90481,
+    "fileBytes": 45740,
+    "hubOps": {},
+    "nHub": 0,
+    "processesStarted": [],
+    "thinkShare": 0.0780111518543953,
+    "redundantShare": 0.39079432127879205
+  },
+  "4ecba86c": {
+    "model": "claude-opus-4-6",
+    "brief": "B5",
+    "outTok": 9157,
+    "thinkCh": 941,
+    "textCh": 228,
+    "writeCh": 24575,
+    "nWrites": 1,
+    "writeSizes": [
+      24575
+    ],
+    "redundantCh": 132,
+    "fileBytes": 24443,
+    "hubOps": {},
+    "nHub": 0,
+    "processesStarted": [],
+    "thinkShare": 0.03425430453933239,
+    "redundantShare": 0.0048050671617341926
+  },
+  "fd799df2": {
+    "model": "claude-opus-5",
+    "brief": "B4",
+    "outTok": 59076,
+    "thinkCh": 19711,
+    "textCh": 342,
+    "writeCh": 102944,
+    "nWrites": 2,
+    "writeSizes": [
+      51601,
+      51343
+    ],
+    "redundantCh": 51696,
+    "fileBytes": 51248,
+    "hubOps": {},
+    "nHub": 0,
+    "processesStarted": [],
+    "thinkShare": 0.11121831764732434,
+    "redundantShare": 0.2916920576884014
+  },
+  "661ba740": {
+    "model": "claude-opus-4-6",
+    "brief": "B2",
+    "outTok": 10425,
+    "thinkCh": 911,
+    "textCh": 292,
+    "writeCh": 28598,
+    "nWrites": 1,
+    "writeSizes": [
+      28598
+    ],
+    "redundantCh": 0,
+    "fileBytes": 28633,
+    "hubOps": {},
+    "nHub": 0,
+    "processesStarted": [],
+    "thinkShare": 0.02912869704236611,
+    "redundantShare": 0
+  },
+  "718d720b": {
+    "model": "claude-opus-5",
+    "brief": "B1",
+    "outTok": 72194,
+    "thinkCh": 30618,
+    "textCh": 353,
+    "writeCh": 76789,
+    "nWrites": 2,
+    "writeSizes": [
+      38254,
+      38535
+    ],
+    "redundantCh": 38244,
+    "fileBytes": 38545,
+    "hubOps": {},
+    "nHub": 0,
+    "processesStarted": [],
+    "thinkShare": 0.14136908884394825,
+    "redundantShare": 0.17657977117211957
+  },
+  "0373bf32": {
+    "model": "claude-opus-5",
+    "brief": "B3",
+    "outTok": 76530,
+    "thinkCh": 18573,
+    "textCh": 420,
+    "writeCh": 123533,
+    "nWrites": 3,
+    "writeSizes": [
+      41148,
+      41275,
+      41110
+    ],
+    "redundantCh": 82423,
+    "fileBytes": 41110,
+    "hubOps": {},
+    "nHub": 0,
+    "processesStarted": [],
+    "thinkShare": 0.08089638050437736,
+    "redundantShare": 0.35900082756217605
+  },
+  "eb77693b": {
+    "model": "claude-opus-5",
+    "brief": "B4",
+    "outTok": 93144,
+    "thinkCh": 32350,
+    "textCh": 4280,
+    "writeCh": 141094,
+    "nWrites": 6,
+    "writeSizes": [
+      53690,
+      54717,
+      3673,
+      11235,
+      10797,
+      6982
+    ],
+    "redundantCh": 86437,
+    "fileBytes": 54657,
+    "hubOps": {
+      "start": 4,
+      "logs": 4
+    },
+    "nHub": 8,
+    "processesStarted": [
+      "node /tmp/check_eb77693b.mjs",
+      "node /tmp/drive_eb77693b.mjs",
+      "node /tmp/drive_eb77693b.mjs",
+      "node /tmp/drive_fail_eb77693b.mjs"
+    ],
+    "thinkShare": 0.11577056314237454,
+    "redundantShare": 0.3093310716023934
+  },
+  "88f7e857": {
+    "model": "claude-opus-5",
+    "brief": "B5",
+    "outTok": 42582,
+    "thinkCh": 8940,
+    "textCh": 373,
+    "writeCh": 78921,
+    "nWrites": 2,
+    "writeSizes": [
+      39731,
+      39190
+    ],
+    "redundantCh": 39729,
+    "fileBytes": 39192,
+    "hubOps": {},
+    "nHub": 0,
+    "processesStarted": [],
+    "thinkShare": 0.06998262176506505,
+    "redundantShare": 0.31099995303179745
+  },
+  "a0145723": {
+    "model": "claude-opus-5",
+    "brief": "B3",
+    "outTok": 66644,
+    "thinkCh": 14252,
+    "textCh": 666,
+    "writeCh": 109972,
+    "nWrites": 3,
+    "writeSizes": [
+      36084,
+      36810,
+      37078
+    ],
+    "redundantCh": 72894,
+    "fileBytes": 37078,
+    "hubOps": {},
+    "nHub": 0,
+    "processesStarted": [],
+    "thinkShare": 0.07128423664045776,
+    "redundantShare": 0.364593961947062
+  },
+  "c4b19032": {
+    "model": "claude-opus-4-6",
+    "brief": "B5",
+    "outTok": 8237,
+    "thinkCh": 1264,
+    "textCh": 228,
+    "writeCh": 21757,
+    "nWrites": 1,
+    "writeSizes": [
+      21757
+    ],
+    "redundantCh": 61,
+    "fileBytes": 21696,
+    "hubOps": {},
+    "nHub": 0,
+    "processesStarted": [],
+    "thinkShare": 0.05115130913358423,
+    "redundantShare": 0.002468536279389745
+  },
+  "37cf7e87": {
+    "model": "claude-opus-4-6",
+    "brief": "B6",
+    "outTok": 11271,
+    "thinkCh": 354,
+    "textCh": 266,
+    "writeCh": 30425,
+    "nWrites": 1,
+    "writeSizes": [
+      30425
+    ],
+    "redundantCh": 53,
+    "fileBytes": 30372,
+    "hubOps": {},
+    "nHub": 0,
+    "processesStarted": [],
+    "thinkShare": 0.010469346109484518,
+    "redundantShare": 0.0015674444740188685
+  },
+  "b89a17df": {
+    "model": "claude-opus-4-6",
+    "brief": "B1",
+    "outTok": 8879,
+    "thinkCh": 907,
+    "textCh": 287,
+    "writeCh": 22782,
+    "nWrites": 1,
+    "writeSizes": [
+      22782
+    ],
+    "redundantCh": 0,
+    "fileBytes": 22782,
+    "hubOps": {},
+    "nHub": 0,
+    "processesStarted": [],
+    "thinkShare": 0.03405038104891692,
+    "redundantShare": 0
+  },
+  "510d7298": {
+    "model": "claude-opus-5",
+    "brief": "B1",
+    "outTok": 152263,
+    "thinkCh": 35258,
+    "textCh": 11415,
+    "writeCh": 242989,
+    "nWrites": 8,
+    "writeSizes": [
+      41629,
+      43081,
+      43375,
+      16043,
+      8629,
+      3041,
+      43527,
+      43664
+    ],
+    "redundantCh": 199325,
+    "fileBytes": 43664,
+    "hubOps": {
+      "start": 9,
+      "wait": 9,
+      "logs": 6
+    },
+    "nHub": 24,
+    "processesStarted": [
+      "node /tmp/ux510/verify.mjs",
+      "node /tmp/ux510/layout.mjs",
+      "node /tmp/ux510/mobile.mjs",
+      "node /tmp/ux510/verify.mjs",
+      "node /tmp/ux510/layout.mjs",
+      "node /tmp/ux510/mobile.mjs",
+      "node /tmp/ux510/layout.mjs",
+      "node /tmp/ux510/mobile.mjs",
+      "node /tmp/ux510/verify.mjs"
+    ],
+    "thinkShare": 0.07718662226980072,
+    "redundantShare": 0.43636120834783676
+  },
+  "f6ff77aa": {
+    "model": "claude-opus-4-6",
+    "brief": "B1",
+    "outTok": 8321,
+    "thinkCh": 574,
+    "textCh": 287,
+    "writeCh": 21698,
+    "nWrites": 1,
+    "writeSizes": [
+      21698
+    ],
+    "redundantCh": 0,
+    "fileBytes": 21742,
+    "hubOps": {},
+    "nHub": 0,
+    "processesStarted": [],
+    "thinkShare": 0.022994031166125868,
+    "redundantShare": 0
+  },
+  "2e20bdb0": {
+    "model": "claude-opus-5",
+    "brief": "B4",
+    "outTok": 94072,
+    "thinkCh": 22726,
+    "textCh": 8345,
+    "writeCh": 170715,
+    "nWrites": 8,
+    "writeSizes": [
+      48572,
+      1174,
+      831,
+      9325,
+      48821,
+      10038,
+      48764,
+      3190
+    ],
+    "redundantCh": 121923,
+    "fileBytes": 48792,
+    "hubOps": {
+      "start": 7,
+      "logs": 6,
+      "wait": 4
+    },
+    "nHub": 17,
+    "processesStarted": [
+      "node /tmp/check_2e20bdb0.mjs",
+      "node /tmp/inspect_env.mjs",
+      "node /tmp/smoke_2e20bdb0.mjs",
+      "node /tmp/check_2e20bdb0.mjs",
+      "node /tmp/smoke_2e20bdb0.mjs",
+      "node /tmp/smoke_2e20bdb0.mjs",
+      "node /tmp/smoke2_2e20bdb0.mjs"
+    ],
+    "thinkShare": 0.08052697224820704,
+    "redundantShare": 0.4320201547750659
+  }
+}

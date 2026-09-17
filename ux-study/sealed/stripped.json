@@ -1,0 +1,272 @@
+[
+  {
+    "id": "15e2b809",
+    "kind": "comment",
+    "before": "<!-- Step 1: Welcome -->",
+    "after": ""
+  },
+  {
+    "id": "15e2b809",
+    "kind": "comment",
+    "before": "<!-- Step 2: Preferences -->",
+    "after": ""
+  },
+  {
+    "id": "15e2b809",
+    "kind": "comment",
+    "before": "<!-- Step 3: First project -->",
+    "after": ""
+  },
+  {
+    "id": "15e2b809",
+    "kind": "comment",
+    "before": "<!-- Dashboard (shown after onboarding or if already completed) -->",
+    "after": ""
+  },
+  {
+    "id": "15e2b809",
+    "kind": "comment",
+    "before": "<!-- Success modal -->",
+    "after": ""
+  },
+  {
+    "id": "15e2b809",
+    "kind": "comment",
+    "before": "<!-- Inline settings panel modal for dashboard -->",
+    "after": ""
+  },
+  {
+    "id": "15e2b809",
+    "kind": "comment",
+    "before": "<!-- Create project modal for dashboard -->",
+    "after": ""
+  },
+  {
+    "id": "37cf7e87",
+    "kind": "comment",
+    "before": "<!-- Profile Tab -->",
+    "after": ""
+  },
+  {
+    "id": "37cf7e87",
+    "kind": "comment",
+    "before": "<!-- Projects Tab -->",
+    "after": ""
+  },
+  {
+    "id": "37cf7e87",
+    "kind": "comment",
+    "before": "<!-- Danger Zone Tab -->",
+    "after": ""
+  },
+  {
+    "id": "3b6eac7c",
+    "kind": "comment",
+    "before": "<!-- form column -->",
+    "after": ""
+  },
+  {
+    "id": "3b6eac7c",
+    "kind": "comment",
+    "before": "<!-- summary column -->",
+    "after": ""
+  },
+  {
+    "id": "4ecba86c",
+    "kind": "comment",
+    "before": "<!-- Network error alert -->",
+    "after": ""
+  },
+  {
+    "id": "4ecba86c",
+    "kind": "comment",
+    "before": "<!-- Contact -->",
+    "after": ""
+  },
+  {
+    "id": "4ecba86c",
+    "kind": "comment",
+    "before": "<!-- Shipping -->",
+    "after": ""
+  },
+  {
+    "id": "4ecba86c",
+    "kind": "comment",
+    "before": "<!-- Payment -->",
+    "after": ""
+  },
+  {
+    "id": "4ecba86c",
+    "kind": "comment",
+    "before": "<!-- Submit -->",
+    "after": ""
+  },
+  {
+    "id": "4ecba86c",
+    "kind": "comment",
+    "before": "<!-- Order Summary -->",
+    "after": ""
+  },
+  {
+    "id": "4ecba86c",
+    "kind": "comment",
+    "before": "<!-- Success overlay -->",
+    "after": ""
+  },
+  {
+    "id": "9d4db2c7",
+    "kind": "comment",
+    "before": "<!-- Loading screen -->",
+    "after": ""
+  },
+  {
+    "id": "9d4db2c7",
+    "kind": "comment",
+    "before": "<!-- Onboarding overlay -->",
+    "after": ""
+  },
+  {
+    "id": "9d4db2c7",
+    "kind": "comment",
+    "before": "<!-- Dashboard -->",
+    "after": ""
+  },
+  {
+    "id": "9d4db2c7",
+    "kind": "comment",
+    "before": "<!-- Projects tab -->",
+    "after": ""
+  },
+  {
+    "id": "9d4db2c7",
+    "kind": "comment",
+    "before": "<!-- Settings tab -->",
+    "after": ""
+  },
+  {
+    "id": "9d4db2c7",
+    "kind": "comment",
+    "before": "<!-- Modal overlay -->",
+    "after": ""
+  },
+  {
+    "id": "9d4db2c7",
+    "kind": "comment",
+    "before": "<!-- Toast container -->",
+    "after": ""
+  },
+  {
+    "id": "c4b19032",
+    "kind": "comment",
+    "before": "<!-- Contact -->",
+    "after": ""
+  },
+  {
+    "id": "c4b19032",
+    "kind": "comment",
+    "before": "<!-- Shipping -->",
+    "after": ""
+  },
+  {
+    "id": "c4b19032",
+    "kind": "comment",
+    "before": "<!-- Payment -->",
+    "after": ""
+  },
+  {
+    "id": "c4b19032",
+    "kind": "comment",
+    "before": "<!-- Order Summary -->",
+    "after": ""
+  },
+  {
+    "id": "d5fa082d",
+    "kind": "comment",
+    "before": "<!-- ============ upload ============ -->",
+    "after": ""
+  },
+  {
+    "id": "d5fa082d",
+    "kind": "comment",
+    "before": "<!-- ============ queue ============ -->",
+    "after": ""
+  },
+  {
+    "id": "eb77693b",
+    "kind": "comment",
+    "before": "<!-- step 1 -->",
+    "after": ""
+  },
+  {
+    "id": "eb77693b",
+    "kind": "comment",
+    "before": "<!-- step 2 -->",
+    "after": ""
+  },
+  {
+    "id": "eb77693b",
+    "kind": "comment",
+    "before": "<!-- step 3 -->",
+    "after": ""
+  },
+  {
+    "id": "eb77693b",
+    "kind": "comment",
+    "before": "<!-- workspace -->",
+    "after": ""
+  },
+  {
+    "id": "f5e74cab",
+    "kind": "comment",
+    "before": "<!-- Profile Tab -->",
+    "after": ""
+  },
+  {
+    "id": "f5e74cab",
+    "kind": "comment",
+    "before": "<!-- Projects Tab -->",
+    "after": ""
+  },
+  {
+    "id": "f5e74cab",
+    "kind": "comment",
+    "before": "<!-- Danger Zone / Account Tab -->",
+    "after": ""
+  },
+  {
+    "id": "fd799df2",
+    "kind": "comment",
+    "before": "<!-- boot skeleton -->",
+    "after": ""
+  },
+  {
+    "id": "fd799df2",
+    "kind": "comment",
+    "before": "<!-- boot failure -->",
+    "after": ""
+  },
+  {
+    "id": "fd799df2",
+    "kind": "comment",
+    "before": "<!-- step 1 -->",
+    "after": ""
+  },
+  {
+    "id": "fd799df2",
+    "kind": "comment",
+    "before": "<!-- step 2 -->",
+    "after": ""
+  },
+  {
+    "id": "fd799df2",
+    "kind": "comment",
+    "before": "<!-- step 3 -->",
+    "after": ""
+  },
+  {
+    "id": "fd799df2",
+    "kind": "comment",
+    "before": "<!-- home -->",
+    "after": ""
+  }
+]

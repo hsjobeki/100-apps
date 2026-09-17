@@ -1,0 +1,66 @@
+{
+  "id": "3b6eac7c",
+  "items": [
+    {
+      "n": 1,
+      "verdict": "PASS",
+      "reason": "Within ~250 ms of clicking Pay under slow latency, the button switched to a spinner with 'Processing', aria-busy=true.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/3b6eac7c_1.png"
+    },
+    {
+      "n": 2,
+      "verdict": "PASS",
+      "reason": "The submit button is disabled while pending; three additional raw DOM clicks during the pending window produced exactly one submitOrder call in __apiLog.",
+      "evidence": "<button class=\"btn busy\" type=\"submit\" id=\"pay\" aria-busy=\"true\" disabled> — __apiLog after triple click: [getUser, submitOrder]"
+    },
+    {
+      "n": 3,
+      "verdict": "N/A",
+      "reason": "Checkout brief; the page has no upload or job flow, so no API-provided progress exists to display.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/3b6eac7c_3.png"
+    },
+    {
+      "n": 4,
+      "verdict": "N/A",
+      "reason": "No long-running upload or processing action exists on this checkout page; only submitOrder and getUser were ever called.",
+      "evidence": "Page probe: 0 input[type=file], 0 progress/[role=progressbar]/meter elements; apiMethodsUsed = [getUser, submitOrder]"
+    },
+    {
+      "n": 5,
+      "verdict": "PASS",
+      "reason": "Under fail=1 a specific banner appeared directly above the Pay button (banner top 181px, button top 229px) stating what failed and its consequences, plus an aria-live status announcement.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/3b6eac7c_5.png"
+    },
+    {
+      "n": 6,
+      "verdict": "PASS",
+      "reason": "After a network failure the button became 'Try again' and clicking it re-issued submitOrder without reload (__apiLog grew from 2 to 3 entries); form values were preserved.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/3b6eac7c_6.png"
+    },
+    {
+      "n": 7,
+      "verdict": "PASS",
+      "reason": "A VALIDATION rejection with fields {cardExpiry, cardCvc} produced aria-invalid=true on exactly inputs #cardExpiry and #cardCvc, each showing the API's exact message via aria-describedby, plus a summary banner and focus moved to the first invalid field.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/3b6eac7c_7.png"
+    },
+    {
+      "n": 8,
+      "verdict": "N/A",
+      "reason": "Checkout brief; the page has no server-side state that changes over time to poll (no jobs or metrics).",
+      "evidence": "Page probe: apiMethodsUsed = [getUser, submitOrder]; no polling-relevant UI (0 progress/job elements)"
+    },
+    {
+      "n": 9,
+      "verdict": "PASS",
+      "reason": "While a slow submission was pending, cart quantity/remove buttons and form inputs were all disabled, so mid-action edits were impossible; attempted clicks changed nothing and the flow finished in a consistent 'Order placed' state with matching total.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/3b6eac7c_9.png"
+    },
+    {
+      "n": 10,
+      "verdict": "PASS",
+      "reason": "Instrumenting submitOrder showed 'Order placed' first appeared 40 ms after the promise resolved (~3.9 s after click); during the pending window the UI showed only the 'Processing' state, and the success view includes the server-issued order id.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/3b6eac7c_10.png"
+    }
+  ],
+  "failCount": 0
+}

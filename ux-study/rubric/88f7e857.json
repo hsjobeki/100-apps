@@ -1,0 +1,83 @@
+{
+  "id": "88f7e857",
+  "f1": {
+    "score": 5,
+    "observations": [
+      "Field validation state is dual-coded: valid fields show a green circled-check SVG (`.tick`, displayed via `.field.valid .tick{display:block}`) visible on Email and Full name in the idle desktop shot, while invalid fields get a red border + pink fill (`.field.bad input{border-color:var(--bad);background:#fffafa}`) plus a red alert-icon SVG (the `TICK` markup: circle + exclamation path in #b3261e) prepended to the text in `#m-<field>` — the error screenshot shows both the red outlines and icon+text rows like 'Enter your street address'.",
+      "Submission state is graphical several ways at once: an animated spinner SVG `#paySpin` inside the Pay button, an indeterminate `<progress class=\"bar\" id=\"payBar\">`, the button desaturated via `.pay[disabled]{filter:saturate(.65)}`, the whole `fieldset#fields` disabled and greyed (`fieldset[disabled] .field input{background:#f6f1e9}`), and a shimmer skeleton (`.skel` with the `sh` keyframes) in the account slot — all supported by the text 'Charging card' and the role=status line 'Charging your card' (confirmed in async item 1 evidence).",
+      "Order success is graphical+text: a 64px green ring with a checkmark SVG (`.done-ring`) above 'Order placed', and all three `.step` circles flip to green (`.step.done{background:var(--ok)}`); failure is a banner with kind-specific SVG icons (ICONS.error / ICONS.net wifi-slash / ICONS.info) on colored backgrounds (`--bad-bg` #fbe9e7, `--warn-bg` #fdf1d8) next to the text, e.g. 'No connection. Your card was not charged.'",
+      "Raw ratio: 3/3 inventory items graphical+text (0 text-only, 0 missing). The metrics corroborate a graphics-forward page: `desktop.graphical.total` = 28 (15 svg, 1 progress, 1 meter, 11 badges)."
+    ]
+  },
+  "f2": {
+    "score": 5,
+    "observations": [
+      "Measured `desktop.viewportWords` = 67 and `pageWords` = 67 — the whole checkout fits in 67 visible words with zero off-screen prose; `helperWords` = 0 and `longLeafWords` = 0, i.e. not a single `<p>`/`<small>` or leaf element over 12 words exists.",
+      "Button labels: 7 labels, `meanWords` 1.14, `maxWords` 2, `longLabels` empty — 'Pay $146.00', 'Retry payment', 'Cancel payment', 'New order', 'Reload account' are all ≤2 words.",
+      "No text restates what the UI shows: the free-shipping meter uses 'Free shipping' / 'Unlocked' (2 words each), field errors are imperative and minimal ('Use MM/YY', 'Pick a country', 'Use 5 digits'), and the failure banners add only non-visible information ('Your card was not charged.').",
+      "The local-validation banner '3 fields need fixing' summarizes counts rather than repeating the per-field messages, and it exists to cover errors scrolled out of view on this tall form, so it earns its place; no redundant sentence was found anywhere in the source strings."
+    ]
+  },
+  "f3": {
+    "score": 4,
+    "observations": [
+      "Terminology is otherwise consistent end-to-end: 'Pay $146.00' → pending 'Charging card' / status 'Charging your card' → 'Cancel payment' → banner 'Payment cancelled. Your card was not charged.', and the async rater confirmed each string matches actual behavior (items 1, 9, 10).",
+      "Copy matches behavior everywhere it promises something: 'Retry payment' fires a real second submitOrder (async item 6), 'Cancel payment' aborts cleanly (item 9), and success only ever shows the server-issued id ('Order ord_edaa24', item 10). Input placeholders ('you@example.com', '4242 4242 4242 4242', 'MM/YY') are example-format hints, not leftover placeholder text.",
+      "One issue found: local validation says '1 field needs fixing' while server validation says 'Payment declined: 1 field to fix' — two phrasings for the same concept, and 'declined' connotes a card decline rather than a fixable address/field error (the API message shown was about a postal code).",
+      "No filler and no marketing tone: the only promotional-adjacent strings are 'Secure checkout' (a conventional trust cue with a shield SVG) and the free-shipping meter copy 'Free over $75' / '$6.00 to go', both functional in a shop checkout."
+    ]
+  },
+  "f4": {
+    "score": 5,
+    "observations": [
+      "The page has a coherent invented shop identity — 'Marigold & Oak' with a custom rust seed-pod logo SVG (#a83b18 circle + leaf path), Fraunces serif for the shop name and the Total line (`.tl.grand` in Fraunces 18px), and a warm paper palette (--paper #faf5ed, radial cream gradient) — a deliberate small-artisan-shop register that answers 'small online shop' rather than a default blue SaaS theme.",
+      "Commerce-specific mechanics beyond the brief's minimum: a free-shipping `<meter>` with 'Free over $75' / '$X to go' → 'Unlocked' copy, quantity steppers with per-item aria-labels ('One fewer Stovetop kettle'), per-product tinted thumbnails, and live card-brand detection (`cardBrand()`) that recolors the `#brandStripe` chip (VISA #1a1f71, AMEX #0b6bb0), switches to amex 4-6-5 grouping, and adjusts CVC maxlength to 4.",
+      "Task-driven micro-decisions: the Pay button carries the live total ('Pay $146.00', updated in `renderCart`), steps 1-2-3 turn green on completion, and the account slot prefills email/name from `api.getUser()` with an 'AR' avatar chip.",
+      "The bones — two-column form-left/summary-right with a sticky aside, Inter body type, rounded cards with soft shadow, green tick-in-circle validity icons — are the canonical Stripe/Shopify checkout pattern, but they are the pattern this task's user expects, and every surface of it is re-skinned to the brand rather than left default."
+    ]
+  },
+  "hierarchy": {
+    "score": 5,
+    "observations": [
+      "From the idle desktop screenshot alone: purpose is unmistakable — 'Marigold & Oak' header with 'Secure checkout' shield, a numbered 1 Contact / 2 Shipping / 3 Payment form, and a 'Your order' card listing 3 products with 'Total $146.00' — a shop checkout, exactly the brief.",
+      "Primary action is the only saturated element on the page: the rust-red 'Pay $146.00' button at the end of the form; nothing else competes in weight or color.",
+      "What needs attention reads directly off the field states: Email and Full name carry green checkmarks while Street address, City, Postal code, Country ('Select'), Card number, Expiry and CVC sit empty with placeholder text, so the remaining work is obvious before any interaction.",
+      "All three answers checked out against the brief and source afterwards; no misdirection found (the order summary is visually subordinate — lighter weights, smaller type — to the form column)."
+    ]
+  },
+  "f1Inventory": [
+    {
+      "item": "field validation state",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "submission state",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "order success/failure",
+      "classification": "graphical+text"
+    }
+  ],
+  "f2Redundant": [],
+  "f3Issues": [
+    "Inconsistent naming for the same concept: local validation banner says '1 field needs fixing' / 'N fields need fixing' while server validation says 'Payment declined: 1 field to fix' / 'Payment declined: N fields to fix', and 'declined' misleadingly connotes a card decline when the actual failure is a fixable field error (e.g. postal code)."
+  ],
+  "f4TaskDriven": [
+    "Invented shop brand 'Marigold & Oak' with custom rust seed-pod logo SVG and Fraunces serif display type for the shop name, 'Your order' heading, and grand total",
+    "Warm artisan palette: --paper #faf5ed background with cream radial gradient, --brand #a83b18 rust for the sole primary action",
+    "Free-shipping progress `<meter>` with 'Free over $75' / '$X to go' → 'Free shipping / Unlocked' copy",
+    "Live total in the primary button: 'Pay $146.00' recomputed on every quantity change",
+    "Card-brand detection recoloring the inline card chip (#brandStripe) per brand, amex-aware 4-6-5 digit grouping, and brand-dependent CVC length (3 vs 4)",
+    "Quantity steppers in the order summary with product-specific aria-labels ('One fewer Stovetop kettle') and per-product tinted bag-icon thumbnails",
+    "Numbered checkout steps 1 Contact / 2 Shipping / 3 Payment whose badges turn green (.step.done) on order completion",
+    "Account prefill from api.getUser() rendered as an initials avatar chip ('AR alex@example.com') in the Contact header, with a 'Reload account' recovery button on failure",
+    "'Secure checkout' shield trust cue in the header, appropriate to a payment page"
+  ],
+  "f4Template": [
+    "Two-column layout with form left and sticky order-summary aside right — the canonical Stripe/Shopify checkout arrangement",
+    "Inter as the body/UI typeface",
+    "Rounded 14px cards with soft drop shadow on a tinted page background",
+    "Green circled-checkmark icons for valid fields and a green ring-checkmark success screen — stock validity iconography"
+  ]
+}

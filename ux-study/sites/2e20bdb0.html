@@ -1,0 +1,1170 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rill — Get started</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 22'%3E%3Crect width='22' height='22' rx='6' fill='%230F6F63'/%3E%3Crect x='5' y='6' width='12' height='2.6' rx='1.3' fill='white'/%3E%3Crect x='5' y='10' width='8' height='2.6' rx='1.3' fill='white' opacity='.7'/%3E%3Crect x='5' y='14' width='4' height='2.6' rx='1.3' fill='white' opacity='.45'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F7F4EE;
+    --card:#FFFFFF;
+    --line:#E6E0D6;
+    --line-soft:#F0EBE1;
+    --ink:#1E1B16;
+    --ink-2:#4A443A;
+    --muted:#77705F;
+    --accent:#0F6F63;
+    --accent-ink:#0A4F46;
+    --accent-soft:#E2EFEC;
+    --warn:#B5731A;
+    --warn-soft:#FBF0DE;
+    --danger:#A3341F;
+    --danger-soft:#FBEBE6;
+    --radius:14px;
+    --shadow:0 1px 1px rgba(30,27,22,.04), 0 6px 18px -12px rgba(30,27,22,.28);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font:400 15px/1.5 Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  h1,h2,h3{margin:0;font-family:Fraunces, Georgia, serif;font-weight:600;letter-spacing:-.01em}
+  button{font:inherit;color:inherit}
+  input,select{font:inherit;color:inherit}
+
+  /* ---------- shell ---------- */
+  .topbar{
+    display:flex;align-items:center;gap:18px;
+    padding:14px 28px;
+    background:rgba(247,244,238,.86);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+    position:sticky;top:0;z-index:20;
+  }
+  .brand{display:flex;align-items:center;gap:9px;font-family:Fraunces,Georgia,serif;font-weight:600;font-size:18px}
+  .brand svg{display:block}
+  .tabs{display:flex;gap:4px;margin-left:8px;background:#EFEAE0;padding:3px;border-radius:10px}
+  .tab{
+    border:0;background:transparent;border-radius:8px;padding:6px 13px;
+    font-weight:500;font-size:13.5px;color:var(--muted);cursor:pointer;
+  }
+  .tab[aria-selected="true"]{background:var(--card);color:var(--ink);box-shadow:0 1px 2px rgba(30,27,22,.10)}
+  .tab:hover{color:var(--ink)}
+  .spacer{flex:1}
+  .chip{
+    display:inline-flex;align-items:center;gap:7px;
+    padding:5px 11px;border-radius:999px;font-size:13px;font-weight:500;
+    background:var(--accent-soft);color:var(--accent-ink);
+  }
+  .chip.ok{background:var(--accent-soft)}
+  .who{display:flex;align-items:center;gap:10px}
+  .avatar{
+    width:32px;height:32px;border-radius:50%;
+    background:var(--accent);color:#fff;
+    display:grid;place-items:center;font-size:12.5px;font-weight:600;letter-spacing:.02em;
+  }
+  .who .name{font-size:13.5px;font-weight:500;line-height:1.25}
+  .who .plan{
+    font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;
+    color:var(--accent-ink);background:var(--accent-soft);border-radius:5px;padding:1px 6px;
+  }
+
+  main{max-width:1060px;margin:0 auto;padding:34px 28px 72px}
+
+  /* ---------- hero ---------- */
+  .hero{position:relative;margin-bottom:26px;padding-left:2px}
+  .hero h1{font-size:34px;line-height:1.15}
+  .hero p{margin:7px 0 0;color:var(--muted);font-size:15.5px}
+  .rule{
+    height:22px;margin:18px 0 0;
+    background:
+      linear-gradient(90deg,var(--accent) 0 26%,transparent 26%) 0 10px/100% 3px no-repeat,
+      repeating-linear-gradient(90deg,var(--line) 0 1px,transparent 1px 26px) 0 0/100% 22px;
+    opacity:.85;border-radius:2px;
+  }
+
+  .grid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:22px;align-items:start}
+
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);overflow:hidden;
+  }
+  .card + .card{margin-top:22px}
+  .card-head{display:flex;align-items:center;gap:14px;padding:18px 20px 16px}
+  .card-head h2{font-size:18px}
+  .card-head .sub{color:var(--muted);font-size:13px;margin-top:2px}
+
+  /* ---------- progress ---------- */
+  .ring{flex:none}
+  .ring .track{stroke:var(--line);stroke-width:4;fill:none}
+  .ring .fill{stroke:var(--accent);stroke-width:4;fill:none;stroke-linecap:round;transition:stroke-dasharray .45s cubic-bezier(.3,.8,.3,1)}
+  .ring text{font:600 13px Inter,sans-serif;fill:var(--ink)}
+  .segbar{display:flex;gap:4px;padding:0 20px 14px}
+  .segbar span{height:4px;flex:1;border-radius:999px;background:var(--line);transition:background .3s}
+  .segbar span.on{background:var(--accent)}
+  .segbar span.err{background:var(--warn)}
+
+  /* ---------- steps ---------- */
+  .steps{list-style:none;margin:0;padding:0;border-top:1px solid var(--line-soft)}
+  .step{border-bottom:1px solid var(--line-soft);position:relative}
+  .step:last-child{border-bottom:0}
+  .step-head{
+    display:grid;grid-template-columns:34px 1fr auto;align-items:center;gap:14px;
+    width:100%;text-align:left;background:none;border:0;cursor:pointer;
+    padding:16px 20px;
+  }
+  .step-head:hover{background:#FCFAF6}
+  .step-title{display:block;font-weight:600;font-size:15px;letter-spacing:-.005em}
+  .step-meta{display:block;font-size:13px;color:var(--muted);line-height:1.35}
+  .step-meta:empty{display:none}
+  .step.done .step-title{color:var(--ink-2)}
+  .step.error .step-meta{color:var(--warn)}
+  .step.done .step-meta{color:var(--accent-ink)}
+  .mark{
+    width:26px;height:26px;border-radius:50%;display:grid;place-items:center;
+    border:1.5px solid var(--line);color:var(--muted);font-size:12.5px;font-weight:600;
+    background:var(--card);
+  }
+  .step.done .mark{background:var(--accent);border-color:var(--accent);color:#fff}
+  .step.error .mark{background:var(--warn-soft);border-color:#E7C48A;color:var(--warn)}
+  .step.saving .mark{border-color:var(--accent);color:var(--accent)}
+  .connector{position:absolute;left:33px;top:42px;bottom:-2px;width:1.5px;background:var(--line);z-index:0}
+  .step:last-child .connector{display:none}
+  .step.done .connector{background:var(--accent);opacity:.45}
+  .caret{color:var(--muted);transition:transform .2s}
+  .step.open .caret{transform:rotate(180deg)}
+  .panel{display:none;padding:2px 20px 20px 68px}
+  .step.open .panel{display:block}
+
+  /* ---------- forms ---------- */
+  .field{border:0;padding:0;margin:0 0 16px}
+  .field > label, .field legend{display:block;font-size:13px;font-weight:600;color:var(--ink-2);margin-bottom:6px;padding:0}
+  input[type=text]{
+    width:100%;max-width:340px;padding:9px 12px;border:1px solid var(--line);
+    border-radius:9px;background:#FDFCFA;
+  }
+  select{
+    padding:9px 30px 9px 12px;border:1px solid var(--line);border-radius:9px;background:#FDFCFA;
+    appearance:none;
+    background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);
+    background-position:calc(100% - 15px) 18px,calc(100% - 10px) 18px;
+    background-size:5px 5px,5px 5px;background-repeat:no-repeat;
+  }
+  input[type=text]:focus-visible, select:focus-visible, .seg input:focus-visible + span, .switch input:focus-visible + .track{
+    outline:2px solid var(--accent);outline-offset:2px;
+  }
+  input.bad{border-color:var(--danger);background:var(--danger-soft)}
+  .fieldErr{margin:6px 0 0;color:var(--danger);font-size:13px;display:flex;gap:6px;align-items:center}
+
+  .seg{display:inline-flex;background:#F1ECE2;border-radius:10px;padding:3px;gap:3px}
+  .seg label{position:relative;cursor:pointer}
+  .seg input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+  .seg span{display:block;padding:6px 13px;border-radius:7px;font-size:13.5px;font-weight:500;color:var(--muted)}
+  .seg input:checked + span{background:var(--card);color:var(--ink);box-shadow:0 1px 2px rgba(30,27,22,.12)}
+
+  .switch{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:9px 0;border-top:1px solid var(--line-soft);max-width:360px}
+  .switch:first-of-type{border-top:0}
+  .switch .lbl{font-size:14px}
+  .switch input{position:absolute;opacity:0;width:0;height:0}
+  .switch .track{
+    width:38px;height:22px;border-radius:999px;background:#DDD6C8;position:relative;
+    transition:background .18s;flex:none;cursor:pointer;display:block;
+  }
+  .switch .track::after{
+    content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;
+    background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2);transition:transform .18s;
+  }
+  .switch input:checked + .track{background:var(--accent)}
+  .switch input:checked + .track::after{transform:translateX(16px)}
+
+  .actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:18px}
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;border:1px solid transparent;
+    border-radius:10px;padding:9px 16px;font-size:14px;font-weight:550;cursor:pointer;
+    background:#F1ECE2;color:var(--ink);
+  }
+  .btn:hover{background:#EAE4D8}
+  .btn.primary{background:var(--accent);color:#fff}
+  .btn.primary:hover{background:var(--accent-ink)}
+  .btn.ghost{background:transparent;border-color:var(--line)}
+  .btn.ghost:hover{background:#F6F2EA}
+  .btn.small{padding:6px 11px;font-size:13px;border-radius:8px}
+  .btn:disabled{opacity:.55;cursor:not-allowed}
+  .btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .note{font-size:13px;color:var(--muted);display:inline-flex;align-items:center;gap:6px}
+  .note.good{color:var(--accent-ink)}
+
+  .errBox{
+    display:flex;align-items:flex-start;gap:10px;margin-top:14px;padding:11px 13px;
+    background:var(--danger-soft);border:1px solid #EFCFC4;border-radius:10px;
+    color:#7E2716;font-size:13.5px;max-width:460px;
+  }
+  .errBox .grow{flex:1}
+  .errBox strong{display:block;font-weight:600;color:#7E2716}
+  .errBox .why{color:#8A4536;margin-top:2px}
+  .errBox .btn{background:#fff;border-color:#EFCFC4;color:#7E2716}
+
+  .doneBox{
+    display:flex;gap:12px;align-items:flex-start;padding:14px 16px;margin:0 20px 20px;
+    background:var(--accent-soft);border-radius:12px;
+  }
+  .doneBox h3{font-size:15.5px;font-family:Inter,sans-serif;font-weight:600}
+  .doneBox p{margin:3px 0 0;font-size:13.5px;color:var(--accent-ink)}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+  .tag{
+    font-size:12.5px;background:#fff;border:1px solid #CFE2DD;color:var(--accent-ink);
+    padding:3px 9px;border-radius:999px;
+  }
+  .tag.plain{border-color:var(--line);color:var(--muted);background:#FBF9F5}
+
+  /* ---------- projects ---------- */
+  .pj-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 0}
+  .count{
+    font-size:12px;font-weight:600;background:#F1ECE2;color:var(--ink-2);
+    border-radius:999px;padding:2px 9px;
+  }
+  .empty{padding:14px 20px 20px;text-align:center}
+  .art{width:100%;max-width:250px;height:auto;margin:4px auto 12px;display:block}
+  .empty h3{font-size:16px}
+  .empty p{margin:6px auto 0;color:var(--muted);font-size:13.5px;max-width:34ch}
+  .empty .actions{justify-content:center}
+  .pjlist{list-style:none;margin:0;padding:6px 8px 12px}
+  .pjlist li{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:10px}
+  .pjlist li:hover{background:#FBF9F5}
+  .swatch{width:10px;height:26px;border-radius:3px;background:var(--accent);opacity:.85;flex:none}
+  .pjlist .nm{font-weight:500;font-size:14px}
+  .pjlist .dt{font-size:12.5px;color:var(--muted)}
+
+  /* ---------- account ---------- */
+  .rows{list-style:none;margin:0;padding:0 20px 8px}
+  .rows li{display:flex;justify-content:space-between;gap:16px;padding:12px 0;border-top:1px solid var(--line-soft);font-size:14px}
+  .rows .k{color:var(--muted)}
+  .rows .v{font-weight:500;text-align:right}
+  .acctop{display:flex;align-items:center;gap:14px;padding:20px 20px 4px}
+  .acctop .avatar{width:44px;height:44px;font-size:15px}
+  .acctop .nm{font-family:Fraunces,Georgia,serif;font-size:19px;font-weight:600}
+  .acctop .em{color:var(--muted);font-size:13.5px}
+  .foot{display:flex;align-items:center;gap:12px;padding:6px 20px 20px}
+
+  /* ---------- skeleton + spinner ---------- */
+  .sk{display:inline-block;border-radius:6px;background:linear-gradient(90deg,#EDE8DE 25%,#F5F1E9 37%,#EDE8DE 63%);background-size:400% 100%;animation:sh 1.3s ease infinite;vertical-align:middle}
+  @keyframes sh{0%{background-position:100% 0}100%{background-position:0 0}}
+  .spin{
+    width:15px;height:15px;border-radius:50%;flex:none;display:inline-block;
+    border:2px solid currentColor;border-right-color:transparent;opacity:.85;
+    animation:sp .7s linear infinite;
+  }
+  @keyframes sp{to{transform:rotate(360deg)}}
+  @media (prefers-reduced-motion:reduce){
+    .sk,.spin{animation-duration:0s}
+    *{transition-duration:0s !important}
+  }
+
+  /* ---------- dialog ---------- */
+  dialog{
+    border:1px solid var(--line);border-radius:16px;padding:0;max-width:400px;width:calc(100% - 32px);
+    box-shadow:0 24px 60px -20px rgba(30,27,22,.42);background:var(--card);color:var(--ink);
+  }
+  dialog::backdrop{background:rgba(30,27,22,.34)}
+  .dlg{padding:22px}
+  .dlg h2{font-size:19px}
+  .dlg p{margin:8px 0 0;color:var(--muted);font-size:14px}
+  .dlg .actions{margin-top:20px;justify-content:flex-end}
+
+  .hidden{display:none !important}
+
+  @media (max-width:860px){
+    .grid{grid-template-columns:1fr}
+    main{padding:24px 16px 56px}
+    .topbar{padding:12px 16px;gap:12px;flex-wrap:wrap}
+    .who .meta{display:none}
+    .hero h1{font-size:27px}
+    .panel{padding-left:20px}
+    .connector{display:none}
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true">
+      <rect x="1" y="1" width="20" height="20" rx="6" fill="#0F6F63"/>
+      <rect x="5" y="6" width="12" height="2.6" rx="1.3" fill="#fff" opacity=".95"/>
+      <rect x="5" y="10" width="8" height="2.6" rx="1.3" fill="#fff" opacity=".7"/>
+      <rect x="5" y="14" width="4" height="2.6" rx="1.3" fill="#fff" opacity=".45"/>
+    </svg>
+    Rill
+  </div>
+
+  <nav class="tabs" role="tablist" aria-label="Sections">
+    <button class="tab" role="tab" id="tab-start" aria-selected="true" aria-controls="view-start">Get started</button>
+    <button class="tab" role="tab" id="tab-account" aria-selected="false" aria-controls="view-account">Account</button>
+  </nav>
+
+  <div class="spacer"></div>
+
+  <div id="chipWrap" aria-live="polite"></div>
+
+  <div class="who" id="who"></div>
+</header>
+
+<main>
+  <section id="view-start" role="tabpanel" aria-labelledby="tab-start">
+    <div class="hero">
+      <h1 id="heroTitle"><span class="sk" style="width:210px;height:30px"></span></h1>
+      <p id="heroSub">Three steps and your workspace is ready.</p>
+      <div class="rule" aria-hidden="true"></div>
+    </div>
+
+    <div class="grid">
+      <div>
+        <section class="card">
+          <div class="card-head">
+            <svg class="ring" width="46" height="46" viewBox="0 0 46 46" role="img" aria-labelledby="ringLbl">
+              <title id="ringLbl">Setup progress</title>
+              <circle class="track" cx="23" cy="23" r="19"></circle>
+              <circle class="fill" id="ringFill" cx="23" cy="23" r="19" transform="rotate(-90 23 23)" stroke-dasharray="0 119.4"></circle>
+              <text id="ringTxt" x="23" y="27.5" text-anchor="middle">0/3</text>
+            </svg>
+            <div>
+              <h2>Set up your workspace</h2>
+              <div class="sub" id="setupSub">Nothing saved yet</div>
+            </div>
+          </div>
+          <div class="segbar" aria-hidden="true">
+            <span data-seg="0"></span><span data-seg="1"></span><span data-seg="2"></span>
+          </div>
+
+          <div id="doneBanner" class="doneBox hidden">
+            <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true">
+              <circle cx="11" cy="11" r="11" fill="#0F6F63"></circle>
+              <path d="M6 11.4l3.4 3.2L16 7.8" fill="none" stroke="#fff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+            <div class="grow">
+              <h3>Setup saved</h3>
+              <p id="doneWhen">Confirmed by the server.</p>
+              <div class="chips" id="doneChips"></div>
+            </div>
+          </div>
+
+          <ol class="steps" id="steps">
+            <li class="step open" data-step="workspace">
+              <span class="connector" aria-hidden="true"></span>
+              <button class="step-head" type="button" aria-expanded="true">
+                <span class="mark" data-mark>1</span>
+                <span>
+                  <span class="step-title">Name your workspace</span>
+                  <span class="step-meta" data-meta></span>
+                </span>
+                <svg class="caret" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 5.5L7 9.5l4-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+              <div class="panel">
+                <form data-form="workspace" novalidate>
+                  <div class="field">
+                    <label for="wsName">Workspace name</label>
+                    <input id="wsName" name="wsName" type="text" value="My workspace" autocomplete="organization" spellcheck="false">
+                    <p class="fieldErr hidden" id="wsNameErr" role="alert">
+                      <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="6.2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M7 4v3.6M7 9.7v.1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                      <span>Add a workspace name.</span>
+                    </p>
+                  </div>
+                  <fieldset class="field">
+                    <legend>Team size</legend>
+                    <div class="seg">
+                      <label><input type="radio" name="size" value="Just me" checked><span>Just me</span></label>
+                      <label><input type="radio" name="size" value="2–9"><span>2–9</span></label>
+                      <label><input type="radio" name="size" value="10+"><span>10+</span></label>
+                    </div>
+                  </fieldset>
+                  <div class="field">
+                    <label for="wsFocus">Main focus</label>
+                    <select id="wsFocus" name="focus">
+                      <option>Product work</option>
+                      <option>Client projects</option>
+                      <option>Research</option>
+                      <option>Operations</option>
+                    </select>
+                  </div>
+                  <div class="actions">
+                    <button class="btn primary" type="submit" data-submit="workspace">Save</button>
+                    <span class="note hidden" data-note="workspace"></span>
+                  </div>
+                  <div class="errBox hidden" role="alert" data-err="workspace"></div>
+                </form>
+              </div>
+            </li>
+
+            <li class="step" data-step="prefs">
+              <span class="connector" aria-hidden="true"></span>
+              <button class="step-head" type="button" aria-expanded="false">
+                <span class="mark" data-mark>2</span>
+                <span>
+                  <span class="step-title">Set preferences</span>
+                  <span class="step-meta" data-meta></span>
+                </span>
+                <svg class="caret" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 5.5L7 9.5l4-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+              <div class="panel">
+                <form data-form="prefs" novalidate>
+                  <fieldset class="field">
+                    <legend>Week starts</legend>
+                    <div class="seg">
+                      <label><input type="radio" name="week" value="Monday" checked><span>Monday</span></label>
+                      <label><input type="radio" name="week" value="Sunday"><span>Sunday</span></label>
+                    </div>
+                  </fieldset>
+                  <fieldset class="field">
+                    <legend>Email me about</legend>
+                    <label class="switch">
+                      <span class="lbl">Mentions</span>
+                      <input type="checkbox" name="mentions" checked><span class="track"></span>
+                    </label>
+                    <label class="switch">
+                      <span class="lbl">Due dates</span>
+                      <input type="checkbox" name="due" checked><span class="track"></span>
+                    </label>
+                    <label class="switch">
+                      <span class="lbl">Weekly digest</span>
+                      <input type="checkbox" name="digest"><span class="track"></span>
+                    </label>
+                  </fieldset>
+                  <div class="actions">
+                    <button class="btn primary" type="submit" data-submit="prefs">Save</button>
+                    <span class="note hidden" data-note="prefs"></span>
+                  </div>
+                  <div class="errBox hidden" role="alert" data-err="prefs"></div>
+                </form>
+              </div>
+            </li>
+
+            <li class="step" data-step="finish">
+              <span class="connector" aria-hidden="true"></span>
+              <button class="step-head" type="button" aria-expanded="false">
+                <span class="mark" data-mark>3</span>
+                <span>
+                  <span class="step-title">Finish setup</span>
+                  <span class="step-meta" data-meta></span>
+                </span>
+                <svg class="caret" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 5.5L7 9.5l4-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+              <div class="panel">
+                <div class="field">
+                  <span style="display:block;font-size:13px;font-weight:600;color:var(--ink-2);margin-bottom:6px">Saved so far</span>
+                  <div class="chips" id="summaryChips"><span class="tag plain">Nothing yet</span></div>
+                </div>
+                <div class="actions">
+                  <button class="btn primary" type="button" id="finishBtn">Finish setup</button>
+                  <span class="note hidden" data-note="finish"></span>
+                </div>
+                <div class="errBox hidden" role="alert" data-err="finish"></div>
+              </div>
+            </li>
+          </ol>
+        </section>
+      </div>
+
+      <aside>
+        <section class="card">
+          <div class="pj-head">
+            <h2>Projects</h2>
+            <span class="count" id="pjCount"><span class="sk" style="width:14px;height:11px"></span></span>
+          </div>
+          <div id="pjBody">
+            <div class="empty">
+              <span class="sk" style="width:100%;height:120px;border-radius:12px"></span>
+            </div>
+          </div>
+        </section>
+      </aside>
+    </div>
+  </section>
+
+  <section id="view-account" role="tabpanel" aria-labelledby="tab-account" hidden>
+    <div class="hero">
+      <h1>Account</h1>
+      <p>Details as your server reports them.</p>
+      <div class="rule" aria-hidden="true"></div>
+    </div>
+    <div class="grid">
+      <section class="card">
+        <div class="acctop">
+          <div class="avatar" id="accAvatar">&nbsp;</div>
+          <div>
+            <div class="nm" id="accName"><span class="sk" style="width:140px;height:18px"></span></div>
+            <div class="em" id="accEmail"><span class="sk" style="width:170px;height:12px"></span></div>
+          </div>
+        </div>
+        <ul class="rows">
+          <li><span class="k">Plan</span><span class="v" id="accPlan">—</span></li>
+          <li><span class="k">Projects</span><span class="v" id="accProjects">—</span></li>
+          <li><span class="k">Setup</span><span class="v" id="accSetup">—</span></li>
+        </ul>
+        <div class="foot">
+          <button class="btn ghost small" id="accRefresh">Refresh</button>
+          <span class="note hidden" id="accNote"></span>
+        </div>
+        <div style="padding:0 20px 20px"><div class="errBox hidden" role="alert" id="accErr"></div></div>
+      </section>
+      <aside>
+        <section class="card">
+          <div class="card-head">
+            <svg class="ring" width="46" height="46" viewBox="0 0 46 46" role="img" aria-label="Setup progress">
+              <circle class="track" cx="23" cy="23" r="19"></circle>
+              <circle class="fill" id="ringFill2" cx="23" cy="23" r="19" transform="rotate(-90 23 23)" stroke-dasharray="0 119.4"></circle>
+              <text id="ringTxt2" x="23" y="27.5" text-anchor="middle">0/3</text>
+            </svg>
+            <div>
+              <h2>Setup</h2>
+              <div class="sub" id="accSetupSub">Nothing saved yet</div>
+            </div>
+          </div>
+          <div style="padding:0 20px 20px">
+            <button class="btn ghost small" id="backToSetup">Open setup</button>
+          </div>
+        </section>
+      </aside>
+    </div>
+  </section>
+</main>
+
+<dialog id="finishDlg" aria-labelledby="dlgTitle">
+  <form method="dialog" class="dlg" id="dlgForm">
+    <h2 id="dlgTitle">Finish setup?</h2>
+    <p>Your account is marked as set up. You can keep changing preferences later.</p>
+    <div class="actions">
+      <button class="btn ghost" type="button" id="dlgCancel">Cancel</button>
+      <button class="btn primary" type="button" id="dlgConfirm">Confirm</button>
+    </div>
+  </form>
+</dialog>
+
+<script>
+(function () {
+  "use strict";
+  var api = window.api;
+  var $ = function (sel, root) { return (root || document).querySelector(sel); };
+  var $$ = function (sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); };
+  var RING_C = 2 * Math.PI * 19;
+
+  var SVG = {
+    check: '<svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 7.3l3 3L11 4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    bang: '<svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M7 1.6l6 10.8H1L7 1.6z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M7 5.6v3M7 10.6v.1" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>',
+    warnBig: '<svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" style="flex:none;margin-top:1px"><circle cx="9" cy="9" r="8.1" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M9 5v5M9 12.6v.1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+    spin: '<span class="spin" aria-hidden="true"></span>'
+  };
+
+  var state = {
+    user: null,
+    userStatus: "loading",   // loading | ready | error
+    userError: null,
+    checkedAt: null,
+    refreshing: false,
+    view: "start",
+    open: "workspace",
+    steps: {
+      workspace: { n: 1, status: "todo", error: null, retry: null, saved: null, at: null },
+      prefs:     { n: 2, status: "todo", error: null, retry: null, saved: null, at: null },
+      finish:    { n: 3, status: "todo", error: null, retry: null, saved: null, at: null }
+    },
+    inflight: 0
+  };
+
+  /* ---------------- helpers ---------------- */
+
+  function clock(d) {
+    return (d || new Date()).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  }
+  function day(iso) {
+    var d = new Date(iso);
+    if (isNaN(d)) return "";
+    return d.toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" });
+  }
+  function initials(name) {
+    var parts = String(name || "").trim().split(/\s+/).filter(Boolean);
+    if (!parts.length) return "?";
+    return (parts[0][0] + (parts.length > 1 ? parts[parts.length - 1][0] : "")).toUpperCase();
+  }
+  function describe(err) {
+    if (err && err.code === "NETWORK") {
+      return { head: "Couldn't reach the server.", why: "Nothing was saved. Your entries are still here." };
+    }
+    if (err && err.name === "AbortError") {
+      return { head: "Save stopped.", why: "Nothing was saved." };
+    }
+    return { head: "Save failed.", why: (err && err.message) ? err.message : "The server rejected the request." };
+  }
+  function doneCount() {
+    var n = 0, k;
+    for (k in state.steps) if (state.steps[k].status === "done") n++;
+    return n;
+  }
+
+  /* ---------------- rendering ---------------- */
+
+  function renderChip() {
+    var wrap = $("#chipWrap");
+    if (state.inflight > 0) {
+      wrap.innerHTML = '<span class="chip">' + SVG.spin + "Saving</span>";
+    } else if (wrap.dataset.flash === "1") {
+      wrap.innerHTML = '<span class="chip ok">' + SVG.check + "Saved</span>";
+    } else {
+      wrap.innerHTML = "";
+    }
+  }
+  var flashTimer = null;
+  function flashSaved() {
+    var wrap = $("#chipWrap");
+    wrap.dataset.flash = "1";
+    renderChip();
+    clearTimeout(flashTimer);
+    flashTimer = setTimeout(function () {
+      wrap.dataset.flash = "0";
+      renderChip();
+    }, 2600);
+  }
+
+  function renderWho() {
+    var el = $("#who");
+    if (state.userStatus === "loading") {
+      el.innerHTML = '<span class="sk" style="width:32px;height:32px;border-radius:50%"></span>' +
+        '<span class="meta"><span class="sk" style="width:86px;height:11px"></span></span>';
+      return;
+    }
+    if (state.userStatus === "error" || !state.user) {
+      el.innerHTML = '<span class="note">' + SVG.bang + "Account unavailable</span>";
+      return;
+    }
+    var u = state.user;
+    el.innerHTML = "";
+    var av = document.createElement("div");
+    av.className = "avatar";
+    av.textContent = initials(u.name);
+    var meta = document.createElement("div");
+    meta.className = "meta";
+    var nm = document.createElement("div");
+    nm.className = "name";
+    nm.textContent = u.name;
+    var pl = document.createElement("span");
+    pl.className = "plan";
+    pl.textContent = u.plan;
+    meta.appendChild(nm);
+    meta.appendChild(pl);
+    el.appendChild(av);
+    el.appendChild(meta);
+  }
+
+  function renderHero() {
+    var h1 = $("#heroTitle"), sub = $("#heroSub");
+    if (state.userStatus === "loading") {
+      h1.innerHTML = '<span class="sk" style="width:210px;height:30px"></span>';
+      return;
+    }
+    if (state.userStatus === "error" || !state.user) {
+      h1.textContent = "Welcome";
+      sub.textContent = "Three steps and your workspace is ready.";
+      return;
+    }
+    var first = String(state.user.name || "").split(/\s+/)[0];
+    h1.textContent = "Welcome, " + first + ".";
+    sub.textContent = doneCount() === 3
+      ? "Setup saved. Your projects appear here as they are created."
+      : "Three steps and your workspace is ready.";
+  }
+
+  function renderProgress() {
+    var n = doneCount();
+    var frac = (n / 3) * RING_C;
+    [["#ringFill", "#ringTxt"], ["#ringFill2", "#ringTxt2"]].forEach(function (pair) {
+      var f = $(pair[0]), t = $(pair[1]);
+      if (f) f.setAttribute("stroke-dasharray", frac.toFixed(2) + " " + RING_C.toFixed(2));
+      if (t) t.textContent = n + "/3";
+    });
+    var order = ["workspace", "prefs", "finish"];
+    $$(".segbar span").forEach(function (seg, i) {
+      var st = state.steps[order[i]];
+      seg.className = st.status === "done" ? "on" : (st.status === "error" ? "err" : "");
+    });
+    var label = n === 0 ? "Nothing saved yet" : (n === 3 ? "All steps saved" : n + " of 3 saved");
+    $("#setupSub").textContent = label;
+    $("#accSetupSub").textContent = label;
+    $("#accSetup").textContent = n + " of 3 saved";
+
+    var banner = $("#doneBanner");
+    if (state.steps.finish.status === "done") {
+      banner.classList.remove("hidden");
+      $("#doneWhen").textContent = "Server confirmed at " + clock(state.steps.finish.at) + ".";
+      var chips = $("#doneChips");
+      chips.innerHTML = "";
+      summaryTags().forEach(function (t) { chips.appendChild(t); });
+    } else {
+      banner.classList.add("hidden");
+    }
+  }
+
+  function summaryTags() {
+    var out = [];
+    var ws = state.steps.workspace.saved;
+    var pf = state.steps.prefs.saved;
+    if (ws) {
+      out.push(tag(ws.workspace.name));
+      out.push(tag(ws.workspace.teamSize));
+      out.push(tag(ws.workspace.focus));
+    }
+    if (pf) {
+      out.push(tag("Week: " + pf.preferences.weekStartsOn));
+      var on = [];
+      if (pf.preferences.emailMentions) on.push("mentions");
+      if (pf.preferences.emailDueDates) on.push("due dates");
+      if (pf.preferences.emailWeeklyDigest) on.push("digest");
+      out.push(tag(on.length ? "Email: " + on.join(", ") : "Email: off"));
+    }
+    if (!out.length) out.push(tag("Nothing yet", true));
+    return out;
+  }
+  function tag(text, plain) {
+    var s = document.createElement("span");
+    s.className = "tag" + (plain ? " plain" : "");
+    s.textContent = text;
+    return s;
+  }
+
+  function renderStep(key) {
+    var st = state.steps[key];
+    var li = $('.step[data-step="' + key + '"]');
+    var mark = $("[data-mark]", li);
+    var meta = $("[data-meta]", li);
+    var head = $(".step-head", li);
+    var note = $('[data-note="' + key + '"]');
+    var errBox = $('[data-err="' + key + '"]');
+    var btn = key === "finish" ? $("#finishBtn") : $('[data-submit="' + key + '"]');
+
+    li.classList.toggle("open", state.open === key);
+    li.classList.toggle("done", st.status === "done");
+    li.classList.toggle("error", st.status === "error");
+    li.classList.toggle("saving", st.status === "saving");
+    head.setAttribute("aria-expanded", state.open === key ? "true" : "false");
+
+    if (st.status === "saving") mark.innerHTML = SVG.spin;
+    else if (st.status === "done") mark.innerHTML = SVG.check;
+    else if (st.status === "error") mark.innerHTML = SVG.bang;
+    else mark.textContent = String(st.n);
+
+    if (st.status === "saving") meta.textContent = "Saving…";
+    else if (st.status === "done") meta.textContent = "Saved " + clock(st.at);
+    else if (st.status === "error") meta.textContent = "Not saved";
+    else meta.textContent = "";
+
+    if (btn) {
+      btn.disabled = st.status === "saving";
+      btn.setAttribute("aria-busy", st.status === "saving" ? "true" : "false");
+      var labels = {
+        workspace: st.status === "done" ? "Save again" : "Save",
+        prefs: st.status === "done" ? "Save again" : "Save",
+        finish: "Finish setup"
+      };
+      btn.innerHTML = "";
+      if (st.status === "saving") {
+        btn.insertAdjacentHTML("beforeend", SVG.spin);
+        btn.insertAdjacentText("beforeend", "Saving…");
+      } else {
+        btn.textContent = labels[key];
+      }
+      if (key === "finish" && st.status === "done") btn.disabled = true;
+    }
+
+    if (note) {
+      if (st.status === "done") {
+        note.className = "note good";
+        note.innerHTML = SVG.check + "Saved " + clock(st.at);
+      } else if (st.status === "saving") {
+        note.className = "note";
+        note.textContent = "Waiting for the server…";
+      } else {
+        note.className = "note hidden";
+        note.textContent = "";
+      }
+    }
+
+    if (errBox) {
+      if (st.status === "error" && st.error) {
+        errBox.classList.remove("hidden");
+        errBox.innerHTML = "";
+        errBox.insertAdjacentHTML("beforeend", SVG.warnBig);
+        var grow = document.createElement("div");
+        grow.className = "grow";
+        var strong = document.createElement("strong");
+        strong.textContent = st.error.head;
+        var why = document.createElement("div");
+        why.className = "why";
+        why.textContent = st.error.why;
+        grow.appendChild(strong);
+        grow.appendChild(why);
+        var retry = document.createElement("button");
+        retry.type = "button";
+        retry.className = "btn small";
+        retry.textContent = "Retry";
+        retry.addEventListener("click", function () { if (st.retry) st.retry(); });
+        errBox.appendChild(grow);
+        errBox.appendChild(retry);
+      } else {
+        errBox.classList.add("hidden");
+        errBox.innerHTML = "";
+      }
+    }
+
+    if (key === "finish") {
+      var chips = $("#summaryChips");
+      chips.innerHTML = "";
+      summaryTags().forEach(function (t) { chips.appendChild(t); });
+    }
+  }
+
+  function renderSteps() {
+    ["workspace", "prefs", "finish"].forEach(renderStep);
+  }
+
+  function renderProjects() {
+    var body = $("#pjBody");
+    var count = $("#pjCount");
+
+    if (state.userStatus === "loading") {
+      count.innerHTML = '<span class="sk" style="width:14px;height:11px"></span>';
+      body.innerHTML = '<div class="empty"><span class="sk" style="width:100%;height:120px;border-radius:12px"></span></div>';
+      return;
+    }
+    if (state.userStatus === "error") {
+      count.textContent = "—";
+      body.innerHTML = "";
+      var wrap = document.createElement("div");
+      wrap.className = "empty";
+      var box = document.createElement("div");
+      box.className = "errBox";
+      box.setAttribute("role", "alert");
+      box.style.textAlign = "left";
+      box.insertAdjacentHTML("beforeend", SVG.warnBig);
+      var g = document.createElement("div");
+      g.className = "grow";
+      var s = document.createElement("strong");
+      s.textContent = state.userError ? state.userError.head : "Couldn't load your account.";
+      var w = document.createElement("div");
+      w.className = "why";
+      w.textContent = state.userError ? state.userError.why : "";
+      g.appendChild(s); g.appendChild(w);
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "btn small";
+      b.textContent = "Retry";
+      b.addEventListener("click", function () { loadUser(false); });
+      box.appendChild(g); box.appendChild(b);
+      wrap.appendChild(box);
+      body.appendChild(wrap);
+      return;
+    }
+
+    var projects = (state.user && state.user.projects) || [];
+    count.textContent = String(projects.length);
+    body.innerHTML = "";
+
+    if (!projects.length) {
+      var empty = document.createElement("div");
+      empty.className = "empty";
+      empty.innerHTML =
+        '<svg class="art" viewBox="0 0 250 132" role="img" aria-label="An empty project board">' +
+          '<rect x="1" y="1" width="248" height="130" rx="12" fill="#FDFCFA" stroke="#E6E0D6"/>' +
+          '<rect x="16" y="18" width="58" height="7" rx="3.5" fill="#E2EFEC"/>' +
+          '<rect x="96" y="18" width="42" height="7" rx="3.5" fill="#EDE7DC"/>' +
+          '<rect x="176" y="18" width="50" height="7" rx="3.5" fill="#EDE7DC"/>' +
+          '<rect x="16" y="36" width="58" height="34" rx="7" fill="#fff" stroke="#0F6F63" stroke-width="1.5" stroke-dasharray="4 4"/>' +
+          '<path d="M45 47v12M39 53h12" stroke="#0F6F63" stroke-width="1.8" stroke-linecap="round"/>' +
+          '<rect x="96" y="36" width="58" height="34" rx="7" fill="#fff" stroke="#DCD4C6" stroke-dasharray="4 4"/>' +
+          '<rect x="176" y="36" width="58" height="34" rx="7" fill="#fff" stroke="#DCD4C6" stroke-dasharray="4 4"/>' +
+          '<rect x="16" y="80" width="58" height="34" rx="7" fill="#fff" stroke="#DCD4C6" stroke-dasharray="4 4"/>' +
+          '<rect x="96" y="80" width="58" height="34" rx="7" fill="#fff" stroke="#DCD4C6" stroke-dasharray="4 4"/>' +
+        "</svg>" +
+        "<h3>No projects yet</h3>";
+      var p = document.createElement("p");
+      p.textContent = "This list mirrors your account on the server.";
+      empty.appendChild(p);
+
+      var acts = document.createElement("div");
+      acts.className = "actions";
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "btn ghost small";
+      btn.id = "pjCheck";
+      if (state.refreshing) {
+        btn.disabled = true;
+        btn.insertAdjacentHTML("beforeend", SVG.spin);
+        btn.insertAdjacentText("beforeend", "Checking…");
+      } else {
+        btn.textContent = "Check again";
+      }
+      btn.addEventListener("click", function () { loadUser(true); });
+      acts.appendChild(btn);
+      if (state.checkedAt && !state.refreshing) {
+        var n = document.createElement("span");
+        n.className = "note";
+        n.textContent = "Checked " + clock(state.checkedAt);
+        acts.appendChild(n);
+      }
+      empty.appendChild(acts);
+      body.appendChild(empty);
+      return;
+    }
+
+    var ul = document.createElement("ul");
+    ul.className = "pjlist";
+    projects.forEach(function (p) {
+      var li = document.createElement("li");
+      var sw = document.createElement("span");
+      sw.className = "swatch";
+      var d = document.createElement("div");
+      var nm = document.createElement("div");
+      nm.className = "nm";
+      nm.textContent = p.name;
+      var dt = document.createElement("div");
+      dt.className = "dt";
+      dt.textContent = "Created " + day(p.createdAt);
+      d.appendChild(nm); d.appendChild(dt);
+      li.appendChild(sw); li.appendChild(d);
+      ul.appendChild(li);
+    });
+    body.appendChild(ul);
+  }
+
+  function renderAccount() {
+    var u = state.user;
+    if (state.userStatus === "loading") {
+      $("#accName").innerHTML = '<span class="sk" style="width:140px;height:18px"></span>';
+      $("#accEmail").innerHTML = '<span class="sk" style="width:170px;height:12px"></span>';
+      $("#accAvatar").textContent = "";
+      $("#accPlan").textContent = "—";
+      $("#accProjects").textContent = "—";
+    } else if (u) {
+      $("#accName").textContent = u.name;
+      $("#accEmail").textContent = u.email;
+      $("#accAvatar").textContent = initials(u.name);
+      $("#accPlan").textContent = u.plan;
+      $("#accProjects").textContent = String((u.projects || []).length);
+    }
+
+    var note = $("#accNote");
+    if (state.refreshing) {
+      note.className = "note";
+      note.innerHTML = SVG.spin + "Refreshing…";
+    } else if (state.checkedAt) {
+      note.className = "note";
+      note.textContent = "Updated " + clock(state.checkedAt);
+    } else {
+      note.className = "note hidden";
+    }
+    $("#accRefresh").disabled = state.refreshing;
+
+    var box = $("#accErr");
+    if (state.userStatus === "error" && state.userError) {
+      box.classList.remove("hidden");
+      box.innerHTML = "";
+      box.insertAdjacentHTML("beforeend", SVG.warnBig);
+      var g = document.createElement("div");
+      g.className = "grow";
+      var s = document.createElement("strong");
+      s.textContent = state.userError.head;
+      var w = document.createElement("div");
+      w.className = "why";
+      w.textContent = state.userError.why;
+      g.appendChild(s); g.appendChild(w);
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "btn small";
+      b.textContent = "Retry";
+      b.addEventListener("click", function () { loadUser(true); });
+      box.appendChild(g); box.appendChild(b);
+    } else {
+      box.classList.add("hidden");
+      box.innerHTML = "";
+    }
+  }
+
+  function renderAll() {
+    renderWho();
+    renderHero();
+    renderProgress();
+    renderSteps();
+    renderProjects();
+    renderAccount();
+    renderChip();
+  }
+
+  /* ---------------- actions ---------------- */
+
+  function loadUser(silent) {
+    if (state.refreshing) return;              // de-duplicated
+    state.refreshing = true;
+    if (!silent) state.userStatus = "loading";
+    renderProjects();
+    renderAccount();
+    renderWho();
+    renderHero();
+
+    api.getUser().then(function (u) {
+      state.user = u;
+      state.userStatus = "ready";
+      state.userError = null;
+      state.checkedAt = new Date();
+      if (u && u.hasCompletedOnboarding && state.steps.finish.status === "todo") {
+        state.steps.finish.status = "done";
+        state.steps.finish.at = new Date();
+      }
+      prefillName(u);
+    }).catch(function (err) {
+      state.userStatus = "error";
+      state.userError = describe(err);
+      state.userError.head = "Couldn't load your account.";
+    }).then(function () {
+      state.refreshing = false;
+      renderAll();
+    });
+  }
+
+  var nameTouched = false;
+  function prefillName(u) {
+    var input = $("#wsName");
+    if (nameTouched || !u || !u.name) return;
+    if (input.value && input.value !== "My workspace") return;
+    input.value = String(u.name).split(/\s+/)[0] + "'s workspace";
+  }
+
+  function save(key, patch) {
+    var st = state.steps[key];
+    if (st.status === "saving") return;        // de-duplicated while pending
+    st.status = "saving";
+    st.error = null;
+    st.retry = function () { save(key, patch); };
+    state.inflight++;
+    renderStep(key);
+    renderProgress();
+    renderChip();
+
+    api.updateSettings(patch).then(function () {
+      st.status = "done";                      // only after the server confirms
+      st.saved = patch;
+      st.at = new Date();
+      flashSaved();
+      advanceFrom(key);
+    }).catch(function (err) {
+      st.status = "error";
+      st.error = describe(err);
+    }).then(function () {
+      state.inflight = Math.max(0, state.inflight - 1);
+      renderChip();
+      renderSteps();
+      renderProgress();
+      renderHero();
+      if (key === "finish" && st.status === "done") loadUser(true);
+    });
+  }
+
+  function advanceFrom(key) {
+    var order = ["workspace", "prefs", "finish"];
+    var i = order.indexOf(key);
+    for (var j = i + 1; j < order.length; j++) {
+      if (state.steps[order[j]].status !== "done") { state.open = order[j]; return; }
+    }
+  }
+
+  /* ---------------- wiring ---------------- */
+
+  $$(".step-head").forEach(function (head) {
+    head.addEventListener("click", function () {
+      var key = head.closest(".step").dataset.step;
+      state.open = state.open === key ? null : key;
+      renderSteps();
+    });
+  });
+
+  $("#wsName").addEventListener("input", function () {
+    nameTouched = true;
+    var err = $("#wsNameErr");
+    if (this.value.trim()) {
+      err.classList.add("hidden");
+      this.classList.remove("bad");
+    }
+  });
+
+  $('[data-form="workspace"]').addEventListener("submit", function (e) {
+    e.preventDefault();
+    var input = $("#wsName");
+    var err = $("#wsNameErr");
+    var name = input.value.trim();
+    if (!name) {
+      err.classList.remove("hidden");
+      input.classList.add("bad");
+      input.focus();
+      return;
+    }
+    err.classList.add("hidden");
+    input.classList.remove("bad");
+    var size = (this.querySelector('input[name="size"]:checked') || {}).value || "Just me";
+    save("workspace", { workspace: { name: name, teamSize: size, focus: $("#wsFocus").value } });
+  });
+
+  $('[data-form="prefs"]').addEventListener("submit", function (e) {
+    e.preventDefault();
+    var week = (this.querySelector('input[name="week"]:checked') || {}).value || "Monday";
+    save("prefs", {
+      preferences: {
+        weekStartsOn: week,
+        emailMentions: this.querySelector('input[name="mentions"]').checked,
+        emailDueDates: this.querySelector('input[name="due"]').checked,
+        emailWeeklyDigest: this.querySelector('input[name="digest"]').checked
+      }
+    });
+  });
+
+  var dlg = $("#finishDlg");
+  $("#finishBtn").addEventListener("click", function () {
+    if (state.steps.finish.status === "saving") return;
+    if (typeof dlg.showModal === "function") {
+      dlg.showModal();
+      $("#dlgConfirm").focus();
+    } else {
+      save("finish", { hasCompletedOnboarding: true });
+    }
+  });
+  $("#dlgCancel").addEventListener("click", function () { dlg.close(); });
+  $("#dlgConfirm").addEventListener("click", function () {
+    dlg.close();                                // closing mid-save is safe: state lives outside the dialog
+    save("finish", { hasCompletedOnboarding: true });
+  });
+
+  $$(".tab").forEach(function (tab) {
+    tab.addEventListener("click", function () {
+      var isStart = tab.id === "tab-start";
+      state.view = isStart ? "start" : "account";
+      $$(".tab").forEach(function (t) { t.setAttribute("aria-selected", t === tab ? "true" : "false"); });
+      $("#view-start").hidden = !isStart;
+      $("#view-account").hidden = isStart;
+      renderAll();
+    });
+  });
+
+  $("#backToSetup").addEventListener("click", function () { $("#tab-start").click(); });
+  $("#accRefresh").addEventListener("click", function () { loadUser(true); });
+
+  window.addEventListener("unhandledrejection", function (e) { e.preventDefault(); });
+
+  renderAll();
+  loadUser(false);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,83 @@
+{
+  "id": "e4ba8894",
+  "hierarchy": {
+    "score": 5,
+    "observations": [
+      "Answered from the idle desktop screenshot before any source: purpose read as an account-settings page (cards titled 'Profile', 'Preferences', 'Projects', 'Danger zone' for user Alex Rivera) — matches the brief exactly.",
+      "Primary action read as the single filled teal 'Save changes' button; the source confirms it is the only .btn.primary on the idle page and metrics record primaryAction = BUTTON 'Save changes'.",
+      "Attention read as the 'Danger zone' card: red hazard-stripe top border, red header, three filled red risk bars labelled 'IRREVERSIBLE', outlined red 'Delete account' button — precisely the destructive surface the brief asks for; the amber 'Setup incomplete' chip is the correct secondary attention point.",
+      "Both deletion paths named in the brief are visible at a glance: per-row trash icon buttons on all 3 project rows and the 'Delete account' button, so nothing the brief requires is buried."
+    ]
+  },
+  "f1": {
+    "score": 5,
+    "observations": [
+      "Raw ratio: 3/3 inventory items are graphical+text; 0 text only, 0 missing. Metrics back this: graphical.total = 34 on desktop (20 svg, 1 progress, 13 badges) against only 64 visible words.",
+      "Save state is graphical at every stage: the amber .dot-mod dirty dot on edited fields, a spinner replacing the save icon with label 'Saving' and aria-busy, a green check SVG + 'Saved' note, the header status pill switching among spinner/'Saving', check/'Saved', alert/'Action failed' (visible in the error screenshot), and toggle switches that show a mid-position knob with an embedded spinner while pending.",
+      "Destructive-action danger level is graphical: repeating red hazard-stripe .hatch bars on the danger card, the modal, the load-error card and the terminal screen; a three-segment .risk bar meter with 'IRREVERSIBLE'; warning-triangle SVGs; red outlined vs red filled button tiers ('Delete account' vs 'Delete forever'); red loss chips in the modal ('3 projects', 'Pro plan', 'No undo').",
+      "Confirmation state is graphical: an armed project row turns amber (data-armed background) with a warning icon and Keep/Delete split; the modal shows a lock icon whose SVG physically opens when the typed email matches, with text state 'Email must match' → 'Unlocked'; a red <progress> bar (#mBar) runs across the modal while deleteAccount is pending and on the deleting project row."
+    ]
+  },
+  "f2": {
+    "score": 5,
+    "observations": [
+      "Desktop pageWords is 64 for the entire page — the UI shows state through icons, chips and color rather than prose; helperWords = 6 and longLeafWords = 0 with an empty longLeaves list.",
+      "All 5 button labels average 1.4 words with a max of 2 ('Save changes', 'Delete account', 'Delete forever', 'Cancel', 'Retry'); longLabels is empty.",
+      "The only helper sentence on the idle page, 'Removes your account and all projects.', adds information the heading does not carry (projects go too) rather than restating it.",
+      "Error copy is telegraphic and stateful, e.g. 'Profile not saved. Network error. Nothing changed.' — each fragment carries distinct information (what failed, why, resulting state); nothing narrates what the UI already shows."
+    ]
+  },
+  "f3": {
+    "score": 5,
+    "observations": [
+      "Terminology is consistent end to end: 'Delete account' in the card, button, and modal title; 'project' everywhere; the Save/Saving/Saved triple reused identically for profile, preferences and theme.",
+      "Copy matches verified behavior: 'Delete forever' / 'No undo' precede a genuinely unguarded terminal state, and 'Account deleted. Confirmed by the server.' is literally true — the async rater confirmed success is only shown after the promise resolves (item 10 PASS).",
+      "Error messages are specific, not filler: '\"Q3 Website Rebuild\" not deleted. Network error. Nothing changed.' names the object, cause and resulting state; fallbacks ('Unnamed account', 'Unknown date', 'Not found on the server.') are all real strings, no lorem or TODO placeholders.",
+      "No marketing tone anywhere; the closest to voice is the empty-state line 'Nothing left to delete here.', which is accurate for this deletion-centric settings context rather than filler."
+    ]
+  },
+  "f4": {
+    "score": 4,
+    "observations": [
+      "Multiple color and layout decisions exist only because this brief is about destruction: hazard-stripe .hatch borders reserved for destructive/failed surfaces, a three-bar 'IRREVERSIBLE' risk meter, a two-tier red button system (outlined 'Delete account' to open, filled 'Delete forever' to commit), and live loss chips ('3 projects', 'Pro plan', 'No undo') computed from the actual account.",
+      "The confirmation interaction is bespoke: inline arm/Keep/Delete on each project row (row turns amber) instead of a generic modal, and a type-your-email gate whose lock icon SVG visibly opens on match — not stock components.",
+      "The base visual language is the standard SaaS settings template: white cards on #eef0f3, Inter, teal accent, pill chips, iOS-style toggles, shimmer skeletons, two-column card grid — competent but interchangeable.",
+      "Small task-aware touches: JetBrains Mono for project ids/dates, the deleted-account terminal 'seal' screen replacing the entire shell, and the header status pill that aggregates any in-flight mutation."
+    ]
+  },
+  "f1Inventory": [
+    {
+      "item": "save state",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "destructive-action danger level",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "confirmation state",
+      "classification": "graphical+text"
+    }
+  ],
+  "f2Redundant": [],
+  "f3Issues": [],
+  "f4TaskDriven": [
+    "Hazard-stripe .hatch borders applied only to destructive and failure surfaces (danger card, delete modal, load-error card, terminal deleted screen)",
+    "Three-segment risk bar meter with uppercase 'IRREVERSIBLE' label above the delete-account row",
+    "Two-tier destructive buttons: outlined 'Delete account' to open the flow, filled red 'Delete forever' to commit",
+    "Modal loss chips enumerating the concrete stakes from live data: '3 projects', 'Pro plan', 'No undo'",
+    "Type-your-email confirmation gate with a lock icon that visually unlocks on match and states 'Email must match' / 'Unlocked'",
+    "Inline per-row arm/Keep/Delete confirmation that turns the project row amber instead of a generic dialog",
+    "Terminal 'Account deleted / Confirmed by the server.' seal screen that replaces the whole shell",
+    "Amber dirty-dots on modified profile fields tied to the save state",
+    "JetBrains Mono for project ids and dates in the projects list",
+    "Empty-state copy 'Nothing left to delete here.' acknowledging the page's deletion purpose"
+  ],
+  "f4Template": [
+    "White cards on light-grey (#eef0f3) background with subtle shadow — stock SaaS settings look",
+    "Inter as the UI typeface with a teal accent color, both interchangeable with any dashboard",
+    "iOS-style toggle switches and pill-shaped chips/badges",
+    "Shimmer skeleton loaders for header, inputs and project rows",
+    "Two-column card grid collapsing to one column on mobile — standard responsive settings layout"
+  ]
+}

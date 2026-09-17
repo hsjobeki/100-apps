@@ -1,0 +1,66 @@
+{
+  "id": "fd799df2",
+  "items": [
+    {
+      "n": 1,
+      "verdict": "PASS",
+      "reason": "250 ms after clicking Continue under slow latency, the button shows an inline spinner, aria-busy=true, and is disabled; the initial slow getUser also shows a 'Loading your account' state.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/fd799df2_1.png"
+    },
+    {
+      "n": 2,
+      "verdict": "PASS",
+      "reason": "Four clicks on Continue within 300 ms under slow latency produced exactly one updateSettings call in __apiLog; the button was disabled with a spinner while pending: <button class=\"btn primary\" type=\"submit\" id=\"go1\" aria-busy=\"true\" disabled>.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/fd799df2_2.png"
+    },
+    {
+      "n": 3,
+      "verdict": "N/A",
+      "reason": "Marked not applicable to this brief by the assignment.",
+      "evidence": "N/A per task instructions for this page."
+    },
+    {
+      "n": 4,
+      "verdict": "N/A",
+      "reason": "Marked not applicable to this brief by the assignment.",
+      "evidence": "N/A per task instructions for this page."
+    },
+    {
+      "n": 5,
+      "verdict": "PASS",
+      "reason": "At fail=1, a failed save shows 'Network unreachable. Nothing was saved. / Press Continue to try again.' rendered in the form's action row directly beside the Continue button that triggered it.",
+      "evidence": "<span class=\"grow\"><b>Network unreachable. Nothing was saved.</b><span class=\"detail\">Press Continue to try again.</span></span> (also fd799df2_5.png)"
+    },
+    {
+      "n": 6,
+      "verdict": "PASS",
+      "reason": "At fail=0.5 seed=5, the first Continue failed and showed the error; clicking Continue again on the same page issued a second updateSettings call and advanced to 'Import your tasks' — recovery without reload.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/fd799df2_6.png"
+    },
+    {
+      "n": 7,
+      "verdict": "N/A",
+      "reason": "Marked not applicable to this brief by the assignment.",
+      "evidence": "N/A per task instructions for this page."
+    },
+    {
+      "n": 8,
+      "verdict": "N/A",
+      "reason": "Marked not applicable to this brief by the assignment.",
+      "evidence": "N/A per task instructions for this page."
+    },
+    {
+      "n": 9,
+      "verdict": "FAIL",
+      "reason": "Secondary navigation stays enabled while a save is pending, and the stale completion overrides the user's navigation: pressing Back on the Finish step mid-flight showed the Import step, then ~15 s later the resolved call force-navigated to the completed 'Workspace ready / All steps done' workspace, discarding the user's Back; the same yank-back happened after 'Skip for now' during a pending step-1 save.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/fd799df2_10.png"
+    },
+    {
+      "n": 10,
+      "verdict": "PASS",
+      "reason": "The wizard never advances or marks progress before the server resolves: while Finish setup was pending the sidebar still read '2/3 / Step 3 of 3' with the button spinning, flipping to '3/3 Workspace ready' only after resolution, and a failed save states 'Nothing was saved' with the step unchanged.",
+      "evidence": "Pending: <button id=\"finish\" aria-busy=\"true\" disabled><span class=\"spin\"></span>Finish setup</button> with sidebar '2/3 / Step 3 of 3'; '3/3 / All steps done' only after resolve (fd799df2_10.png)"
+    }
+  ],
+  "failCount": 1
+}

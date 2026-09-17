@@ -1,0 +1,83 @@
+{
+  "id": "37cf7e87",
+  "f1": {
+    "score": 5,
+    "observations": [
+      "Save state is graphical+text: the Save/Save changes buttons swap to a CSS '.spinner' plus 'Saving…' (loading_desktop shows the disabled 'Saving…' button at the Notifications card), and outcomes arrive as toasts with SVG check/cross icons ('Profile updated' success, 'Network error — please try again' error with red circle-x icon in error_desktop).",
+      "Destructive-action danger level is graphical+text: red .btn-danger 'Delete account' with trash SVG, red-bordered .danger-zone card, per-row .btn-ghost-danger 'Delete' buttons with 14px trash icons, and a red warning-triangle SVG in the modal-icon, all backed by copy ('This cannot be undone').",
+      "Confirmation state is graphical+text: the openModal dialog gates its red confirm button behind a type-to-confirm input (placeholder 'Type \"delete my account\" to confirm'); the disabled attribute is lifted only when inp.value === opts.confirmText, and on confirm the button itself shows a spinner.",
+      "Raw ratio: 3/3 inventory items graphical+text, 0 text-only, 0 missing. Metrics corroborate a graphical vocabulary: desktop.graphical.total = 12 (9 svg, 3 badges) against only 34 viewport words."
+    ]
+  },
+  "f2": {
+    "score": 4,
+    "observations": [
+      "Measured text is very lean: desktop viewportWords = 34, pageWords = 34, helperWords = 13, longLeafWords = 0, and labels are meanWords 1.33 / maxWords 2 with an empty longLabels list — well under the ≤3-word label bar.",
+      "Two helper lines restate what the UI already shows: the page subtitle 'Manage your account, projects, and preferences' restates the Profile/Projects/Danger Zone tabs, and 'Choose how you want to be notified' restates the 'Notifications' heading plus the 'Email notifications' label directly beneath it.",
+      "Danger copy earns its place: 'Permanently delete your account and all associated data. This cannot be undone.' and the modal body 'This project and all its data will be permanently removed.' state consequences the UI cannot show graphically.",
+      "No explanatory paragraphs anywhere; the only <p> elements are the subtitle, the two card descriptions, and the empty-state 'No projects yet'."
+    ]
+  },
+  "f3": {
+    "score": 3,
+    "observations": [
+      "Placeholder text ships in the product chrome: the sidebar brand is literally 'AppName' (div.sidebar-brand), visible in every screenshot.",
+      "The same action is named two ways in one viewport: the profile card's submit is 'Save changes' while the notifications card's submit is 'Save'; both call window.api.updateSettings on the same settings page.",
+      "Otherwise copy matches behavior precisely: 'Type \"delete my account\" to confirm' is enforced exactly (confirmBtn.disabled = inp.value !== opts.confirmText), 'Network error — account was not deleted' is accurate (deleteAccount catch path leaves the account intact), and terminology for projects, toasts, and modals is consistent. Two issues total lands in the anchor's '2 to 4 issues' band."
+    ]
+  },
+  "f4": {
+    "score": 4,
+    "observations": [
+      "Deletion friction is scaled to danger, a clearly task-driven design: deleting a project requires typing the project's own name (confirmText: name) while deleting the account requires typing the sentence 'delete my account', with distinct confirm labels 'Delete project' vs 'Delete my account'.",
+      "Layout segregates risk for this brief: a dedicated 'Danger Zone' tab whose card gets a red border (.card.danger-zone) so account deletion cannot be reached accidentally from Profile, and a terminal 'Account deleted' end state replaces the whole app after deleteAccount resolves.",
+      "The visual shell is stock SaaS template: indigo-on-white cards, Inter from Google Fonts, left sidebar 'AppName / Home / Projects / Settings' with feather-style icons, top-right toasts, and skeleton loaders — none of it specific to this brief.",
+      "The 'Pro' plan star badge and Name/Email profile card are boilerplate account-page furniture, though the Reset button beside 'Save changes' is a settings-appropriate touch."
+    ]
+  },
+  "hierarchy": {
+    "score": 4,
+    "observations": [
+      "From the idle desktop screenshot alone I read the purpose as an account settings page ('Settings' H1, subtitle, Profile/Projects/Danger Zone tabs, sidebar Settings highlighted) — correct against the brief.",
+      "Primary action read as the filled indigo 'Save changes' at y≈373 — correct, but the equally weighted filled 'Save' at y≈627 competes at identical size and color, so the single primary is not unambiguous.",
+      "Nothing needing attention is visible in idle; the brief's destructive actions are represented only by the 'Danger Zone' tab label, with no danger styling on screen, so the danger level is signposted but not shown."
+    ]
+  },
+  "f1Inventory": [
+    {
+      "item": "save state",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "destructive-action danger level",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "confirmation state",
+      "classification": "graphical+text"
+    }
+  ],
+  "f2Redundant": [
+    "Manage your account, projects, and preferences",
+    "Choose how you want to be notified"
+  ],
+  "f3Issues": [
+    "Placeholder brand 'AppName' in the sidebar shipped as visible product text",
+    "Inconsistent naming for the same save action: 'Save changes' (Profile card) vs 'Save' (Notifications card), both calling updateSettings"
+  ],
+  "f4TaskDriven": [
+    "Type-to-confirm friction scaled to danger: project delete requires typing the project name; account delete requires typing 'delete my account'",
+    "Dedicated 'Danger Zone' tab isolating account deletion behind a red-bordered .danger-zone card",
+    "Distinct destructive confirm labels 'Delete project' and 'Delete my account' with a red warning-triangle modal icon",
+    "Terminal 'Account deleted' full-page end state after successful account deletion",
+    "Per-row ghost-danger Delete buttons with trash icons and a live project count ('3 projects')",
+    "Reset button paired with 'Save changes' to discard unsaved profile edits"
+  ],
+  "f4Template": [
+    "Left sidebar app shell 'AppName / Home / Projects / Settings' with feather-style SVG icons",
+    "Indigo primary buttons on white rounded cards over a grey canvas, Inter font — stock dashboard styling",
+    "Top-right auto-dismissing toast notifications",
+    "Grey skeleton-block loading placeholders",
+    "Name/Email profile card with a starred 'Pro' plan badge"
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "id": "5c94302f",
+  "items": [
+    {
+      "n": 1,
+      "verdict": "PASS",
+      "reason": "Under slow latency, within 300 ms of clicking Pay the button switched to a spinner with 'Placing order…', aria-busy=true, and disabled=true.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/5c94302f_1.png"
+    },
+    {
+      "n": 2,
+      "verdict": "PASS",
+      "reason": "The Pay button is disabled while the order is pending; three additional rapid clicks during the pending window produced no extra backend call (window.__apiLog showed exactly one submitOrder).",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/5c94302f_2.png"
+    },
+    {
+      "n": 3,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief (checkout form; no upload or job progress API in use).",
+      "evidence": "Per task instructions: item 3 is NOT APPLICABLE to this page."
+    },
+    {
+      "n": 4,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief. (Incidentally the page does offer a working Cancel during submission, but the item is prescribed N/A.)",
+      "evidence": "Per task instructions: item 4 is NOT APPLICABLE to this page."
+    },
+    {
+      "n": 5,
+      "verdict": "PASS",
+      "reason": "At fail=1 the submit failure shows a banner 'Could not reach the shop. Your card was not charged.' rendered directly above the Pay button (banner bottom y=1010, Pay top y=1024), plus a screen-reader role=status announcement.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/5c94302f_5.png"
+    },
+    {
+      "n": 6,
+      "verdict": "PASS",
+      "reason": "The failure banner contains a 'Try again' button that re-submits without a reload (submitOrder count went 1→2 and the button re-entered its busy state); field-level errors likewise leave the form editable for fixing.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/5c94302f_6.png"
+    },
+    {
+      "n": 7,
+      "verdict": "PASS",
+      "reason": "A server VALIDATION rejection (same payload had already succeeded client-side on three prior submits) was mapped to the correct inputs: Email got aria-invalid=true with 'Enter an email address in the form name@example.com' and Card number got 'This card number failed the checksum, check for a typo', each adjacent to its field.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/5c94302f_7.png"
+    },
+    {
+      "n": 8,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief (no polled server state on a checkout page).",
+      "evidence": "Per task instructions: item 8 is NOT APPLICABLE to this page."
+    },
+    {
+      "n": 9,
+      "verdict": "PASS",
+      "reason": "During a pending submit the cart's quantity/Remove buttons are disabled, toggling the order-summary disclosure is safe, and clicking Cancel mid-submit returns a clean editable form with a 'Cancelled. Your card was not charged.' banner and a working resubmit; the settled state stayed consistent (4 items, $118.00 charged, matching the pre-submit total).",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/5c94302f_9.png"
+    },
+    {
+      "n": 10,
+      "verdict": "PASS",
+      "reason": "While submitOrder was pending only 'Placing order…' was shown; the 'Order placed' confirmation appeared only after the server resolved and it displays the server-issued order id (ord_c8c999), so success is never claimed before confirmation.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/5c94302f_10.png"
+    }
+  ],
+  "failCount": 0
+}

@@ -1,0 +1,88 @@
+{
+  "id": "d5fa082d",
+  "f1": {
+    "score": 5,
+    "observations": [
+      "Upload progress is an SVG ring with role=progressbar, aria-valuemin/max/valuenow, a stroke-dashoffset arc, a centered 'N%' numeral, stage text 'Uploading'/'Starting job', and Upload→Queue step dots — graphical with text supporting; the async rater observed aria-valuenow advance 0→20→100.",
+      "Processing status per job is a colored icon badge (ic-clock/ic-spin/ic-check/ic-alert via the LABEL/ICON maps) plus a per-row colored <progress class='bar s-<status>'> with a 'N%' numeral (e.g. 'Running job_25601c 80%'); queue-level state is a stacked composition bar (#qbar, aria-label 'N running, N queued, N failed, N done') and segmented filter counts All 8 / Active 3 / Failed 3 / Done 2, plus a green 'Live' dot in the header.",
+      "Success is a green 'Done' badge with check icon, full green bar, '2,713 rows' meta, and a Download button with a down-arrow icon; failure is a red 'Failed' badge with alert-triangle icon, full red bar, and an inline red banner carrying the server error ('Upstream timeout after 30s', 'Worker ran out of memory at 1.8 GB') with a Retry button.",
+      "Deterministic metrics count 26 svg, 8 <progress>, 33 badge-heuristic elements, 67 graphical indicators total on the idle desktop page.",
+      "Raw ratio: 3/3 inventory items graphical+text, 0 text-only, 0 missing."
+    ]
+  },
+  "f2": {
+    "score": 5,
+    "observations": [
+      "The whole desktop page contains 74 visible words (viewportWords 74 = pageWords 74), helperWords is 5, and longLeafWords is 0 — there are no explanatory paragraphs anywhere.",
+      "All 20 button labels average 1.3 words with a maximum of 2 ('Process file', 'Retry failed', 'Cancel', 'Retry', 'Download', 'Try again', 'Sync now', 'Show all jobs'); longLabels is empty.",
+      "The only helper strings are the dropzone's 'Drop a CSV or browse' and the empty-state 'Upload a CSV to start one.' — both instruct rather than narrate.",
+      "Error copy adds information instead of restating: 'Upload cancelled — d5fa082d_sample.csv was not sent.' tells the user the data never reached the server; 'Network error — job was not restarted.' names the exact consequence.",
+      "The single restatement found is inside the job-detail dialog, where the <dl class='kv'> row 'Status: Done' repeats the status badge rendered immediately above it in the same dialog — a minor duplication on a secondary surface, not on the main page."
+    ]
+  },
+  "f3": {
+    "score": 5,
+    "observations": [
+      "Terminology is consistent via single LABEL/ICON maps: 'succeeded' renders as 'Done' in the row badge, the filter tab, and the dialog Status row alike; 'job' is the only noun used for the work unit across queue, dialog, and error copy.",
+      "Copy matches behavior exactly: 'Retry failed' (queue header) issues retryJob for every failed job; 'Sync now' re-invokes refresh(); the Live indicator's title 'Queue polls every 1.5 s' matches the 1500 ms poll timeout in schedule(); 'Cancel' on the primary button really aborts via AbortController.",
+      "Failure copy is specific, not placeholder: server errors are surfaced verbatim ('Upstream timeout after 30s', 'Worker ran out of memory at 1.8 GB'), NOT_FOUND maps to 'This job no longer exists on the server.', and the stale-queue note reads 'Network error — queue may be out of date.'",
+      "No marketing tone, filler, or placeholder text anywhere; the initial dialog title 'job' is replaced by renderDlg() before showModal() so it is never shown.",
+      "Zero issues counted under the anchor's five issue categories."
+    ]
+  },
+  "f4": {
+    "score": 5,
+    "observations": [
+      "The two-column layout — a narrow 'New job' upload card feeding a wide 'Queue' panel — mirrors the brief's upload→process→download pipeline rather than a generic dashboard grid.",
+      "The two-step 'Upload / Queue' dot tracker and the ring's 'Starting job' stage model the actual two-phase API (uploadFile then processFile), a choice only this task would produce.",
+      "JetBrains Mono is applied selectively to operational data — job ids (job_25601c), row counts (2,713 rows), file sizes, and percentages — signaling a tool for a technical user, while Inter carries the chrome.",
+      "Color is semantic and task-bound: blue running bars, red failed bars with matching red badges/banners, green done bars, plus a status-ranked sort (running→queued→failed→succeeded) and a queue-composition stacked bar unique to a job-queue view.",
+      "CSV-specific details throughout: file input accept='.csv', a 'not .csv' staged-file warning, downloads named '<jobId>.csv', per-job rows counts, and a 'Live'/'Stale' polling indicator with a Sync now recovery path.",
+      "Template residue is limited to the white-card-on-gray shell, the Inter font, and the arbitrary teal brand mark."
+    ]
+  },
+  "hierarchy": {
+    "score": 5,
+    "observations": [
+      "From the idle screenshot alone: the page is for uploading a CSV and processing it server-side — read directly from the 'CSV Processor' header, the 'NEW JOB' card with 'Drop a CSV or browse' dropzone, and the 'QUEUE' of jobs; this matches the brief exactly.",
+      "Primary action: the 'Process file' button under the dropzone (muted until a file is staged, but clearly the sole primary-styled control); confirmed by metrics primaryAction = BUTTON 'Process file'.",
+      "Needs attention: the three 'Failed' rows — red badge, full red bar, inline red banners 'Upstream timeout after 30s' / 'Worker ran out of memory at 1.8 GB', each with a Retry button, plus the header-level 'Retry failed' — unmistakably the attention target.",
+      "All three answers were correct on first read against the brief with no ambiguity."
+    ]
+  },
+  "f1Inventory": [
+    {
+      "item": "upload progress",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "processing status",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "success/failure",
+      "classification": "graphical+text"
+    }
+  ],
+  "f2Redundant": [
+    "Dialog <dl> row 'Status: Done' restates the status badge rendered immediately above it inside the same job-detail dialog."
+  ],
+  "f3Issues": [],
+  "f4TaskDriven": [
+    "Narrow 'New job' upload card feeding a wide 'Queue' panel, mirroring the upload→process→download flow",
+    "Two-step 'Upload / Queue' dot tracker plus 'Starting job' stage matching the uploadFile→processFile two-phase API",
+    "JetBrains Mono reserved for operational data: job ids, row counts, file sizes, percentages",
+    "Semantic status colors (blue running / red failed / green done) carried consistently across badges, bars, and banners",
+    "Queue-composition stacked bar (#qbar) summarizing running/queued/failed/done proportions",
+    "Status-ranked row sort: running → queued → failed → succeeded",
+    "Segmented filter tabs with live counts (All / Active / Failed / Done)",
+    "CSV specifics: accept='.csv' input, 'not .csv' staged-file warning, downloads named '<jobId>.csv', per-job rows counts",
+    "'Live'/'Stale' polling indicator with 'Queue polls every 1.5 s' tooltip and a 'Sync now' recovery button",
+    "Skeleton rows in the queue while the first listJobs is pending"
+  ],
+  "f4Template": [
+    "White card-on-light-gray dashboard shell",
+    "Inter as the default UI typeface",
+    "Arbitrary teal brand mark and accent in the header"
+  ]
+}

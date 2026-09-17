@@ -1,0 +1,641 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Job Queue Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f4f5f7;
+  --surface: #fff;
+  --border: #e1e4e8;
+  --text: #1a1a2e;
+  --text-secondary: #6b7280;
+  --queued: #6366f1;
+  --queued-bg: #eef2ff;
+  --running: #f59e0b;
+  --running-bg: #fffbeb;
+  --succeeded: #10b981;
+  --succeeded-bg: #ecfdf5;
+  --failed: #ef4444;
+  --failed-bg: #fef2f2;
+  --action: #3b82f6;
+  --action-hover: #2563eb;
+  --danger: #ef4444;
+  --danger-hover: #dc2626;
+}
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  min-height: 100vh;
+}
+.header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.header h1 {
+  font-size: 18px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.header h1 svg { flex-shrink: 0; }
+.poll-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+.poll-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--succeeded);
+  animation: pulse-dot 2s infinite;
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+.container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.stat-card {
+  background: var(--surface);
+  border-radius: 10px;
+  padding: 16px 20px;
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.stat-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.stat-icon.queued { background: var(--queued-bg); color: var(--queued); }
+.stat-icon.running { background: var(--running-bg); color: var(--running); }
+.stat-icon.succeeded { background: var(--succeeded-bg); color: var(--succeeded); }
+.stat-icon.failed { background: var(--failed-bg); color: var(--failed); }
+.stat-value { font-size: 28px; font-weight: 700; line-height: 1; }
+.stat-label { font-size: 12px; color: var(--text-secondary); font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; }
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.filters {
+  display: flex;
+  gap: 6px;
+}
+.filter-btn {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: all 0.15s;
+  font-weight: 500;
+}
+.filter-btn:hover { border-color: var(--action); color: var(--action); }
+.filter-btn.active { background: var(--action); color: #fff; border-color: var(--action); }
+.filter-btn .count {
+  display: inline-block;
+  margin-left: 4px;
+  background: rgba(0,0,0,0.08);
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-size: 11px;
+}
+.filter-btn.active .count { background: rgba(255,255,255,0.25); }
+.refresh-btn {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 500;
+  transition: all 0.15s;
+}
+.refresh-btn:hover { border-color: var(--action); color: var(--action); }
+.refresh-btn.spinning svg { animation: spin 0.6s linear; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.table-wrap {
+  background: var(--surface);
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+table { width: 100%; border-collapse: collapse; }
+thead th {
+  text-align: left;
+  padding: 12px 16px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+  background: #f9fafb;
+  border-bottom: 1px solid var(--border);
+}
+tbody td {
+  padding: 12px 16px;
+  font-size: 14px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+tbody tr:last-child td { border-bottom: none; }
+tbody tr { transition: background 0.1s; }
+tbody tr:hover { background: #f9fafb; }
+.job-id {
+  font-family: 'SF Mono', 'Menlo', 'Consolas', monospace;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.status-badge.queued { background: var(--queued-bg); color: var(--queued); }
+.status-badge.running { background: var(--running-bg); color: var(--running); }
+.status-badge.succeeded { background: var(--succeeded-bg); color: var(--succeeded); }
+.status-badge.failed { background: var(--failed-bg); color: var(--failed); }
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+.status-badge.running .status-dot { animation: pulse-dot 1.2s infinite; }
+.progress-cell { min-width: 140px; }
+.progress-bar-track {
+  height: 6px;
+  background: #e5e7eb;
+  border-radius: 3px;
+  overflow: hidden;
+  position: relative;
+}
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.4s ease;
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+.progress-bar-fill.running { background: var(--running); }
+.progress-bar-fill.succeeded { background: var(--succeeded); }
+.progress-bar-fill.failed { background: var(--failed); }
+.progress-bar-fill.queued { background: var(--queued); }
+.progress-bar-fill.running.animated {
+  background: linear-gradient(90deg, var(--running), #fbbf24, var(--running));
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+@keyframes shimmer { to { background-position: -200% 0; } }
+.progress-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 3px;
+}
+.error-text {
+  font-size: 12px;
+  color: var(--failed);
+  max-width: 260px;
+  display: flex;
+  align-items: flex-start;
+  gap: 5px;
+}
+.error-text svg { flex-shrink: 0; margin-top: 1px; }
+.result-text {
+  font-size: 12px;
+  color: var(--succeeded);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.result-text a {
+  color: var(--action);
+  text-decoration: none;
+}
+.result-text a:hover { text-decoration: underline; }
+.actions { display: flex; gap: 6px; }
+.action-btn {
+  border: none;
+  padding: 5px 12px;
+  border-radius: 5px;
+  font-size: 12px;
+  font-family: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.action-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.action-btn.retry { background: var(--action); color: #fff; }
+.action-btn.retry:hover:not(:disabled) { background: var(--action-hover); }
+.action-btn.cancel { background: var(--failed-bg); color: var(--failed); }
+.action-btn.cancel:hover:not(:disabled) { background: #fde8e8; }
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-secondary);
+}
+.empty-state svg { margin-bottom: 12px; }
+.empty-state p { font-size: 14px; }
+.toast-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 100;
+}
+.toast {
+  background: var(--text);
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: toast-in 0.25s ease;
+  max-width: 340px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+.toast.error { background: var(--failed); }
+.toast.success { background: var(--succeeded); }
+@keyframes toast-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.loading-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.skeleton-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 2fr 2fr 1fr;
+  gap: 16px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.skeleton-bar {
+  height: 14px;
+  background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
+}
+
+@media (max-width: 768px) {
+  .stats { grid-template-columns: repeat(2, 1fr); }
+  .container { padding: 16px; }
+  .header { padding: 12px 16px; }
+  table { display: block; }
+  thead { display: none; }
+  tbody { display: block; }
+  tbody tr {
+    display: block;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  tbody td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 0;
+    border: none;
+  }
+  tbody td::before {
+    content: attr(data-label);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    letter-spacing: 0.05em;
+    flex-shrink: 0;
+    margin-right: 12px;
+  }
+  .progress-cell { min-width: 100px; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M8 7h8"/><path d="M8 11h8"/><path d="M8 15h4"/></svg>
+    Job Queue
+  </h1>
+  <div class="poll-indicator">
+    <span class="poll-dot"></span>
+    <span id="poll-status">Auto-refresh on</span>
+  </div>
+</div>
+
+<div class="container">
+  <div class="stats" id="stats"></div>
+
+  <div class="toolbar">
+    <div class="filters" id="filters"></div>
+    <button class="refresh-btn" id="refresh-btn" type="button">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+      Refresh
+    </button>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Job ID</th>
+          <th>Status</th>
+          <th>Progress</th>
+          <th>Details</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="job-list"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="toast-container" id="toasts"></div>
+
+<script>
+(function() {
+  const api = window.api;
+  let allJobs = [];
+  let activeFilter = 'all';
+  let pollTimer = null;
+  let pendingActions = new Set();
+
+  // --- Toast ---
+  function showToast(msg, type) {
+    const c = document.getElementById('toasts');
+    const t = document.createElement('div');
+    t.className = 'toast ' + (type || '');
+    const icon = type === 'error'
+      ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>'
+      : type === 'success'
+      ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>'
+      : '';
+    t.innerHTML = icon + '<span>' + escHtml(msg) + '</span>';
+    c.appendChild(t);
+    setTimeout(function() { t.style.opacity = '0'; t.style.transition = 'opacity 0.3s'; setTimeout(function() { t.remove(); }, 300); }, 3500);
+  }
+
+  function escHtml(s) {
+    var d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  // --- Stats ---
+  function renderStats(jobs) {
+    var counts = { queued: 0, running: 0, succeeded: 0, failed: 0 };
+    jobs.forEach(function(j) { counts[j.status]++; });
+    var el = document.getElementById('stats');
+    el.innerHTML =
+      statCard('queued', counts.queued, 'Queued',
+        '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>') +
+      statCard('running', counts.running, 'Running',
+        '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>') +
+      statCard('succeeded', counts.succeeded, 'Succeeded',
+        '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>') +
+      statCard('failed', counts.failed, 'Failed',
+        '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>');
+  }
+
+  function statCard(cls, val, label, icon) {
+    return '<div class="stat-card"><div class="stat-icon ' + cls + '">' + icon + '</div><div><div class="stat-value">' + val + '</div><div class="stat-label">' + label + '</div></div></div>';
+  }
+
+  // --- Filters ---
+  function renderFilters(jobs) {
+    var counts = { all: jobs.length, queued: 0, running: 0, succeeded: 0, failed: 0 };
+    jobs.forEach(function(j) { counts[j.status]++; });
+    var el = document.getElementById('filters');
+    var html = '';
+    ['all','queued','running','failed','succeeded'].forEach(function(f) {
+      var label = f.charAt(0).toUpperCase() + f.slice(1);
+      html += '<button type="button" class="filter-btn' + (activeFilter === f ? ' active' : '') + '" data-filter="' + f + '">' + label + '<span class="count">' + counts[f] + '</span></button>';
+    });
+    el.innerHTML = html;
+    el.querySelectorAll('.filter-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        activeFilter = btn.dataset.filter;
+        renderFilters(allJobs);
+        renderJobs(allJobs);
+      });
+    });
+  }
+
+  // --- Jobs table ---
+  function renderJobs(jobs) {
+    var filtered = activeFilter === 'all' ? jobs : jobs.filter(function(j) { return j.status === activeFilter; });
+    var el = document.getElementById('job-list');
+
+    if (filtered.length === 0) {
+      el.innerHTML = '<tr><td colspan="5"><div class="empty-state"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" stroke-width="1.5"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M8 7h8M8 11h8M8 15h4"/></svg><p>' + (jobs.length === 0 ? 'No jobs yet' : 'No ' + activeFilter + ' jobs') + '</p></div></td></tr>';
+      return;
+    }
+
+    // Sort: running first, then queued, failed, succeeded
+    var order = { running: 0, queued: 1, failed: 2, succeeded: 3 };
+    filtered.sort(function(a, b) { return (order[a.status] || 9) - (order[b.status] || 9); });
+
+    el.innerHTML = filtered.map(function(j) {
+      var busy = pendingActions.has(j.id);
+      var statusHtml = '<span class="status-badge ' + j.status + '"><span class="status-dot"></span>' + j.status.charAt(0).toUpperCase() + j.status.slice(1) + '</span>';
+
+      var progressHtml = '';
+      if (j.status === 'running') {
+        progressHtml = '<div class="progress-bar-track"><div class="progress-bar-fill running animated" style="width:' + j.progress + '%"></div></div><div class="progress-label">' + j.progress + '%</div>';
+      } else if (j.status === 'succeeded') {
+        progressHtml = '<div class="progress-bar-track"><div class="progress-bar-fill succeeded" style="width:100%"></div></div><div class="progress-label">Complete</div>';
+      } else if (j.status === 'failed') {
+        progressHtml = '<div class="progress-bar-track"><div class="progress-bar-fill failed" style="width:' + Math.max(j.progress, 5) + '%"></div></div><div class="progress-label">Stopped at ' + j.progress + '%</div>';
+      } else {
+        progressHtml = '<div class="progress-bar-track"><div class="progress-bar-fill queued" style="width:0%"></div></div><div class="progress-label">Waiting</div>';
+      }
+
+      var detailHtml = '';
+      if (j.status === 'failed' && j.error) {
+        detailHtml = '<div class="error-text"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><span>' + escHtml(j.error) + '</span></div>';
+      } else if (j.status === 'succeeded' && j.result) {
+        detailHtml = '<div class="result-text"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>' + j.result.rows.toLocaleString() + ' rows &middot; <a href="' + escHtml(j.result.downloadUrl) + '">Download</a></div>';
+      } else if (j.status === 'running') {
+        detailHtml = '<span style="color:var(--text-secondary);font-size:12px">Processing…</span>';
+      } else {
+        detailHtml = '<span style="color:var(--text-secondary);font-size:12px">Waiting in queue</span>';
+      }
+
+      var actionsHtml = '';
+      if (j.status === 'failed') {
+        actionsHtml = '<button type="button" class="action-btn retry" data-action="retry" data-id="' + j.id + '"' + (busy ? ' disabled' : '') + '><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15A9 9 0 1 1 21 8.34L23 10"/></svg>Retry</button>';
+      }
+      if (j.status === 'queued' || j.status === 'running') {
+        actionsHtml += '<button type="button" class="action-btn cancel" data-action="cancel" data-id="' + j.id + '"' + (busy ? ' disabled' : '') + '><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>Cancel</button>';
+      }
+
+      return '<tr>' +
+        '<td data-label="Job ID"><span class="job-id">' + escHtml(j.id) + '</span></td>' +
+        '<td data-label="Status">' + statusHtml + '</td>' +
+        '<td data-label="Progress" class="progress-cell">' + progressHtml + '</td>' +
+        '<td data-label="Details">' + detailHtml + '</td>' +
+        '<td data-label="Actions"><div class="actions">' + actionsHtml + '</div></td>' +
+        '</tr>';
+    }).join('');
+
+    // Attach action handlers
+    el.querySelectorAll('.action-btn').forEach(function(btn) {
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        var action = btn.dataset.action;
+        var id = btn.dataset.id;
+        handleAction(action, id);
+      });
+    });
+  }
+
+  // --- Actions ---
+  async function handleAction(action, jobId) {
+    if (pendingActions.has(jobId)) return;
+    pendingActions.add(jobId);
+    renderJobs(allJobs);
+
+    try {
+      var result;
+      if (action === 'retry') {
+        result = await api.retryJob(jobId);
+        showToast('Job ' + jobId + ' requeued', 'success');
+      } else if (action === 'cancel') {
+        result = await api.cancelJob(jobId);
+        showToast('Job ' + jobId + ' cancelled', 'success');
+      }
+      // Update the job in our local list
+      if (result) {
+        for (var i = 0; i < allJobs.length; i++) {
+          if (allJobs[i].id === result.id) { allJobs[i] = result; break; }
+        }
+      }
+    } catch (err) {
+      if (err.code === 'NETWORK') {
+        showToast('Network error — could not ' + action + ' job', 'error');
+      } else if (err.code === 'NOT_FOUND') {
+        showToast('Job ' + jobId + ' not found', 'error');
+      } else {
+        showToast('Failed to ' + action + ': ' + err.message, 'error');
+      }
+    } finally {
+      pendingActions.delete(jobId);
+      renderAll();
+    }
+  }
+
+  // --- Loading skeleton ---
+  function renderSkeleton() {
+    var el = document.getElementById('job-list');
+    var rows = '';
+    for (var i = 0; i < 6; i++) {
+      rows += '<tr><td colspan="5"><div class="skeleton-row"><div class="skeleton-bar" style="width:70%"></div><div class="skeleton-bar" style="width:50%"></div><div class="skeleton-bar" style="width:80%"></div><div class="skeleton-bar" style="width:60%"></div><div class="skeleton-bar" style="width:40%"></div></div></td></tr>';
+    }
+    el.innerHTML = rows;
+  }
+
+  // --- Fetch and render ---
+  function renderAll() {
+    renderStats(allJobs);
+    renderFilters(allJobs);
+    renderJobs(allJobs);
+  }
+
+  async function fetchJobs() {
+    try {
+      var jobs = await api.listJobs();
+      allJobs = jobs;
+      renderAll();
+    } catch (err) {
+      showToast('Failed to load jobs: ' + err.message, 'error');
+    }
+  }
+
+  // --- Refresh button ---
+  var refreshBtn = document.getElementById('refresh-btn');
+  refreshBtn.addEventListener('click', async function() {
+    refreshBtn.classList.add('spinning');
+    await fetchJobs();
+    setTimeout(function() { refreshBtn.classList.remove('spinning'); }, 600);
+  });
+
+  // --- Polling ---
+  function startPolling() {
+    if (pollTimer) return;
+    pollTimer = setInterval(fetchJobs, 3000);
+    document.getElementById('poll-status').textContent = 'Auto-refresh on';
+  }
+
+  // Pause polling when tab is hidden
+  document.addEventListener('visibilitychange', function() {
+    if (document.hidden) {
+      clearInterval(pollTimer);
+      pollTimer = null;
+    } else {
+      fetchJobs();
+      startPolling();
+    }
+  });
+
+  // --- Init ---
+  renderSkeleton();
+  fetchJobs().then(startPolling);
+})();
+</script>
+</body>
+</html>

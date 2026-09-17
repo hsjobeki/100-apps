@@ -1,0 +1,66 @@
+{
+  "id": "7f0fe142",
+  "items": [
+    {
+      "n": 1,
+      "verdict": "PASS",
+      "reason": "Within 250 ms of selecting a file under slow latency, the upload card rendered 'Uploading…' with a 0% progress bar and Cancel button; the loading UI is drawn synchronously on action start.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/7f0fe142_1.png"
+    },
+    {
+      "n": 2,
+      "verdict": "PASS",
+      "reason": "While an upload was pending, a second file selection produced no additional uploadFile call (__apiLog stayed at 1) and showed the toast 'A file is already being processed.'; the dropzone is also visually disabled during the operation.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/7f0fe142_2.png"
+    },
+    {
+      "n": 3,
+      "verdict": "PASS",
+      "reason": "Upload shows a percentage bar that advances (10% observed mid-upload), and job processing shows a live bar and label advancing 53% → 75% → 100%; queued/running history jobs also carry mini progress bars.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/7f0fe142_3.png"
+    },
+    {
+      "n": 4,
+      "verdict": "PASS",
+      "reason": "A Cancel button is present during upload and during processing; clicking it mid-upload aborted the request (no processFile followed) and left a clean 'Cancelled' state with Retry/Dismiss, and running history jobs each have their own Cancel that moved a job to 'Failed · Cancelled by admin'.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/7f0fe142_4.png"
+    },
+    {
+      "n": 5,
+      "verdict": "PASS",
+      "reason": "At fail=1 the upload card shows an error banner 'Network error. Please check your connection and try again.' directly under the affected file, and each failed history job displays its specific server error ('Upstream timeout after 30s', 'Worker ran out of memory at 1.8 GB') inline next to that job.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/7f0fe142_5.png"
+    },
+    {
+      "n": 6,
+      "verdict": "PASS",
+      "reason": "The failed upload card offers Retry, which re-invoked uploadFile without a reload (second uploadFile entry appeared in __apiLog), and failed history jobs offer per-row Retry that called retryJob; a retry failure surfaced as a toast rather than a dead end.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/7f0fe142_6.png"
+    },
+    {
+      "n": 7,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief; the page has no payload form, only a file input, so API field-level validation cannot occur.",
+      "evidence": "Only input on page: <input type=\"file\" id=\"fileInput\" accept=\".csv,text/csv\"> — no address/payment/text fields exist to map validation errors onto."
+    },
+    {
+      "n": 8,
+      "verdict": "PASS",
+      "reason": "The history list polls listJobs while jobs are active: running jobs' progress bars advanced (80%→88%, 57%→92%) without any interaction, a job I cancelled flipped to 'Failed · Cancelled by admin', and the job count badge went 8→9 when my new job registered, all without refresh.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/7f0fe142_8.png"
+    },
+    {
+      "n": 9,
+      "verdict": "PASS",
+      "reason": "Mid-processing I cancelled a different running history job, scrolled, and attempted a second upload; the active card kept a consistent state ('Queued for processing… Cancel') and completed normally, and after Dismiss the page accepted a fresh upload with no stuck or broken UI.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/7f0fe142_9.png"
+    },
+    {
+      "n": 10,
+      "verdict": "PASS",
+      "reason": "The card showed 'Processing…' with a partial bar until the poll returned succeeded, and 'Complete' only ever appeared together with the server-confirmed result ('2,830 rows processed', Download Result); no success state was shown on the failure or cancel paths.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/7f0fe142_10.png"
+    }
+  ],
+  "failCount": 0
+}

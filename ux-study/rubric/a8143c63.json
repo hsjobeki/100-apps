@@ -1,0 +1,93 @@
+{
+  "id": "a8143c63",
+  "hierarchy": {
+    "score": 5,
+    "observations": [
+      "Answered from the idle desktop screenshot before reading source: purpose is unmistakable — 'Job Queue' h1 plus four count cards (0 QUEUED / 3 RUNNING / 2 SUCCEEDED / 3 FAILED) over a job table with Job ID / Status / Progress / Details / Actions columns.",
+      "Primary action read as the solid blue 'Retry' buttons on the three failed rows — they are the only filled primary-colored buttons in the table (Cancel is a muted red-tinted ghost, Refresh a gray outline), which matches the brief's 'deal with failed jobs'.",
+      "What needs attention read as the three Failed jobs: red '3 FAILED' stat card, red status badges, red partial progress bars, red error strings with warning-triangle icons ('Worker ran out of memory at 1.8 GB', 'Upstream timeout after 30s'), all grouped above succeeded/running rows.",
+      "All three answers check out against the brief (see what's happening = counts + live table with 'Auto-refresh on' pulse dot; deal with failed jobs = prominent Retry); nothing competes with the failed rows for attention."
+    ]
+  },
+  "f1": {
+    "score": 5,
+    "observations": [
+      "Raw ratio: 4/4 inventory items graphical+text; metrics corroborate with graphical.total=50 (17 svg + 33 badge-heuristic elements) against only 96 visible words on desktop.",
+      "Job status per row: colored .status-badge (queued indigo / running amber / succeeded green / failed red) with a .status-dot that pulses for running, plus the status word.",
+      "Job progress: a .progress-bar-track/.progress-bar-fill bar in every row — animated shimmer amber for running with '26%' text, full green with 'Complete' for succeeded, partial red with 'Stopped at 38%' for failed, empty with 'Waiting' for queued.",
+      "Queue-level counts: four stat cards each pairing a colored icon tile (clock/play/check/x SVG) with a 28px number and uppercase label, echoed by count pills inside each filter chip ('All 8', 'Failed 3').",
+      "Failure reason: the specific server string ('Upstream timeout after 30s') rendered in red with a warning-triangle SVG, reinforced by the red stopped-short progress bar in the same row."
+    ]
+  },
+  "f2": {
+    "score": 4,
+    "observations": [
+      "Measured: helperWords=0, longLeafWords=0, 12 button labels with meanWords=1 and maxWords=1 ('Retry', 'Cancel', 'Refresh', filter chips) — every label well under the 3-word bar.",
+      "Only 96 visible words on the whole desktop page for an 8-row data table; no headings, intro copy, or explanatory paragraphs exist anywhere in the markup.",
+      "The Details column filler restates state the badge and bar already show: 'Processing…' beside a Running badge and animated bar, and 'Waiting in queue' beside a Queued badge whose progress label already says 'Waiting' — three renderings of one state — which blocks the 'no text restates what the UI already shows' condition for a 5."
+    ]
+  },
+  "f3": {
+    "score": 4,
+    "observations": [
+      "Terminology is consistent everywhere: queued/running/succeeded/failed use identical casing and color coding across stat cards, filter chips, and row badges; error toasts name the exact action and cause ('Network error — could not retry job').",
+      "No marketing tone, no filler, no placeholder text in the source; empty states are specific ('No jobs yet' vs 'No failed jobs' depending on filter).",
+      "Copy matches behavior per the async checklist: 'Auto-refresh on' is backed by a real 3 s listJobs poll, and the success toast 'Job … requeued' accurately describes retryJob resetting the job to queued.",
+      "One issue found (listed in f3Issues): toast strings double the word 'job' because ids already carry the job_ prefix — 'Job job_6c43ad cancelled'."
+    ]
+  },
+  "f4": {
+    "score": 4,
+    "observations": [
+      "Structure is task-driven: a Details column exists solely to put the failure reason on the same row as its Retry button, failed bars freeze at 'Stopped at 38%' preserving diagnostic info, and Retry is the page's only solid primary button — all directly serving 'deal with failed jobs'.",
+      "Live-queue affordances fit the admin user: pulsing 'Auto-refresh on' dot, 3 s polling paused on visibilitychange, per-status filter chips with counts, monospace job ids, cancel only on queued/running rows, Download only on succeeded rows.",
+      "Visual language is stock SaaS: Inter from Google Fonts, the Tailwind palette verbatim (#6366f1/#f59e0b/#10b981/#ef4444/#3b82f6), 4-up stat-card grid on a #f4f5f7 canvas, feather-style stroke icons, bottom-right dark toasts — interchangeable dashboard chrome.",
+      "Minor internal slip, invisible to users but showing template assembly: the sort comment says 'running first' yet `order[a.status] || 9` treats running's 0 as falsy, so running rows actually sort last (screenshot confirms failed rows on top — coincidentally the better triage order)."
+    ]
+  },
+  "f1Inventory": [
+    {
+      "item": "job status per row",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "job progress",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "queue-level counts",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "failure reason",
+      "classification": "graphical+text"
+    }
+  ],
+  "f2Redundant": [
+    "'Processing…' (Details cell of running rows; restates the Running badge and the animated amber progress bar)",
+    "'Waiting in queue' (Details cell of queued rows; restates the Queued badge and the 'Waiting' progress label in the same row)",
+    "'Complete' (progress label under a 100% green bar in a row already badged Succeeded)"
+  ],
+  "f3Issues": [
+    "Toast copy doubles the word 'job': 'Job ' + jobId produces 'Job job_6c43ad cancelled' / 'Job job_9d8189 requeued' because ids already start with job_"
+  ],
+  "f4TaskDriven": [
+    "Dedicated Details column placing each failure reason (with warning icon, red) on the same row as its Retry button",
+    "Failed rows keep a partial red progress bar with 'Stopped at N%' so admins see how far a job got before dying",
+    "Retry is the only solid primary-colored button on the page, matching the brief's core task",
+    "Per-status filter chips with live count pills (All 8 / Queued 0 / Running 3 / Failed 3 / Succeeded 2) for triage",
+    "Pulsing 'Auto-refresh on' indicator backed by real 3 s polling, paused via visibilitychange when the tab is hidden",
+    "Status-appropriate actions per row: Cancel only on queued/running, Retry only on failed, 'N rows · Download' only on succeeded",
+    "Monospace job ids for copy/paste and scanability",
+    "Skeleton loading rows mirroring the table's five-column grid",
+    "Mobile layout converts table rows into labeled key-value cards via td::before data-labels"
+  ],
+  "f4Template": [
+    "Inter from Google Fonts with system-ui fallback",
+    "Verbatim Tailwind color palette: indigo #6366f1, amber #f59e0b, emerald #10b981, red #ef4444, blue #3b82f6",
+    "Four-up rounded stat-card grid with pastel icon tiles on a #f4f5f7 gray canvas",
+    "Feather-style 2px stroke SVG icon set",
+    "Bottom-right stacked dark toasts with slide-in animation",
+    "Pill status badges and shimmer skeleton bars — standard admin-dashboard kit"
+  ]
+}

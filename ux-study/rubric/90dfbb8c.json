@@ -1,0 +1,80 @@
+{
+  "id": "90dfbb8c",
+  "f1": {
+    "score": 5,
+    "observations": [
+      "Save state is graphical+text at every stage: the 'Save changes' button carries a check icon and a disabled/enabled affordance keyed to dirty(), the pending state swaps in an animated SVG spinner + 'Saving' with aria-busy, success renders a green .chk circle icon + 'Saved' status chip, and unsaved edits show a purple .dot next to each edited field label plus a dot + 'Unsaved' status.",
+      "Destructive-action danger level is encoded graphically at three intensities: the Danger zone card has a red striped hazard border (.stripe), a RISK <meter value=3 max=3> rendered as a full red bar, a 'Permanent' badge, and loss chips with icons ('3 projects', 'Account data', 'Pro plan', 'This session'); each dialog footer repeats a risk <meter> with value 2 (project) vs 3 (account), so severity is visually ranked.",
+      "Confirmation state is graphical+text: the delete-account dialog's type-to-confirm input drives a <progress> matchbar that fills as the typed email matches, caps at 99% on any wrong character, and flips green with a check-circle .mk.done on exact match; the confirm button enables only when match + checkbox ack are both satisfied.",
+      "Metrics corroborate: desktop graphical total 48 (31 svg, 1 meter, 16 badges); the loading screenshot shows animated skeleton bars instead of text 'Loading…'.",
+      "Raw ratio: 3/3 inventory items graphical+text."
+    ]
+  },
+  "f2": {
+    "score": 5,
+    "observations": [
+      "Desktop viewportWords is 57 and pageWords 61 — the entire page speaks in labels, not paragraphs; helperWords is 8 and longLeafWords is 0.",
+      "All button labels are ≤2 words (labels.maxWords 2, meanWords 1.67; 'Save changes', 'Discard', 'Delete account', 'Retry', 'Cancel', 'Deleting').",
+      "Every full sentence on the page is load-bearing: 'Deleting your account can't be undone.' (the one hint in the danger card), 'This can't be undone.' (project dialog), 'Everything below goes with it.' (introduces the loss-chip list), 'I understand this is permanent.' (checkbox label), 'Nothing to delete here.' (empty state). None restates what the UI already shows.",
+      "Consequences of account deletion are conveyed as icon chips ('3 projects', 'Account data', 'Pro plan', 'This session') instead of an explanatory paragraph."
+    ]
+  },
+  "f3": {
+    "score": 5,
+    "observations": [
+      "Terminology is consistent throughout: 'Delete project'/'Delete account' as both dialog title and confirm label, 'Deleting' as the uniform busy label, 'Danger zone' identical in sidebar nav and card header, 'project(s)' pluralized correctly via countLabel().",
+      "Copy matches verified behavior: 'Network request failed. Your edits are still here.' was confirmed true by the async rater (edited value 'Alex Failing' preserved after failure, item 6 PASS), and failure copy names the item ('\"Q3 Website Rebuild\" was not deleted.', item 5 PASS).",
+      "No marketing tone, no lorem/placeholder text; the only input placeholder is the functional confirm target (the user's email); error fallbacks are specific per cause (NETWORK → 'Network request failed.', AbortError → 'Request stopped.').",
+      "Zero console errors and zero uncaught exceptions across the scripted idle/fail=1 sequence, so no copy is contradicted by broken behavior."
+    ]
+  },
+  "f4": {
+    "score": 4,
+    "observations": [
+      "The deletion problem drives the strongest choices: escalating confirmation friction (project delete = simple confirm dialog with a name chip; account delete = type-your-email confirm with a live <progress> matchbar in JetBrains Mono plus an 'I understand this is permanent.' checkbox), a numeric risk meter that differs between the two destructive actions (2/3 vs 3/3), and loss chips enumerating exactly what this account would lose.",
+      "Copy is tuned to the brief: the empty projects state reads 'Nothing to delete here.' and the post-deletion terminal state 'Account deleted / Nothing is left to manage here.' — neither would fit another brief's output.",
+      "The shell, however, is the standard SaaS settings template: Inter font, indigo #4338ca accent, white cards on a #f4f5f8 gray background, 212px sticky left sidebar, topbar with avatar initials — competent but interchangeable framing, which is what keeps this off a 5."
+    ]
+  },
+  "hierarchy": {
+    "score": 5,
+    "observations": [
+      "From the idle screenshot alone, before any source was read: purpose read immediately as account settings ('Account settings' header, sidebar Profile / Projects 3 / Danger zone, profile form, projects list with per-row trash icons, red Danger zone card) — matches the brief exactly.",
+      "Primary action read as 'Save changes' (filled purple, leftmost in the Profile footer, correctly muted while the form is clean); the two deletion surfaces demanded by the brief were both instantly locatable (trash icon per project row; Danger zone card for the account).",
+      "What needs attention read as the Danger zone card — red striped border, warning icon, full RISK meter, 'Permanent' badge — with the 'Setup pending' plan badge as secondary; both readings survived the brief check.",
+      "Minor harness note, not a hierarchy fault: metrics recorded primaryAction: null because 'Save changes' is disabled on a clean form, which is why the error_desktop screenshot is identical to idle."
+    ]
+  },
+  "f1Inventory": [
+    {
+      "item": "save state",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "destructive-action danger level",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "confirmation state",
+      "classification": "graphical+text"
+    }
+  ],
+  "f2Redundant": [],
+  "f3Issues": [],
+  "f4TaskDriven": [
+    "Escalating confirmation friction: project delete gets a lightweight confirm dialog with the project name in a chip; account delete requires typing the account email, watching a live match <progress> bar that never shows 100% while any character is wrong, and checking 'I understand this is permanent.'",
+    "Per-action risk meters: <meter> value 2/3 in the delete-project dialog footer vs 3/3 in the delete-account dialog and danger card, visually ranking the two destructive actions the brief asked for.",
+    "Loss chips enumerating this account's concrete stakes: '3 projects' (live count, kept in sync after deletions), 'Account data', 'Pro plan' (from the user fixture), 'This session'.",
+    "Red striped hazard border (.stripe) on the Danger zone card, echoed by the red 'Danger zone' sidebar item — the only red nav entry.",
+    "Deletion-centric copy: empty state 'Nothing to delete here.', terminal state 'Account deleted / Nothing is left to manage here.', error tail 'Your account is still active.'",
+    "JetBrains Mono for the type-to-confirm target and input, distinguishing verbatim-match text from UI prose.",
+    "Per-field unsaved-change dots next to Name and Email labels plus a dot + 'Unsaved' status chip, serving the brief's save-state need.",
+    "Delete-in-flight rows get a spinner in place of the trash icon, a .busy background, and a dialog whose Close/Cancel are blocked until the request resolves ('never abandon a request mid-flight')."
+  ],
+  "f4Template": [
+    "Inter font with an indigo (#4338ca) accent on white cards over a #f4f5f8 gray page — the ubiquitous SaaS palette.",
+    "Standard settings-page shell: sticky topbar with product mark and avatar initials, 212px sticky left sidebar nav, stacked cards in a centered 1080px column.",
+    "Generic pill badges and rounded-9px buttons/inputs with soft shadows, indistinguishable from any admin template.",
+    "Skeleton shimmer loading bars, the stock loading pattern."
+  ]
+}

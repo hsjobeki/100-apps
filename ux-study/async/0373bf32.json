@@ -1,0 +1,66 @@
+{
+  "id": "0373bf32",
+  "items": [
+    {
+      "n": 1,
+      "verdict": "PASS",
+      "reason": "Under slow latency, a header 'updating' label plus six skeleton cards appeared within 250-280 ms both on initial load and on clicking the '1h' range button.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/0373bf32_1.png"
+    },
+    {
+      "n": 2,
+      "verdict": "PASS",
+      "reason": "While a slow getMetrics was pending, Refresh and all range buttons were disabled; dispatching 6 rapid clicks on Refresh produced exactly 1 new backend call in __apiLog.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/0373bf32_2.png"
+    },
+    {
+      "n": 3,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief; the page's only async call is getMetrics, which exposes no progress.",
+      "evidence": "Header during load: 'Service health | updating | 1h | 24h | 7d' — only a getMetrics fetch, no upload/job progress surface."
+    },
+    {
+      "n": 4,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief; there is no long-running upload or processing action to cancel.",
+      "evidence": "__apiLog contains only getMetrics entries, e.g. 'getMetrics:{\"range\":\"24h\"}'; no cancellable operation exists on this page."
+    },
+    {
+      "n": 5,
+      "verdict": "PASS",
+      "reason": "At fail=1 the grid area itself showed 'Metrics API unreachable / No metrics for the 24h range / NETWORK · Network request failed'; when a background refresh failed with data on screen, a banner said 'Metrics API unreachable / NETWORK · showing data from 11s ago'.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/0373bf32_5.png"
+    },
+    {
+      "n": 6,
+      "verdict": "PASS",
+      "reason": "Both the empty-state error panel and the stale-data banner carry a Retry button; clicking it fired a fresh getMetrics (log 1→2) and showed 'updating' without any page reload.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/0373bf32_6.png"
+    },
+    {
+      "n": 7,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief; the dashboard has no form fields, so API field-validation mapping cannot arise.",
+      "evidence": "Aria snapshot contains only buttons (1h/24h/7d, Refresh, Pause, filter chips, service cards) — no input, form, or field elements."
+    },
+    {
+      "n": 8,
+      "verdict": "PASS",
+      "reason": "With zero interaction the page auto-polled getMetrics on a ~10 s cycle (log 1→2→3), data appearing and the 'Xs ago' freshness label resetting to 'now' after each successful poll; a failed poll surfaced the stale-data banner automatically.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/0373bf32_8.png"
+    },
+    {
+      "n": 9,
+      "verdict": "PASS",
+      "reason": "Mid-refresh under slow latency I opened a service drawer ('media-worker' dialog), closed it with Escape, and toggled Pause; when the pending load resolved the UI was fully consistent — 6 cards, 'Outage' summary, refresh re-enabled, 'paused · now' label, no stuck spinner or leftover dialog.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/0373bf32_9b.png"
+    },
+    {
+      "n": 10,
+      "verdict": "PASS",
+      "reason": "Switching from 24h to 7d under slow latency immediately replaced the cards with 6 skeletons and 'updating' rather than presenting the old 24h data as 7d, and the 'now' updated-timestamp appeared only after the server responded; failed refreshes never advanced the freshness timestamp.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/0373bf32_10.png"
+    }
+  ],
+  "failCount": 0
+}

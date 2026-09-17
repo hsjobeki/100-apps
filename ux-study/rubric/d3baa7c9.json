@@ -1,0 +1,85 @@
+{
+  "id": "d3baa7c9",
+  "f1": {
+    "score": 4,
+    "observations": [
+      "Raw ratio: 3/4 inventory items are graphical+text, 1/4 text only.",
+      "Per-service health is triple-encoded graphically with text support: a colored .status-dot, an uppercase .status-badge pill (DOWN/DEGRADED/HEALTHY), a 3px status-colored left border on each .svc-card, plus an animated .global-pulse dot in the header that pulses at 1s for down and 2s for degraded.",
+      "Latency trend and error-rate trend each get a dedicated canvas sparkline per service (metrics count 12 canvas elements for 6 services) with gradient fill and a last-point dot; the error-rate line is colored by service status (#ef4444 down, #eab308 degraded, #22c55e healthy), and each carries supporting text ('peak 1311ms', 'avg 44.1%').",
+      "Uptime is text only: the per-service 'Uptime 98.90%' stat cell is a plain number with no meter, bar, or gauge; the summary 'AVG UPTIME 98.48%' value only gets conditional text color (yellow when avgUptime < 99), not a graphical representation.",
+      "Deterministic metrics corroborate a graphics-heavy page: graphical.total = 88 (12 canvas, 2 svg, 74 badge-heuristic elements)."
+    ]
+  },
+  "f2": {
+    "score": 5,
+    "observations": [
+      "Desktop viewportWords is 132 for a six-service dashboard with a four-card summary strip — nearly every visible word is a data label or a value, not prose.",
+      "helperWords = 0 and longLeafWords = 0: the page contains no <p>, no <small>, and no leaf element over 12 words anywhere.",
+      "Button labels: count 4, meanWords 1, maxWords 1 ('1H', '24H', '7D', 'Refresh'; the conditional 'Retry' is also one word) — all far under the <=3-word bar.",
+      "The only sentences on the page are the error banner ('Unable to reach the server. Check your connection.') and the loading text ('Loading services…'), each communicating state the UI cannot show otherwise; nothing restates what the sparklines or badges already show."
+    ]
+  },
+  "f3": {
+    "score": 4,
+    "observations": [
+      "Terminology is consistent across the page: 'Latency'/'Avg Latency'/'Error Rate'/'Uptime' repeat with identical wording in all six service cards, status vocabulary is exactly the API's healthy/degraded/down triple everywhere (dot, badge, border, summary cards), and there is no filler, marketing tone, or placeholder text.",
+      "One copy-vs-behavior mismatch, confirmed by async item 9: clicking a range tab mid-refresh highlights it ('active' class is applied before fetchData(), which then returns early on state.loading) so the tab reads '7D' while 24h data stays rendered for up to ~30 s until the next poll — the selected-range indicator promises a view that is not shown.",
+      "Timestamps and state copy are honest elsewhere: 'Updated 1:40:55 PM' only advances after a response resolves (async item 10 PASS), and the NETWORK-specific message 'Unable to reach the server. Check your connection.' matches the err.code === 'NETWORK' branch in the source."
+    ]
+  },
+  "f4": {
+    "score": 4,
+    "observations": [
+      "Strongly task-driven structure for an on-call glance: services are sorted down-first/degraded-second (order = {down:0, degraded:1, healthy:2}), a Healthy/Degraded/Down/Avg Uptime summary strip leads the page, and the header pulse dot animates faster for 'down' (1s) than 'degraded' (2s) so severity is legible before reading anything.",
+      "Per-card design serves the brief: dual sparklines (latency + error rate) with 'peak' and 'avg' annotations, error-rate line color keyed to the service's own status, status-colored left card borders, 30 s auto-poll that pauses on document.hidden and refetches on return.",
+      "The visual vocabulary is stock dark-dashboard: Inter from Google Fonts, a Tailwind-default palette (#0b0e14 bg, #94a3b8/#64748b grays, #22c55e/#eab308/#ef4444/#3b82f6 accents), 8px-radius cards, and a generic segmented range control — the skin is interchangeable with any dev-tool dashboard even though the information design is not."
+    ]
+  },
+  "hierarchy": {
+    "score": 5,
+    "observations": [
+      "What the page is for was instant from the idle screenshot alone: the 'Service Health' title plus the HEALTHY 4 / DEGRADED 1 / DOWN 1 / AVG UPTIME 98.48% summary strip read as a monitoring dashboard before any card is scanned — exactly the brief's 'at a glance' user.",
+      "What needs attention is unmistakable: media-worker sits first with a red DOWN badge, red left border, red 44.1% error-rate sparkline and 846ms latency; notifier is second with a yellow DEGRADED badge; healthy services are visually quiet in green. Checked against the source, this ordering is deliberate (down-first sort).",
+      "The primary action reads as Refresh plus the 1H/24H/7D range tabs in the top-right, which is the right weight for a monitoring page whose primary use is scanning, not acting; all three hierarchy answers checked out correct against the brief and the source."
+    ]
+  },
+  "f1Inventory": [
+    {
+      "item": "per-service health",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "latency trend",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "error-rate trend",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "uptime",
+      "classification": "text only"
+    }
+  ],
+  "f2Redundant": [],
+  "f3Issues": [
+    "Active range tab can misrepresent the displayed data: a range click during an in-flight refresh applies the 'active' class but fetchData() returns early on state.loading, so the '7D' tab stays highlighted while 24h data remains rendered (async item 9 evidence: getMetrics range '24h' at t=40736, no 7d fetch until the t=60040 poll)."
+  ],
+  "f4TaskDriven": [
+    "Down-first service sort (order = {down:0, degraded:1, healthy:2}) so the broken service is always top-left",
+    "Summary strip Healthy/Degraded/Down/Avg Uptime with severity-colored values (down count red when >0, avg uptime yellow when <99%)",
+    "Animated global-pulse header dot with severity-scaled speed (1s pulse for down, 2s for degraded, steady for healthy)",
+    "Dual per-service sparklines for latency and error rate with 'peak Xms' and 'avg X%' annotations",
+    "Error-rate sparkline color keyed to that service's status (red/yellow/green)",
+    "3px status-colored left border on every service card for peripheral-vision triage",
+    "30-second auto-poll that pauses when the tab is hidden and immediately refetches on visibilitychange",
+    "Refresh deduplication with a spinning icon instead of blocking, and a non-advancing 'Updated' timestamp until data actually lands"
+  ],
+  "f4Template": [
+    "Inter from Google Fonts as the sole typeface",
+    "Tailwind-default color tokens (#0b0e14, #141820, #94a3b8, #64748b, #22c55e, #eab308, #ef4444, #3b82f6)",
+    "Generic 8px-radius bordered card surfaces on a dark background",
+    "Standard segmented-control range picker (1H/24H/7D) and outline Refresh button in the top-right, the stock dashboard header pattern",
+    "auto-fill minmax(400px,1fr) card grid, the default responsive dashboard layout"
+  ]
+}

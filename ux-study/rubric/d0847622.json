@@ -1,0 +1,91 @@
+{
+  "id": "d0847622",
+  "f1": {
+    "score": 4,
+    "observations": [
+      "Job status per row is a coloured pill (`.pill failed/running/succeeded/queued`) with a dot swatch plus a text label — red 'Failed', blue 'Running', green 'Succeeded' visible on every row of the idle desktop screenshot.",
+      "Job progress is a per-row role=progressbar bar fill plus a numeric percent ('81%', '38%'); metrics count 8 roleProgressbar elements, and the drawer adds an SVG progress ring (r=34 circle with stroke-dasharray) around the same percent.",
+      "Queue-level counts are a segmented SVG donut (four <circle class=\"seg\"> strokes in the status colours, '8 JOBS' in the centre) mirrored by five filter chips each pairing a colour swatch with a count (8 All / 3 Failed / 3 Running / 0 Queued / 2 Succeeded).",
+      "Failure reason is prose only: the Detail cell renders job.error ('Upstream timeout after 30s', 'Worker ran out of memory at 1.8 GB') as red text (`.dt.errtx`), and the drawer repeats it in a red-bordered 'Failure reason' block — colour emphasis but no glyph or graphic carries the information.",
+      "Metrics: desktop graphical total 65 (14 svg, 8 role=progressbar, 43 badge-heuristic elements) against only 107 viewport words — the page is dominated by graphical state, with 3 of 4 inventory items graphical+text and 1 text-only, so between the '5 = all graphical' and '3 = about half text-only' anchors."
+    ]
+  },
+  "f2": {
+    "score": 5,
+    "observations": [
+      "Measured viewportWords is 107 and pageWords 109 for a screen showing 8 jobs, a donut, five filter chips, an alert band and an upload card — almost every word is data (ids, counts, percents, statuses), not narration.",
+      "Button labels: 26 labels, meanWords 1.42, maxWords 6 — and the single >3-word 'label' is the composite drop zone 'Upload a CSV / Creates one job', which is really a 3-word action plus a 3-word consequence line; every true button is 1–2 words ('Retry', 'Cancel', 'Download', 'Rerun', 'Retry all', 'Refresh', 'Live').",
+      "helperWords is 3 and longLeafWords is 0 — there are no explanatory paragraphs anywhere; the only standing explanatory clause is the alert band's '— retry sends them back to the queue', six words that state a non-obvious behaviour rather than restate the UI.",
+      "Transient copy is equally tight: 'Updated just now', 'Syncing…', 'Queued job_f96c45', 'Upload cancelled.', '3 jobs requeued' — each is a state report, none restates something already shown graphically."
+    ]
+  },
+  "f3": {
+    "score": 4,
+    "observations": [
+      "Status vocabulary is rigorously consistent: the LABEL map (Queued/Running/Succeeded/Failed) is the single source for pills, chips, the drawer <dl>, and aria-labels, so the same status never appears under two names.",
+      "'Retry' vs 'Rerun' is a deliberate, consistently applied distinction (failed jobs get 'Retry'/'Retry job', succeeded jobs get 'Rerun'/'Rerun job' in row and drawer alike), and toast copy names exact ids ('Couldn't retry job_35484f — Network request failed').",
+      "Copy matches behaviour almost everywhere: the drawer says 'Updating every 1.5s' and its poll loop uses setTimeout(poll, 1500); the 'Live' toggle flips to 'Paused' and actually clears the poll timer; 'Cancelling' appears while the AbortController fires.",
+      "One issue found: the bulk-retry failure toast sub-text 'The server rejected them.' misattributes NETWORK-code failures (surfaced elsewhere as 'Network request failed') to a server rejection — a minor copy/behaviour mismatch, and the only one, which holds the score at 4 rather than 5."
+    ]
+  },
+  "f4": {
+    "score": 5,
+    "observations": [
+      "The whole layout is organised around the brief's second clause ('deal with failed jobs'): failed rows are hard-sorted to the top (ORDER = {failed:0, running:1, queued:2, succeeded:3}), get the only primary-blue 'Retry' buttons in the table, and a dedicated red alert band '3 jobs failed — retry sends them back to the queue' offers bulk 'Retry all' with live progress ('Retrying 2/3') and bounded 3-lane concurrency.",
+      "The 'see what's happening' clause drives the top band: status-segmented donut, count chips that double as filters, a default-on 'Live' toggle with 2 s polling, 'Updated Xs ago' freshness text, and skeleton rows plus em-dash counts in the loading screenshot instead of a blank page.",
+      "Per-status Detail and action columns are task-specific, not template: failed rows show the failure reason and 'Retry', running rows show 'Cancel', succeeded rows show '2,713 rows' with 'Download'/'Rerun' — the same cell does different admin work per status.",
+      "Type and colour are ops-console choices: JetBrains Mono for job ids and counts, Inter for chrome, and one status colour system (#ff5d54/#4aa8ff/#8492ad/#31c777) reused identically across pills, bars, donut segments, chips and the drawer ring.",
+      "Template-side elements exist — dark navy card-grid dashboard, Inter, a toast stack, a donut widget — but each is bent to the task (the donut is the queue breakdown, the toasts carry per-job 'Try again' actions), so the page is not interchangeable with another brief's output."
+    ]
+  },
+  "hierarchy": {
+    "score": 5,
+    "observations": [
+      "Purpose read correctly from the screenshot alone: 'Job queue' header, an 8-job donut with per-status counts, and a Status/Job/Progress/Detail table make it unmistakably a background-job admin page — exactly the brief.",
+      "Primary action read correctly: the only red band on the page ('3 jobs failed — retry sends them back to the queue' with 'Retry all') plus three blue 'Retry' buttons on the top-sorted Failed rows match the brief's 'deal with failed jobs'; 'Upload a CSV' is visibly secondary in its own card.",
+      "Attention read correctly: the three Failed rows announce themselves through red pills, red reason strings ('Upstream timeout after 30s', 'Worker ran out of memory at 1.8 GB') and the red banner, while Succeeded rows sit lowest with quiet green — all three pre-source answers checked out against the brief, so 5."
+    ]
+  },
+  "f1Inventory": [
+    {
+      "item": "job status per row",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "job progress",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "queue-level counts",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "failure reason",
+      "classification": "text only"
+    }
+  ],
+  "f2Redundant": [],
+  "f3Issues": [
+    "Bulk-retry failure toast says 'The server rejected them.' even when the underlying failures are NETWORK errors reported elsewhere as 'Network request failed' — copy mischaracterises the observed behaviour."
+  ],
+  "f4TaskDriven": [
+    "Failed jobs hard-sorted to the top of the table (ORDER map puts failed first) so the admin's work queue is the first thing under the fold line",
+    "Red alert band with bulk 'Retry all', live 'Retrying n/m' progress and 3-lane bounded concurrency, plus per-job 'Try again' toast actions",
+    "Per-status Detail column: failure reason in red for failed jobs, '2,713 rows' result summary for succeeded jobs, empty for running",
+    "Per-status action sets: Retry (failed), Cancel (queued/running), Download + Rerun (succeeded), mirrored as 'Retry job'/'Cancel job'/'Rerun job' in the drawer footer",
+    "Status-segmented SVG donut whose segments share one colour system with pills, progress bars, chips and the drawer ring",
+    "Count chips that double as status filters with a filter-aware empty state ('No failed jobs' + 'Show all 8')",
+    "Default-on 'Live' toggle with 2 s polling, 'Updated Xs ago' freshness stamp, and 'Syncing…' indicator for an on-duty admin",
+    "Skeleton table rows and em-dash placeholders in counts during initial load instead of a blank or spinner-only page",
+    "JetBrains Mono for job ids, counts and the '8 of 8' shown-counter — ops-console typography",
+    "Drawer detail view that polls the single job every 1.5 s and states 'Updates paused —' with the reason when polling fails",
+    "'Lost contact with the server… showing the last known state' network alert with a 'Reconnect' action, keeping stale data visible rather than blanking"
+  ],
+  "f4Template": [
+    "Dark navy card-grid dashboard shell with rounded cards and uppercase section labels (QUEUE / ENQUEUE / JOBS)",
+    "Inter as the UI typeface",
+    "Bottom-corner toast stack pattern",
+    "Donut chart as the headline dashboard widget",
+    "Dashed-border drag-and-drop upload zone"
+  ]
+}

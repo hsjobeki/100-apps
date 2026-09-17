@@ -1,0 +1,85 @@
+{
+  "id": "3b6eac7c",
+  "f1": {
+    "score": 5,
+    "observations": [
+      "Field validation state is graphical+text: step dots #dot-contact/#dot-ship/#dot-pay switch to a red '!' SVG or green check SVG (paintDots()), invalid inputs get aria-invalid plus red-bordered .inwrap styling, each message is prefixed with the ICON_WARN circle-exclamation SVG, and the '9 fields need a fix' banner renders red pill jump-chips per field (visible in loading_desktop and error_desktop screenshots).",
+      "Submission state is graphical+text: the Pay button swaps to the ICON_SPIN spinner SVG with label 'Processing' and aria-busy=true, and an animated .clock progress track with a live elapsed-seconds counter appears (renderPayBar/startClock; confirmed by async item 1 PASS at ~250 ms).",
+      "Order success/failure is graphical+text: success shows a green .tick circle-check SVG above 'Order placed' with the order reference; network failure shows the red .banner.err with a wifi-off SVG next to 'Payment didn't go through' (async items 5 and 10 evidence).",
+      "Metrics corroborate heavy graphical vocabulary: desktop graphical total 42 (27 svg, 15 badges), against only 86 viewport words."
+    ]
+  },
+  "f2": {
+    "score": 4,
+    "observations": [
+      "Extremely lean text: 86 desktop viewport words, 98 page words total, helperWords 19, longLeafWords 0, no long leaves.",
+      "Labels are terse: metrics show button label meanWords 2.5, maxWords 3, longLabels empty; e.g. 'Pay $77.40', 'Fill sample details', 'Try again', 'Cancel'.",
+      "The single helper line '3 or 4 digits, from the back of the card' (#h-cvc) earns its place; the footer 'Your card is charged only after the shop confirms.' addresses real checkout anxiety.",
+      "Two transient error-state clauses restate what the UI already shows, which keeps this off the 5 anchor: 'Your details are still filled in.' (failNetwork) narrates visibly preserved fields, and 'The shop checked your details and sent these back.' (showFieldBanner, server branch) restates what the highlighted fields and jump-chips already convey."
+    ]
+  },
+  "f3": {
+    "score": 4,
+    "observations": [
+      "Terminology is consistent throughout: 'basket' everywhere ('Your basket', 'Basket is empty', 'Your basket is empty'), 'the shop' as the consistent counterparty ('the shop confirms', 'The shop did not respond', 'The shop rejected'), and 'Security code' matches its validation message 'Enter the security code' and hint.",
+      "Copy matches observed behavior: 'Try again' really re-issues submitOrder without reload (async item 6 PASS); 'no order was placed and your card was not charged' matches item 10's finding that success is never shown before the server resolves; the cancel banner 'You stopped it before the shop replied' matches the AbortController path.",
+      "Input placeholders are concrete examples ('44 Kilnhouse Lane', 'Portland', '97204', 'MM/YY'), not lorem or TODO text; validation messages are specific ('A card number has 13 to 19 digits', 'Month must be 01 to 12', 'This card has expired').",
+      "One issue found (the 'Fill sample details' demo button), placing it at 4 rather than 5."
+    ]
+  },
+  "f4": {
+    "score": 5,
+    "observations": [
+      "The page is branded as a specific fictional shop, 'Mill & Thread', with a custom circular logo SVG in the topbar and a matching deep-green (#14654f) on warm cream (#faf8f4) palette that reads as an artisanal goods store.",
+      "Products are bespoke inline SVG illustrations (ART.moka, ART.towel, ART.candle — a moka pot, tea towels, a taper candle) with real merchandising copy ('Aluminium · Italy', 'Stonewashed', '9 hour burn'), not gray placeholder thumbnails.",
+      "Type pairing is deliberate: Fraunces (opsz serif) for 'Checkout' and the $77.40 total against Inter for UI text — a small-shop editorial voice, not a default sans stack.",
+      "E-commerce-specific mechanics are built in, not decorative: '$17.50 to free shipping' progress bar with a $90 threshold, live card-brand detection rendering Visa/Mastercard/Amex marks in the card field, quantity steppers with per-item remove, and trust markers ('Secure checkout', 'Encrypted') placed exactly where checkout anxiety lives.",
+      "Template remnants are limited to the canonical checkout skeleton (form-left / order-summary-right, numbered steps 1-2-3)."
+    ]
+  },
+  "hierarchy": {
+    "score": 4,
+    "observations": [
+      "Answered from the idle desktop screenshot before reading source: purpose = checkout for shop 'Mill & Thread' ('Checkout' h1, 'YOUR BASKET' with 3 priced items, Total $77.40) — correct per the brief.",
+      "Primary action inferred as completing the numbered steps then paying; correct, and metrics confirm primaryAction is the BUTTON 'Pay $77.40'. But that button is below the fold at 1440x900 — the most prominent visible button in the idle viewport is the secondary 'Fill sample details'.",
+      "What needs attention is obvious: Contact shows a large green check while step 2 'Shipping address' is the first section with empty placeholder fields, so the eye lands on the next incomplete step.",
+      "One point off the 5 anchor because the primary Pay action itself is not visible in the initial desktop viewport."
+    ]
+  },
+  "f1Inventory": [
+    {
+      "item": "field validation state",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "submission state",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "order success/failure",
+      "classification": "graphical+text"
+    }
+  ],
+  "f2Redundant": [
+    "'Your details are still filled in.' (network-failure banner) — restates the visibly preserved form fields.",
+    "'The shop checked your details and sent these back.' (server-validation banner body) — restates what the highlighted fields and jump-chips already show."
+  ],
+  "f3Issues": [
+    "'Fill sample details' is a demo/dev affordance shipped in the storefront header — no real small-shop checkout offers to fill in the customer's card number, so the copy promises an interaction that only makes sense for a demo, not this shop's user."
+  ],
+  "f4TaskDriven": [
+    "Named fictional brand 'Mill & Thread' with a custom logo SVG and cohesive green/cream shop palette",
+    "Bespoke SVG product illustrations for moka pot, tea towels, and candle with real merchandising notes ('Aluminium · Italy', '9 hour burn')",
+    "Fraunces serif display type for the Checkout heading and $77.40 total, paired with Inter for UI",
+    "'$17.50 to free shipping' progress bar against a $90 threshold — a genuine small-shop conversion mechanic",
+    "Live card-brand detection rendering Visa/Mastercard/Amex marks inside the card-number field",
+    "'Secure checkout' topbar badge and 'Encrypted' badge on the Payment step, placed where payment anxiety occurs",
+    "Pay button label carries the live total ('Pay $77.40') and an elapsed-seconds clock runs during submission",
+    "Receipt card summarises '<n> items · $total · shipping to <city>' with the server order reference"
+  ],
+  "f4Template": [
+    "Two-column checkout skeleton: form on the left, order-summary card on the right",
+    "Numbered 1-2-3 step headers (Contact / Shipping address / Payment)",
+    "Standard − / qty / + steppers with trash-icon remove on each basket line"
+  ]
+}

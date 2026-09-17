@@ -1,0 +1,66 @@
+{
+  "id": "b1b613d1",
+  "items": [
+    {
+      "n": 1,
+      "verdict": "PASS",
+      "reason": "Within 250 ms of confirming a delete under slow latency, the dialog's confirm button showed a spinner and went disabled, and the project row's Delete button dimmed; the profile Save button likewise showed a disabled pending state at 250 ms.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/b1b613d1_1.png"
+    },
+    {
+      "n": 2,
+      "verdict": "PASS",
+      "reason": "Triple-clicking the delete confirm button and double-clicking Save each produced exactly one backend call (__apiLog: one deleteProject, one updateSettings) because the buttons are disabled while pending.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/b1b613d1_2.png"
+    },
+    {
+      "n": 3,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief; no upload or job progress exists on an account settings page.",
+      "evidence": "Applicability rule for B6: items 3 and 4 apply only to B1 and B2."
+    },
+    {
+      "n": 4,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief; no long-running upload or processing action exists here.",
+      "evidence": "Applicability rule for B6: items 3 and 4 apply only to B1 and B2."
+    },
+    {
+      "n": 5,
+      "verdict": "PASS",
+      "reason": "With fail=1, the failed delete kept the dialog open and showed 'Network request failed' directly under the confirm input, plus an alert 'Network error — could not delete project'; the message names the cause and the affected action next to the relevant control.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/b1b613d1_5.png"
+    },
+    {
+      "n": 6,
+      "verdict": "PASS",
+      "reason": "After the failure the dialog's Delete Project button was re-enabled and clicking it again issued a second deleteProject call without reloading (__apiLog: ['getUser','deleteProject','deleteProject']).",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/b1b613d1_6.png"
+    },
+    {
+      "n": 7,
+      "verdict": "N/A",
+      "reason": "Marked not applicable; the API returns field-level VALIDATION errors only for the checkout brief.",
+      "evidence": "Applicability rule: item 7 applies only to B5."
+    },
+    {
+      "n": 8,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief; no polled server state exists on the settings page.",
+      "evidence": "Applicability rule: item 8 applies only to B1, B2 and B3."
+    },
+    {
+      "n": 9,
+      "verdict": "PASS",
+      "reason": "Mid-flight the dialog's Cancel button is disabled, and switching to the Profile view while the delete was pending then returning after it resolved left a consistent UI: dialog closed, '2 projects' heading matching two rows, no stale error or stuck spinner.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/b1b613d1_9.png"
+    },
+    {
+      "n": 10,
+      "verdict": "PASS",
+      "reason": "During the pending delete the list still showed '3 projects' with the row present, and only after the server resolved did it become '2 projects' with the dialog closed; on a failed delete the project stayed in the list, and Save showed no premature 'Saved' state at 250 ms.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/b1b613d1_10.png"
+    }
+  ],
+  "failCount": 0
+}

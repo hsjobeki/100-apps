@@ -1,0 +1,90 @@
+{
+  "id": "bba65fe8",
+  "f1": {
+    "score": 5,
+    "observations": [
+      "Raw ratio: 4/4 inventory items are graphical+text.",
+      "Per-service health is quadruple-encoded graphically: a colored .status-dot beside the name, a colored .status-badge (DOWN red / DEGRADED amber / HEALTHY green), a status-colored left card border (visible red on media-worker, amber on notifier), and a global pulse dot in the header whose class flips ok/warn/crit — each backed by the status word in text.",
+      "Latency trend and error-rate trend are drawn as <canvas> sparklines (metrics count 12 canvases for 6 services), with gradient fill, status-driven stroke color and a last-point dot, labeled 'Latency Trend'/'Error Rate Trend' and supported by signed delta text ('-181ms', '+0.0%') color-coded up-bad/down-good.",
+      "Uptime is a filled .uptime-bar-fill whose width equals uptimePct and whose color thresholds at 99.5/98% (green/amber/red), plus the colored numeric '98.90%' text; api-gateway's 97.52% bar renders red in the idle screenshot.",
+      "Summary tiles color the counts themselves (green '4', amber '1', red '1', red '846ms'), and graphical.total is 26 (12 canvas + 14 badge-heuristic elements) against only 137 page words."
+    ]
+  },
+  "f2": {
+    "score": 5,
+    "observations": [
+      "pageWords is 137 for the whole desktop page — nearly all of it metric labels ('Latency', 'Error Rate', 'Uptime') and values; helperWords = 0 and longLeafWords = 0, so there are zero explanatory paragraphs.",
+      "All 3 button labels are 1 word (meanWords 1, maxWords 1, longLabels []): 'Retry', '1h'/'24h'/'7d'.",
+      "The only sentences on the page are state messages: 'Loading services…', 'Connection Lost' + 'Network request failed', and 'Updated 01:39:16 PM' / 'Stale · last …' — each carries state the UI cannot show otherwise; nothing restates what a chart or badge already shows.",
+      "No onboarding copy, no legend, no 'this dashboard shows…' narration anywhere in the source."
+    ]
+  },
+  "f3": {
+    "score": 4,
+    "observations": [
+      "Terminology is consistent throughout: the status vocabulary healthy/degraded/down is used identically in summary tiles, badges, dots, and sort order; time ranges are always '1h/24h/7d'.",
+      "Copy matches behavior almost everywhere: 'Retry' re-issues getMetrics (async item 6 PASS), 'Updated <time>' only advances after a confirmed server response (item 10 PASS), and 'Stale · last <time>' turns the timestamp amber when a poll fails.",
+      "One issue found: the summary tile 'Peak Latency' (846ms) does not show a peak over the selected time window — renderSummary takes only the latest sample of each service (s.latencyMs[length-1]) and reports the max across services, so the label promises 'peak' behavior the code does not implement.",
+      "No filler, no marketing tone, no placeholder text; the hidden default '#errorMsg' string 'Unable to fetch service data.' is always overwritten with the real err.message before display."
+    ]
+  },
+  "f4": {
+    "score": 5,
+    "observations": [
+      "Severity-first sorting (services.sort with order down:0, degraded:1, healthy:2) puts media-worker (DOWN) at the top-left scan position — a choice that only makes sense for an on-call 'is something wrong' user.",
+      "Color is the information architecture, not decoration: status-colored card borders, thresholded uptime colors (99.5/98% breakpoints), latency delta classed up-bad/down-good so a -181ms drop reads green, and sparkline stroke color inherits service status (red for down, amber for degraded).",
+      "The header pulse dot (#globalPulse, class ok/warn/crit) gives a literal single-glance overall answer before any reading; the dark NOC-style theme suits an on-call engineer at 3 a.m.",
+      "Staleness handling ('Stale · last <time>' in amber, keeping last-known data instead of blanking the dashboard on a failed poll) is a monitoring-specific design decision.",
+      "Template residue is minor: Inter from Google Fonts, a standard 3-column card grid, and a default-blue active pill on the range toggle."
+    ]
+  },
+  "hierarchy": {
+    "score": 5,
+    "observations": [
+      "From the idle desktop screenshot alone, before source: purpose read as 'service health monitoring dashboard' — the 'Service Health' title, HEALTHY/DEGRADED/DOWN count tiles, and six per-service cards make it unmistakable.",
+      "Primary interaction read as scanning status plus the 1h/24h/7d range toggle (24h highlighted blue); correct — the source's only controls are the range buttons and Retry.",
+      "What needs attention read as media-worker (red DOWN badge, red left border, top-left position) and notifier (amber DEGRADED), echoed by red 'DOWN 1' and 'PEAK LATENCY 846ms' tiles; confirmed by the source's severity-first sort and the brief's 'at a glance whether something is wrong'.",
+      "The mobile screenshot preserves the hierarchy: summary tiles stack first, media-worker's card is still the first service shown."
+    ]
+  },
+  "f1Inventory": [
+    {
+      "item": "per-service health",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "latency trend",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "error-rate trend",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "uptime",
+      "classification": "graphical+text"
+    }
+  ],
+  "f2Redundant": [],
+  "f3Issues": [
+    "'Peak Latency' summary tile: the code computes the maximum of each service's most recent latency sample, not the peak over the selected 1h/24h/7d window, so the label promises behavior that does not happen."
+  ],
+  "f4TaskDriven": [
+    "Severity-first sort order (down > degraded > healthy) so the broken service occupies the first scan position",
+    "Global pulse dot in the header that turns ok/warn/crit with overall fleet status — a one-glance answer to the brief's core question",
+    "Status-colored left card borders (red/amber/green) making bad cards findable in peripheral vision",
+    "Thresholded semantic coloring of values: uptime green/amber/red at 99.5/98%, peak latency red above 500ms, latency deltas classed up-bad/down-good",
+    "Sparkline stroke color inherits service status (red for down, amber for degraded, blue for healthy) and error-rate sparklines turn red when any point exceeds 5%",
+    "HEALTHY/DEGRADED/DOWN count tiles as the top-level triage summary",
+    "'Stale · last <time>' amber staleness indicator that keeps last-known data on poll failure instead of blanking the dashboard",
+    "10-second auto-polling with an 'Updated <time>' timestamp, matching a live on-call monitoring workflow",
+    "Dark low-luminance theme appropriate for a NOC / on-call context",
+    "Signed per-metric delta readouts (-181ms, +0.0%) showing direction of change since the previous sample"
+  ],
+  "f4Template": [
+    "Inter from Google Fonts as the sole typeface",
+    "Standard responsive 3-column card grid for the services",
+    "Default-blue active pill styling on the 1h/24h/7d range toggle",
+    "Generic centered spinner-plus-text loading overlay"
+  ]
+}

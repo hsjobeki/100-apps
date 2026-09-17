@@ -1,0 +1,95 @@
+{
+  "id": "c1221ec5",
+  "hierarchy": {
+    "score": 5,
+    "observations": [
+      "From the idle desktop screenshot alone, purpose is unmistakable: header 'Job queue' + 'ADMIN' chip, four count tiles (Failed 3, Running 3, Queued 0, Succeeded 2), stacked composition bar, and a jobs table — exactly the brief's admin queue page.",
+      "Primary action reads correctly as 'Retry all failed 3': it is the only tinted primary button, first in the toolbar, red to match the failure theme; metrics confirm primaryAction.text = 'Retry all failed\\n0'.",
+      "What needs attention is unambiguous: the 'Failed 3' tile is the only red-outlined tile, failed rows sort to the top with red 'Failed' pills, red reason strings ('Upstream timeout after 30s', 'Worker ran out of memory at 1.8 GB'), and per-row Retry buttons — matching the brief's 'deal with failed jobs'.",
+      "All three answers checked out against the brief after reading the source (RANK = {failed:0,...} sorts failures first; retryAll is the sole .btn.primary)."
+    ]
+  },
+  "f1": {
+    "score": 5,
+    "observations": [
+      "Raw ratio: 4/4 inventory items graphical+text.",
+      "Job status per row: colored pill with a per-status SVG glyph (alert triangle for failed, spinning arc for running, check for succeeded, clock for queued) plus the text label — statusIcon() + LABEL map in source; visible in idle screenshot.",
+      "Job progress: a native <progress> bar per row plus a numeric '81%' text; metrics count 9 <progress> elements and each gets aria-label 'Progress N%'.",
+      "Queue-level counts: four icon+number tiles (tile gets 'has'/'is-zero' and per-status color classes), a stacked composition bar (role=img, aria-label 'N failed, N running...') with red/blue/green segments, and filter chips with live counts — three redundant graphical encodings of the same counts.",
+      "Failure reason: red text with an inline alert-triangle SVG in the Detail column ('Upstream timeout after 30s' with warn icon), repeated in the drawer's red 'Failure reason' box — inherently textual content given graphical severity coding.",
+      "Metrics: graphical total 83 on desktop (29 svg, 9 progress, 45 badge-heuristic elements), the visual channel clearly dominates."
+    ]
+  },
+  "f2": {
+    "score": 5,
+    "observations": [
+      "Desktop viewportWords is 104 for a full dashboard (mobile 65); helperWords 0 and longLeafWords 0 — there is no explanatory prose anywhere on the idle page.",
+      "22 button labels average 1.36 words; the only label above 3 words is 'Retry all failed' + count chip '3' (counted as 4 by the harness).",
+      "The dialog sub-line 'Requeues 3 jobs. Each job restarts from the beginning.' is the longest sentence on the page and carries real information (restart-from-zero consequence), not narration.",
+      "Error banner text 'Network error — the queue server did not respond. Showing the last known state.' states cause and current data validity in two short clauses; nothing restates what the table already shows.",
+      "Sole borderline restatement: empty-state 'Queue is empty' followed by 'Nothing has been submitted yet.' — the second line mostly restates the heading, though it disambiguates from the filtered-empty case which gets 'No matching jobs' instead."
+    ]
+  },
+  "f3": {
+    "score": 4,
+    "observations": [
+      "Terminology is otherwise rigorously consistent: Retry/Retrying/Retry again/Retry job/Retry all failed/Retry remaining all use the same verb; Cancel/Cancelling/Cancel job likewise; status words (Queued/Running/Succeeded/Failed) match the API enum everywhere including filters, tiles, pills, and drawer.",
+      "Copy matches behavior throughout, verified by the async checklist: 'Retrying' appears only while retryJob is genuinely pending (item 10), 'Live · updated just now' matches real ~2 s polling (item 8), and 'Cancelled by admin' comes from the actual server snapshot (item 4).",
+      "Issue 1: mixed verbs for one action — buttons say 'Retry' but the success toast says 'Requeued job_x' and the dialog summary says 'N of N requeued'; defensible (retry causes a requeue) but two names for the same operation.",
+      "Issue 2: the degraded-polling live text renders as 'Updates failing · last 12s ago' — 'last … ago' is grammatically off; should be 'last update 12s ago' or 'updated 12s ago'.",
+      "No filler, no marketing tone, no placeholder text found in any of the ~40 UI strings in the source."
+    ]
+  },
+  "f4": {
+    "score": 5,
+    "observations": [
+      "The page is organized around the admin's actual task: failed rows sort to the top (RANK failed:0), the only primary button is 'Retry all failed' with a live count chip, and the Failed tile is the only outlined tile — triage-first, not a neutral data table.",
+      "It invents admin-specific affordances no template ships: a stall detector ('No progress 34s' warn chip when a running job's progress hasn't moved for 30 s), a bulk-retry dialog with per-job Waiting/Retrying/Requeued states, a running Stop button, and 'Retry remaining N' after partial failure.",
+      "Type and color serve the task: JetBrains Mono for job IDs and drawer title, red/blue/green/neutral consistently mapped to failed/running/queued/succeeded across tiles, stack bar, pills, progress bars, and filters.",
+      "The live-status indicator degrades honestly per state ('Live · updated just now' / 'Paused · updated 3s ago' / 'Updates failing · last …') with polling backoff — an on-call operator concern, not a template feature.",
+      "Template DNA that remains: dark dashboard with a four-stat-card row above a table, Inter font, and toast notifications are stock admin-dashboard vocabulary — but here each element is wired to task semantics rather than decoration."
+    ]
+  },
+  "f1Inventory": [
+    {
+      "item": "job status per row",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "job progress",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "queue-level counts",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "failure reason",
+      "classification": "graphical+text"
+    }
+  ],
+  "f2Redundant": [
+    "Empty-state body 'Nothing has been submitted yet.' largely restates its own heading 'Queue is empty' (borderline: it does distinguish the true-empty case from the filtered 'No matching jobs' case)."
+  ],
+  "f3Issues": [
+    "Inconsistent naming for the same action: buttons and dialog title use 'Retry' ('Retry', 'Retry 3 jobs', 'Retry all failed') while the success toast and completion summary use 'Requeued' / 'requeued' ('Requeued job_x', '3 of 3 requeued').",
+    "Awkward grammar in the degraded live indicator: 'Updates failing · last 12s ago' — 'last' plus 'ago' is malformed; the paused variant 'Paused · updated 12s ago' shows the correct form."
+  ],
+  "f4TaskDriven": [
+    "Failed jobs sort to the top of the table (RANK map puts failed first), putting the brief's 'deal with failed jobs' work at the top of the scan path.",
+    "'Retry all failed' is the sole primary button, carries a live failure-count chip, and opens a confirmation dialog listing each job with per-job Waiting → Retrying → Requeued/error outcomes, a Stop button, and 'Retry remaining N' after partial failure.",
+    "Stall detection: a 'No progress 34s' warning chip appears on running jobs whose progress hasn't advanced in 30 s (STALL_MS), a genuinely operational signal.",
+    "Failed tile is the only red-outlined summary tile; zero-count tiles get an 'is-zero' dimmed treatment so attention tracks real problems.",
+    "Stacked queue-composition bar (role=img with a full aria-label) gives at-a-glance failed/running/queued/succeeded proportions.",
+    "JetBrains Mono for job IDs, ID click-through to a detail drawer with 'Tracked since / Last change / Progress moved' timestamps — debugging metadata for an admin, not consumer chrome.",
+    "Live-status indicator with three honest states (Live / Paused / Updates failing) plus exponential polling backoff and a 'Showing the last known state.' banner with 'Retry now'.",
+    "Filter segments carry live per-status counts and the search box is scoped to 'Job ID' only, matching what an admin actually looks up.",
+    "Dialog copy warns of the consequence: 'Each job restarts from the beginning.'"
+  ],
+  "f4Template": [
+    "Four stat-cards-above-a-table dark dashboard layout is stock admin-template structure.",
+    "Inter as the UI font is a default choice.",
+    "Corner toast notifications for action results are a generic dashboard pattern.",
+    "Skeleton-row loading shimmer is a standard template loading treatment."
+  ]
+}

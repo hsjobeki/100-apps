@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Account Settings</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #f8f9fb;
+  --surface: #ffffff;
+  --border: #e2e5ea;
+  --border-focus: #4f7df9;
+  --text-primary: #1a1d23;
+  --text-secondary: #5f6672;
+  --text-tertiary: #8b919d;
+  --accent: #4f7df9;
+  --accent-hover: #3d6ae8;
+  --danger: #e5443a;
+  --danger-hover: #d32f2f;
+  --danger-bg: #fef2f2;
+  --danger-border: #fecaca;
+  --success: #16a34a;
+  --success-bg: #f0fdf4;
+  --warning-bg: #fffbeb;
+  --warning-border: #fde68a;
+  --warning-text: #92400e;
+  --radius: 8px;
+  --radius-lg: 12px;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+  --transition: 150ms ease;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text-primary);
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+.page-header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+}
+
+.page-header-inner {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 24px 0 0;
+}
+
+.page-header h1 {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+}
+
+.tab-nav {
+  display: flex;
+  gap: 0;
+  border-bottom: none;
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  padding: 10px 16px;
+  font: 500 14px/1 'Inter', sans-serif;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color var(--transition), border-color var(--transition);
+  position: relative;
+  bottom: -1px;
+}
+
+.tab-btn:hover { color: var(--text-primary); }
+.tab-btn.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.main-content {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 32px 24px 64px;
+}
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.card + .card { margin-top: 24px; }
+
+.card-header {
+  padding: 20px 24px 0;
+}
+
+.card-header h2 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.card-header p {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.card-body { padding: 20px 24px; }
+
+.card-footer {
+  padding: 16px 24px;
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  align-items: center;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group:last-child { margin-bottom: 0; }
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+input[type="text"],
+input[type="email"],
+select {
+  width: 100%;
+  padding: 9px 12px;
+  font: 400 14px/1.5 'Inter', sans-serif;
+  color: var(--text-primary);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition: border-color var(--transition), box-shadow var(--transition);
+  outline: none;
+}
+
+input:focus, select:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(79,125,249,0.12);
+}
+
+input:disabled, select:disabled {
+  background: var(--bg);
+  color: var(--text-tertiary);
+  cursor: not-allowed;
+}
+
+.plan-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 100px;
+  background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+  color: #3730a3;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 16px;
+  font: 500 14px/1 'Inter', sans-serif;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition), border-color var(--transition), opacity var(--transition);
+  white-space: nowrap;
+  min-height: 38px;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+}
+.btn-primary:hover:not(:disabled) { background: var(--accent-hover); }
+
+.btn-secondary {
+  background: var(--surface);
+  color: var(--text-primary);
+  border-color: var(--border);
+}
+.btn-secondary:hover:not(:disabled) { background: var(--bg); }
+
+.btn-danger {
+  background: var(--danger);
+  color: #fff;
+}
+.btn-danger:hover:not(:disabled) { background: var(--danger-hover); }
+
+.btn-danger-outline {
+  background: transparent;
+  color: var(--danger);
+  border-color: var(--danger);
+}
+.btn-danger-outline:hover:not(:disabled) {
+  background: var(--danger-bg);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  padding: 6px 8px;
+}
+.btn-ghost:hover:not(:disabled) {
+  background: var(--bg);
+  color: var(--text-primary);
+}
+
+.btn .spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.toast-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.toast {
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: var(--shadow), 0 4px 12px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: slideIn 0.25s ease;
+  max-width: 360px;
+}
+
+.toast-success {
+  background: var(--success-bg);
+  color: var(--success);
+  border: 1px solid #bbf7d0;
+}
+
+.toast-error {
+  background: var(--danger-bg);
+  color: var(--danger);
+  border: 1px solid var(--danger-border);
+}
+
+@keyframes slideIn {
+  from { transform: translateX(40px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+.loading-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  padding: 24px 0;
+}
+
+.skeleton-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+}
+
+.skeleton-line {
+  height: 14px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #eee 25%, #e0e0e0 50%, #eee 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.skeleton-line.w40 { width: 40%; }
+.skeleton-line.w60 { width: 60%; }
+.skeleton-line.w80 { width: 80%; }
+.skeleton-line + .skeleton-line { margin-top: 12px; }
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.project-list { list-style: none; }
+
+.project-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--border);
+  transition: background var(--transition);
+}
+
+.project-item:last-child { border-bottom: none; }
+
+.project-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.project-name {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.project-date {
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+.project-actions { display: flex; gap: 8px; align-items: center; }
+
+.empty-state {
+  padding: 48px 24px;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.empty-state svg {
+  width: 48px;
+  height: 48px;
+  color: var(--text-tertiary);
+  margin-bottom: 12px;
+}
+
+.empty-state p {
+  font-size: 14px;
+}
+
+.danger-zone {
+  border-color: var(--danger-border);
+}
+
+.danger-zone .card-header h2 { color: var(--danger); }
+
+.danger-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.danger-item:last-child { border-bottom: none; }
+
+.danger-item-text h3 {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.danger-item-text p {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+/* Confirmation modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.15s ease;
+  padding: 24px;
+}
+
+@keyframes fadeIn { from { opacity: 0; } }
+
+.modal {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  max-width: 440px;
+  width: 100%;
+  animation: modalIn 0.2s ease;
+}
+
+@keyframes modalIn {
+  from { transform: scale(0.95); opacity: 0; }
+}
+
+.modal-header {
+  padding: 20px 24px 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.modal-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.modal-icon.danger {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+.modal-header h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+.modal-body {
+  padding: 12px 24px 20px;
+}
+
+.modal-body p {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+
+.modal-body .confirm-input-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.modal-body input {
+  width: 100%;
+  padding: 9px 12px;
+  font: 400 14px/1.5 'Inter', sans-serif;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  outline: none;
+}
+
+.modal-body input:focus {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 3px rgba(229,68,58,0.12);
+}
+
+.modal-footer {
+  padding: 0 24px 20px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.error-inline {
+  font-size: 13px;
+  color: var(--danger);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-right: auto;
+}
+
+.save-status {
+  font-size: 13px;
+  color: var(--success);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+@media (max-width: 600px) {
+  .form-row { grid-template-columns: 1fr; }
+  .page-header-inner { padding: 16px 0 0; }
+  .page-header { padding: 0 16px; }
+  .main-content { padding: 20px 16px 48px; }
+  .card-body, .card-header, .card-footer, .project-item, .danger-item { padding-left: 16px; padding-right: 16px; }
+  .tab-btn { padding: 10px 12px; font-size: 13px; }
+  .danger-item { flex-direction: column; align-items: flex-start; gap: 12px; }
+}
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="page-header-inner">
+    <h1>Settings</h1>
+    <nav class="tab-nav" role="tablist">
+      <button class="tab-btn active" role="tab" data-tab="profile" aria-selected="true">Profile</button>
+      <button class="tab-btn" role="tab" data-tab="projects" aria-selected="false">Projects</button>
+      <button class="tab-btn" role="tab" data-tab="danger" aria-selected="false">Account</button>
+    </nav>
+  </div>
+</div>
+
+<main class="main-content" id="app-root">
+  <div class="loading-skeleton" id="loading-state">
+    <div class="skeleton-card">
+      <div class="skeleton-line w40"></div>
+      <div class="skeleton-line w80"></div>
+      <div class="skeleton-line w60"></div>
+    </div>
+    <div class="skeleton-card">
+      <div class="skeleton-line w40"></div>
+      <div class="skeleton-line w60"></div>
+    </div>
+  </div>
+
+  <div id="loaded-content" style="display:none">
+    <!-- Profile Tab -->
+    <div class="tab-panel active" id="panel-profile" role="tabpanel">
+      <form id="profile-form" class="card">
+        <div class="card-header">
+          <h2>Profile</h2>
+          <p>Your personal information</p>
+        </div>
+        <div class="card-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="field-name">Name</label>
+              <input type="text" id="field-name" autocomplete="name">
+            </div>
+            <div class="form-group">
+              <label for="field-email">Email</label>
+              <input type="email" id="field-email" autocomplete="email">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Plan</label>
+            <div id="plan-display"></div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <span class="save-status" id="profile-save-status" style="display:none">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8.5L6.5 12L13 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Saved
+          </span>
+          <span class="error-inline" id="profile-error" style="display:none"></span>
+          <button type="submit" class="btn btn-primary" id="save-profile-btn">Save</button>
+        </div>
+      </form>
+
+      <div class="card" style="margin-top:24px">
+        <div class="card-header">
+          <h2>Notifications</h2>
+          <p>Choose what you want to be notified about</p>
+        </div>
+        <div class="card-body">
+          <div class="form-group">
+            <label for="field-notify">Email notifications</label>
+            <select id="field-notify">
+              <option value="all">All notifications</option>
+              <option value="important">Important only</option>
+              <option value="none">None</option>
+            </select>
+          </div>
+        </div>
+        <div class="card-footer">
+          <span class="save-status" id="notify-save-status" style="display:none">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8.5L6.5 12L13 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Saved
+          </span>
+          <span class="error-inline" id="notify-error" style="display:none"></span>
+          <button type="button" class="btn btn-primary" id="save-notify-btn">Save</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Projects Tab -->
+    <div class="tab-panel" id="panel-projects" role="tabpanel">
+      <div class="card">
+        <div class="card-header">
+          <h2>Projects</h2>
+          <p>Manage your projects</p>
+        </div>
+        <div id="projects-container"></div>
+      </div>
+    </div>
+
+    <!-- Danger Zone / Account Tab -->
+    <div class="tab-panel" id="panel-danger" role="tabpanel">
+      <div class="card danger-zone">
+        <div class="card-header">
+          <h2>Danger Zone</h2>
+        </div>
+        <div class="danger-item" id="delete-account-row">
+          <div class="danger-item-text">
+            <h3>Delete account</h3>
+            <p>Permanently remove your account and all data. This cannot be undone.</p>
+          </div>
+          <button class="btn btn-danger-outline" id="delete-account-btn">Delete account</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="toast-container" id="toast-container"></div>
+<div id="modal-root"></div>
+
+<script>
+(function() {
+  'use strict';
+
+  let user = null;
+  let savingProfile = false;
+  let savingNotify = false;
+  let deletingProject = {};
+  let deletingAccount = false;
+
+  // ── Helpers ──
+
+  function $(sel, ctx) { return (ctx || document).querySelector(sel); }
+
+  function showToast(msg, type) {
+    const c = $('#toast-container');
+    const t = document.createElement('div');
+    t.className = 'toast toast-' + type;
+    const icon = type === 'success'
+      ? '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8.5L6.5 12L13 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+      : '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 5v3.5M8 10.5v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>';
+    t.innerHTML = icon + '<span>' + escHtml(msg) + '</span>';
+    c.appendChild(t);
+    setTimeout(function() {
+      t.style.transition = '0.2s ease';
+      t.style.opacity = '0';
+      t.style.transform = 'translateX(30px)';
+      setTimeout(function() { t.remove(); }, 200);
+    }, 3500);
+  }
+
+  function escHtml(s) {
+    var d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  function setLoading(btn, loading) {
+    if (loading) {
+      btn.disabled = true;
+      btn._origHtml = btn.innerHTML;
+      btn.innerHTML = '<span class="spinner"></span>' + (btn._origHtml.includes('Delete') ? ' Deleting\u2026' : ' Saving\u2026');
+    } else {
+      btn.disabled = false;
+      if (btn._origHtml) btn.innerHTML = btn._origHtml;
+    }
+  }
+
+  function friendlyError(err) {
+    if (err && err.code === 'NETWORK') return 'Connection failed. Please try again.';
+    return err && err.message ? err.message : 'Something went wrong.';
+  }
+
+  // ── Tabs ──
+
+  document.querySelectorAll('.tab-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.tab-btn').forEach(function(b) {
+        b.classList.remove('active');
+        b.setAttribute('aria-selected', 'false');
+      });
+      btn.classList.add('active');
+      btn.setAttribute('aria-selected', 'true');
+      document.querySelectorAll('.tab-panel').forEach(function(p) {
+        p.classList.remove('active');
+      });
+      var panel = $('#panel-' + btn.dataset.tab);
+      if (panel) panel.classList.add('active');
+    });
+  });
+
+  // ── Load User ──
+
+  async function loadUser() {
+    try {
+      user = await api.getUser();
+      renderProfile();
+      renderProjects();
+      $('#loading-state').style.display = 'none';
+      $('#loaded-content').style.display = 'block';
+    } catch (err) {
+      $('#loading-state').innerHTML = '<div style="text-align:center;padding:48px 24px;color:var(--text-secondary)"><p>Failed to load settings.</p><button class="btn btn-primary" onclick="location.reload()" style="margin-top:12px">Retry</button></div>';
+    }
+  }
+
+  // ── Profile ──
+
+  function renderProfile() {
+    $('#field-name').value = user.name || '';
+    $('#field-email').value = user.email || '';
+    $('#plan-display').innerHTML = '<span class="plan-badge"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M8 1l2.1 4.3 4.7.7-3.4 3.3.8 4.7L8 11.8 3.8 14l.8-4.7L1.2 6l4.7-.7L8 1z" fill="currentColor"/></svg>' + escHtml(user.plan) + '</span>';
+  }
+
+  $('#profile-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    if (savingProfile) return;
+    savingProfile = true;
+
+    var btn = $('#save-profile-btn');
+    var errEl = $('#profile-error');
+    var statusEl = $('#profile-save-status');
+    errEl.style.display = 'none';
+    statusEl.style.display = 'none';
+    setLoading(btn, true);
+
+    try {
+      await api.updateSettings({
+        name: $('#field-name').value.trim(),
+        email: $('#field-email').value.trim()
+      });
+      statusEl.style.display = 'flex';
+      setTimeout(function() { statusEl.style.display = 'none'; }, 3000);
+    } catch (err) {
+      errEl.textContent = friendlyError(err);
+      errEl.style.display = 'flex';
+    } finally {
+      savingProfile = false;
+      setLoading(btn, false);
+    }
+  });
+
+  $('#save-notify-btn').addEventListener('click', async function() {
+    if (savingNotify) return;
+    savingNotify = true;
+
+    var btn = $('#save-notify-btn');
+    var errEl = $('#notify-error');
+    var statusEl = $('#notify-save-status');
+    errEl.style.display = 'none';
+    statusEl.style.display = 'none';
+    setLoading(btn, true);
+
+    try {
+      await api.updateSettings({ notifications: $('#field-notify').value });
+      statusEl.style.display = 'flex';
+      setTimeout(function() { statusEl.style.display = 'none'; }, 3000);
+    } catch (err) {
+      errEl.textContent = friendlyError(err);
+      errEl.style.display = 'flex';
+    } finally {
+      savingNotify = false;
+      setLoading(btn, false);
+    }
+  });
+
+  // ── Projects ──
+
+  function renderProjects() {
+    var container = $('#projects-container');
+    if (!user.projects || user.projects.length === 0) {
+      container.innerHTML = '<div class="empty-state"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="6" y="10" width="36" height="28" rx="4"/><path d="M6 18h36M18 10V6h12v4"/></svg><p>No projects yet</p></div>';
+      return;
+    }
+
+    var html = '<ul class="project-list">';
+    user.projects.forEach(function(proj) {
+      var date = new Date(proj.createdAt);
+      var dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      html += '<li class="project-item" data-id="' + escHtml(proj.id) + '">'
+        + '<div class="project-info">'
+        + '<span class="project-name">' + escHtml(proj.name) + '</span>'
+        + '<span class="project-date">Created ' + escHtml(dateStr) + '</span>'
+        + '</div>'
+        + '<div class="project-actions">'
+        + '<button class="btn btn-danger-outline" data-delete-project="' + escHtml(proj.id) + '" data-project-name="' + escHtml(proj.name) + '" style="padding:6px 12px;font-size:13px;min-height:32px">Delete</button>'
+        + '</div></li>';
+    });
+    html += '</ul>';
+    container.innerHTML = html;
+
+    container.querySelectorAll('[data-delete-project]').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var id = btn.dataset.deleteProject;
+        var name = btn.dataset.projectName;
+        showDeleteProjectModal(id, name, btn);
+      });
+    });
+  }
+
+  function showDeleteProjectModal(id, name, triggerBtn) {
+    if (deletingProject[id]) return;
+
+    var overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    overlay.innerHTML = '<div class="modal">'
+      + '<div class="modal-header">'
+      + '<div class="modal-icon danger"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 6v4m0 3v.5M3.5 17h13L10 3 3.5 17z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>'
+      + '<h3>Delete project</h3>'
+      + '</div>'
+      + '<div class="modal-body">'
+      + '<p>Are you sure you want to delete <strong>' + escHtml(name) + '</strong>? All data in this project will be permanently removed.</p>'
+      + '<div class="error-inline" id="modal-error" style="display:none;margin-bottom:8px"></div>'
+      + '</div>'
+      + '<div class="modal-footer">'
+      + '<button class="btn btn-secondary" id="modal-cancel">Cancel</button>'
+      + '<button class="btn btn-danger" id="modal-confirm">Delete</button>'
+      + '</div></div>';
+
+    $('#modal-root').appendChild(overlay);
+
+    var cancelBtn = overlay.querySelector('#modal-cancel');
+    var confirmBtn = overlay.querySelector('#modal-confirm');
+    var errEl = overlay.querySelector('#modal-error');
+
+    function close() { overlay.remove(); }
+
+    overlay.addEventListener('click', function(e) {
+      if (e.target === overlay) close();
+    });
+    cancelBtn.addEventListener('click', close);
+
+    confirmBtn.addEventListener('click', async function() {
+      if (deletingProject[id]) return;
+      deletingProject[id] = true;
+      setLoading(confirmBtn, true);
+      cancelBtn.disabled = true;
+      errEl.style.display = 'none';
+
+      try {
+        await api.deleteProject(id);
+        user.projects = user.projects.filter(function(p) { return p.id !== id; });
+        close();
+        renderProjects();
+        showToast('Project deleted', 'success');
+      } catch (err) {
+        errEl.textContent = friendlyError(err);
+        errEl.style.display = 'flex';
+        cancelBtn.disabled = false;
+      } finally {
+        deletingProject[id] = false;
+        setLoading(confirmBtn, false);
+      }
+    });
+  }
+
+  // ── Delete Account ──
+
+  $('#delete-account-btn').addEventListener('click', function() {
+    if (deletingAccount) return;
+
+    var overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    overlay.innerHTML = '<div class="modal">'
+      + '<div class="modal-header">'
+      + '<div class="modal-icon danger"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 6v4m0 3v.5M3.5 17h13L10 3 3.5 17z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>'
+      + '<h3>Delete your account</h3>'
+      + '</div>'
+      + '<div class="modal-body">'
+      + '<p>This action is permanent and irreversible. All your projects and data will be deleted.</p>'
+      + '<label class="confirm-input-label" for="confirm-delete-input">Type <strong>delete my account</strong> to confirm</label>'
+      + '<input type="text" id="confirm-delete-input" placeholder="delete my account" autocomplete="off">'
+      + '<div class="error-inline" id="modal-acct-error" style="display:none;margin-top:8px"></div>'
+      + '</div>'
+      + '<div class="modal-footer">'
+      + '<button class="btn btn-secondary" id="modal-acct-cancel">Cancel</button>'
+      + '<button class="btn btn-danger" id="modal-acct-confirm" disabled>Delete account</button>'
+      + '</div></div>';
+
+    $('#modal-root').appendChild(overlay);
+
+    var cancelBtn = overlay.querySelector('#modal-acct-cancel');
+    var confirmBtn = overlay.querySelector('#modal-acct-confirm');
+    var confirmInput = overlay.querySelector('#confirm-delete-input');
+    var errEl = overlay.querySelector('#modal-acct-error');
+
+    confirmInput.addEventListener('input', function() {
+      confirmBtn.disabled = confirmInput.value.trim().toLowerCase() !== 'delete my account';
+    });
+
+    function close() { overlay.remove(); }
+
+    overlay.addEventListener('click', function(e) {
+      if (e.target === overlay) close();
+    });
+    cancelBtn.addEventListener('click', close);
+
+    confirmBtn.addEventListener('click', async function() {
+      if (deletingAccount) return;
+      if (confirmInput.value.trim().toLowerCase() !== 'delete my account') return;
+      deletingAccount = true;
+      setLoading(confirmBtn, true);
+      cancelBtn.disabled = true;
+      confirmInput.disabled = true;
+      errEl.style.display = 'none';
+
+      try {
+        await api.deleteAccount();
+        close();
+        document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:Inter,sans-serif;flex-direction:column;gap:12px;color:#5f6672"><svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="#16a34a" stroke-width="2"><circle cx="24" cy="24" r="20"/><path d="M15 25l6 6 12-13" stroke-linecap="round" stroke-linejoin="round"/></svg><p style="font-size:16px;font-weight:500;color:#1a1d23">Account deleted</p><p style="font-size:14px">Your account has been permanently removed.</p></div>';
+      } catch (err) {
+        errEl.textContent = friendlyError(err);
+        errEl.style.display = 'flex';
+        cancelBtn.disabled = false;
+        confirmInput.disabled = false;
+        deletingAccount = false;
+        setLoading(confirmBtn, false);
+      }
+    });
+
+    setTimeout(function() { confirmInput.focus(); }, 50);
+  });
+
+  // ── Init ──
+  loadUser();
+})();
+</script>
+</body>
+</html>

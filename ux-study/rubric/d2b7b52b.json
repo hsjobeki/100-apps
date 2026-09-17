@@ -1,0 +1,84 @@
+{
+  "id": "d2b7b52b",
+  "f1": {
+    "score": 5,
+    "observations": [
+      "Onboarding progress is rendered as a segmented 3-part progress bar at the top (`.onboarding-progress` with three `.step-dot` divs, first segment filled indigo on the welcome step), supported by the named step checklist 'Set up your profile' / 'Create your first project' / 'You're all set' with per-step hint text and check-circle icons.",
+      "The empty state (renderDashboard, projects.length === 0) is a folder-with-plus SVG in `.empty-icon`, the heading 'No projects yet', one supporting sentence, and a 'New project' primary button — graphical icon with text support.",
+      "Transient states are also graphical: the load screen shows a `.spinner` plus 'Loading your workspace…', and the create button swaps to an inline 18px spinner plus 'Creating…' while `creatingProject` is true.",
+      "Metrics count 5 graphical indicators on the idle view (svg: 4, badges: 1); progress/meter/role=progressbar are 0 because the step bar is styled divs rather than a semantic progress element, but it is visually a progress indicator."
+    ]
+  },
+  "f2": {
+    "score": 4,
+    "observations": [
+      "The page is lean: desktop viewportWords = pageWords = 48, helperWords = 16, and the only long leaf is the 16-word subtitle 'Set up your workspace in under a minute. We'll get you organized and ready to go.'",
+      "Button labels are terse: labels count 2, meanWords 2, maxWords 2, longLabels empty; across the source the longest labels are 'Create project' and 'New project' (2 words).",
+      "A few sentences are pep or restate the UI: the second half of the welcome subtitle adds nothing, and the empty-state paragraph restates the 'No projects yet' heading and the 'New project' button beside it.",
+      "Step subtitles ('Confirm your details so your team knows who you are.', 'Pick a template to get started quickly, or create a blank project.') are single lines, not paragraphs — the UI does not narrate itself."
+    ]
+  },
+  "f3": {
+    "score": 3,
+    "observations": [
+      "Copy promises behavior that does not happen: the success toast 'Project \"<name>\" created!' fires after createProject(), but the code only calls api.updateSettings({ hasCompletedOnboarding: true }) and never adds a project, so the confirmed dashboard shows 'No projects yet' immediately after claiming the project was created (also flagged by the async rater under item 10).",
+      "'Pick a template or start blank' (checklist hint) and 'or create a blank project' (step-2 subtitle) promise a blank option, but the template grid offers only Marketing/Engineering/Design/Personal with no blank card or control; starting blank is only implicitly possible by ignoring the grid.",
+      "'We'll get you organized and ready to go.' is marketing pep in a tool UI that adds no information beyond the preceding sentence.",
+      "Terminology and behavior are otherwise consistent (project/template/workspace used uniformly; 'Skip setup' does skip; 'Back' does go back), which keeps this at 3 issues, in the 2-to-4 band."
+    ]
+  },
+  "f4": {
+    "score": 4,
+    "observations": [
+      "The structure is genuinely shaped by the brief: a 3-step first-run wizard (welcome → profile → first project) ending in a dashboard whose zero-project branch is a designed empty state with 'No projects yet' and a 'New project' CTA — exactly the no-projects new user.",
+      "Personalization is real, not decorative: 'Welcome to Planwise, Alex' uses user.name from api.getUser(), the profile step pre-fills name/email from the API, and buildTimezoneOptions() preselects the visitor's timezone via Intl.DateTimeFormat().resolvedOptions().timeZone.",
+      "The template gallery (📣 Marketing 'Campaign tracking and content calendar', ⚙️ Engineering 'Sprint planning and bug tracking', 🎨 Design, 📝 Personal) with name autofill ('Marketing Project') is a project-management-specific onboarding choice, plus an explicit 'Skip setup' escape hatch.",
+      "The visual layer is stock SaaS: Inter from Google Fonts, indigo #4f6ef7-family accent, centered white card wizard, bottom-right toast stack — competent but interchangeable styling, which holds the score at 4 rather than 5."
+    ]
+  },
+  "hierarchy": {
+    "score": 5,
+    "observations": [
+      "From the idle desktop screenshot alone: the page is clearly the first-run setup of a project tool ('Welcome to Planwise, Alex' + 'Set up your workspace in under a minute'), matching the brief.",
+      "The primary action is unambiguous: 'Get started' is the only solid indigo button, bottom-right of the card, with 'Skip setup' correctly demoted to a ghost button on the left.",
+      "What needs attention reads correctly as the three-step checklist ('Set up your profile', 'Create your first project', 'You're all set') and the top progress bar with the first of three segments filled — the checklist item 'Create your first project' directly names the brief's goal.",
+      "All three answers checked out against the brief and source; nothing on the screen competes with the wizard (48 visible words total)."
+    ]
+  },
+  "f1Inventory": [
+    {
+      "item": "onboarding progress",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "empty state",
+      "classification": "graphical+text"
+    }
+  ],
+  "f2Redundant": [
+    "We'll get you organized and ready to go.",
+    "Create your first project to start organizing tasks and collaborating with your team.",
+    "Pick a template to get started quickly, or create a blank project."
+  ],
+  "f3Issues": [
+    "Success toast 'Project \"<name>\" created!' after onboarding create, but no project is ever created (createProject only calls updateSettings) and the next screen shows 'No projects yet' — copy promising behavior that does not happen.",
+    "'Pick a template or start blank' / 'or create a blank project' promise a blank-project option that has no visible affordance; the template grid has four templates and no blank card.",
+    "'We'll get you organized and ready to go.' — marketing pep/filler in a tool UI."
+  ],
+  "f4TaskDriven": [
+    "Three-step first-run wizard (welcome → profile → first project) that exists only because the user is new",
+    "Personalized greeting 'Welcome to Planwise, Alex' and profile pre-fill from api.getUser()",
+    "Timezone select auto-guessed via Intl.DateTimeFormat().resolvedOptions().timeZone",
+    "Project-management template gallery (Marketing/Engineering/Design/Personal) with per-template descriptions and project-name autofill",
+    "Designed zero-project empty state: folder+plus icon, 'No projects yet', 'New project' CTA",
+    "'Skip setup' escape hatch that completes onboarding via updateSettings",
+    "Time-of-day greeting ('Good morning, Alex') on the dashboard"
+  ],
+  "f4Template": [
+    "Inter from fonts.googleapis.com with a generic indigo (#4f6ef7) accent",
+    "Centered white card wizard on a pale background — stock SaaS onboarding layout",
+    "Bottom-right auto-dismissing toast stack for all success/error feedback",
+    "Segmented step-dot progress bar and circle-check checklist, standard onboarding furniture",
+    "Card grid with colored dot + 'Created <date>' metadata for projects, interchangeable with any list UI"
+  ]
+}

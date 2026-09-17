@@ -1,0 +1,84 @@
+{
+  "id": "7f0fe142",
+  "f1": {
+    "score": 5,
+    "observations": [
+      "Upload progress: a div-based percentage bar ('.progress-track'/'.progress-fill') with a numeric '%' readout and 'Uploading…' status text renders during upload (async item 3 observed '10%' mid-upload), so the graphic carries the state and text supports it.",
+      "Processing status: CSS spinner (statusIcon 'running' → '<span class=\"spinner\">'), a colored status-dot, the same percentage bar, and per-row mini progress bars ('.job-progress-mini') for queued/running history jobs, alongside 'Processing…'/'Queued for processing…' labels; visible in the idle screenshot on job_8c1e89 (spinner + partial blue bar + Cancel).",
+      "Success/failure: green circular check icons and red circular ✕ icons on every history row, progress fill recolored via 'success'/'error' classes, red error-banner with an inline alert-circle SVG, and green 'Download'/'Download Result' buttons; text ('Complete · 2,713 rows', 'Failed · Upstream timeout after 30s') supports rather than replaces the graphics.",
+      "Metrics corroborate: graphical.total 23 (svg 6, badges 17). Zero native <progress>/<meter>/role=progressbar — bars are styled divs, which costs accessibility semantics but the indicators are still graphical.",
+      "Raw ratio: 3/3 inventory items graphical+text, 0 text-only, 0 missing."
+    ]
+  },
+  "f2": {
+    "score": 5,
+    "observations": [
+      "Total visible text is 80 words on the whole page (desktop pageWords 80, viewportWords 76); there is not a single explanatory paragraph beyond the one-line subtitle.",
+      "All 6 measured action labels are exactly 1 word (labels.meanWords 1, maxWords 1, longLabels []): 'Retry', 'Cancel', 'Download', 'Dismiss'; the longest label in source, 'Download Result', is 2 words.",
+      "helperWords 10 and longLeafWords 0: the only helper strings are the subtitle 'Upload a CSV file to process and download the result.' and the dropzone hint '.csv files accepted' — the former is the sole sentence explaining the full flow (process + download) that the dropzone alone does not convey, so it earns its place; nothing narrates state the bars/icons already show.",
+      "Status strings are terse fragments ('Uploading…', 'Complete', 'Failed · Upstream timeout after 30s'), not sentences."
+    ]
+  },
+  "f3": {
+    "score": 4,
+    "observations": [
+      "Terminology is consistent where the page authors it: statusLabel maps queued/running/succeeded/failed to 'Queued'/'Processing'/'Complete'/'Failed' everywhere, in both the active card and every history row.",
+      "Copy matches behavior throughout per the async checklist: 'A file is already being processed.' toast accompanies real deduplication (item 2), 'Cancel' really aborts (item 4), 'Retry' really re-invokes uploadFile/retryJob (item 6), and 'Complete' appears only with the server-confirmed result (item 10).",
+      "One page-authored inconsistency: the same NETWORK failure is phrased 'Network error. Please check your connection and try again.' in the active-card banner (startUpload catch) but 'Network error. Please try again.' in the retry/cancel toast (window.__retryJob/__cancelJob) — visible in the error screenshot's toast.",
+      "One borderline display choice: after the user cancels a history job the row reads 'Failed · Cancelled by admin' (server error string rendered verbatim), telling the user an admin cancelled a job they cancelled themselves; server-originated, but the page echoes it without adjustment.",
+      "No filler, no marketing tone, no placeholder text anywhere in the 80 visible words."
+    ]
+  },
+  "f4": {
+    "score": 4,
+    "observations": [
+      "The page structure is genuinely shaped by the brief — an upload-hero over a job history with state-matched per-row actions — but the visual skin (Inter from Google Fonts, gray canvas, white rounded cards with subtle shadow, blue accent, dark bottom-center toast pill) is the stock SaaS kit.",
+      "Task-driven detail: renderJobList sorts by { running: 0, queued: 1, failed: 2, succeeded: 3 }, putting live work first and failures above successes — a triage ordering specific to 'deal with the result' rather than chronology.",
+      "Task-driven detail: monospace job ids ('job_b86738'), CSV-specific result copy ('2,713 rows'), accept='.csv,text/csv' with the '.csv files accepted' hint, and per-state row actions (Retry on failed, green Download on succeeded, red Cancel on running/queued).",
+      "Template detail: the dashed-border dropzone with centered upload-arrow SVG is the universal upload widget, executed competently but interchangeably."
+    ]
+  },
+  "hierarchy": {
+    "score": 5,
+    "observations": [
+      "Answered from the idle desktop screenshot before reading source: purpose — process CSV files server-side and download results ('CSV Processor' + 'Upload a CSV file to process and download the result.' + dropzone); matches the brief exactly.",
+      "Primary action — the large dashed dropzone 'Drop a CSV file here or click to browse' dominates the top half and is the only entry point; correct.",
+      "Needs attention — the three 'Failed' rows (job_b86738, job_35484f, job_cf8d6a) sit at the top of Processing History with red ✕ icons, inline reasons ('Worker ran out of memory at 1.8 GB', 'Upstream timeout after 30s') and Retry buttons; the running job job_8c1e89 shows spinner + progress + Cancel. All three answers were correct and obvious."
+    ]
+  },
+  "f1Inventory": [
+    {
+      "item": "upload progress",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "processing status",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "success/failure",
+      "classification": "graphical+text"
+    }
+  ],
+  "f2Redundant": [],
+  "f3Issues": [
+    "Inconsistent phrasing for the same NETWORK failure: active-card banner says 'Network error. Please check your connection and try again.' while the retry/cancel toast says 'Network error. Please try again.'",
+    "History row shows 'Failed · Cancelled by admin' after the user's own cancel — the server error string is echoed verbatim, misattributing the action to an admin."
+  ],
+  "f4TaskDriven": [
+    "Job history sorted running → queued → failed → succeeded (renderJobList order map), surfacing live work and failures needing action above finished successes.",
+    "Per-state row actions: Retry only on failed rows, green Download only on succeeded rows, red Cancel only on running/queued rows.",
+    "Monospace job ids (job_b86738 etc.) styled as technical identifiers.",
+    "CSV-specific result copy: '2,713 rows' / '5,644 rows' and 'rows processed' next to Download Result.",
+    "accept='.csv,text/csv' on the file input plus the '.csv files accepted' hint and CSV-only validation toast 'Please select a CSV file.'",
+    "Mini progress bars embedded in queued/running history rows so the queue's state is scannable at a glance.",
+    "Green success buttons ('Download', 'Download Result') making the brief's end goal — getting the result — the strongest colored affordance on completed rows."
+  ],
+  "f4Template": [
+    "Inter loaded from fonts.googleapis.com — the default modern-SaaS typeface choice.",
+    "Light-gray page background with white rounded-corner cards and subtle shadows — the standard card-list skin.",
+    "Dashed-border dropzone with a centered blue upload-arrow SVG — the universal upload-widget pattern.",
+    "Dark bottom-center toast pill for notifications — the stock toast pattern.",
+    "Blue primary / red danger / green success button palette with no brief-specific identity."
+  ]
+}

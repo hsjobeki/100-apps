@@ -1,0 +1,880 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CSV Processor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+:root{
+  --bg:#eef2f7; --surface:#fff; --surface2:#f7f9fc; --ink:#0d1526; --muted:#5d6e87;
+  --line:#dde5ef; --accent:#4f46e5; --ok:#0d8a5f; --warn:#c07308; --bad:#d13c3c;
+  --r:14px; --shadow:0 1px 2px rgba(13,21,38,.05),0 10px 26px rgba(13,21,38,.06);
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#080d17; --surface:#111a2a; --surface2:#0d1524; --ink:#e7edf7; --muted:#93a4bd;
+        --line:#1e2b41; --accent:#7c74ff; --ok:#33b782; --warn:#e0a03c; --bad:#f2716f;
+        --shadow:0 1px 2px rgba(0,0,0,.5),0 10px 26px rgba(0,0,0,.35)}
+}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 Inter,system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+.mono{font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace}
+h1,h2{margin:0;font-weight:600;letter-spacing:-.01em}
+h1{font-size:15px}
+h2{font-size:14px}
+.sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.wrap{max-width:1140px;margin:0 auto;padding:0 20px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+
+.top{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--surface) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:14px;height:58px}
+.brand{display:flex;align-items:center;gap:10px}
+.mark{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;color:#fff;
+  background:linear-gradient(140deg,var(--accent),color-mix(in srgb,var(--accent) 45%,#0ea5e9))}
+.user{display:flex;align-items:center;gap:9px;min-height:32px}
+.av{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:700;
+  color:var(--accent);background:color-mix(in srgb,var(--accent) 16%,transparent)}
+.uwho{display:flex;flex-direction:column;line-height:1.2}
+.uwho b{font-size:12.5px;font-weight:600}
+.uplan{font-size:11px;color:var(--muted)}
+
+main{padding:20px 0 40px}
+.grid{display:grid;grid-template-columns:392px minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:940px){.grid{grid-template-columns:1fr}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}
+.phead{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 16px;border-bottom:1px solid var(--line)}
+.phead-r{display:flex;align-items:center;gap:8px}
+.pbody{padding:16px}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid var(--line);
+  background:var(--surface);color:var(--ink);padding:8px 12px;border-radius:9px;font:inherit;font-weight:600;
+  font-size:13px;cursor:pointer;white-space:nowrap;text-decoration:none;transition:background .15s,border-color .15s,opacity .15s}
+.btn:hover:not(:disabled){background:var(--surface2);border-color:color-mix(in srgb,var(--ink) 18%,transparent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary:hover:not(:disabled){background:color-mix(in srgb,var(--accent) 86%,#000)}
+.btn.sm{padding:5px 9px;font-size:12.5px;border-radius:8px}
+.btn.wide{width:100%;padding:10px 12px;margin-top:12px}
+.icb{display:grid;place-items:center;width:24px;height:24px;border:0;border-radius:7px;background:transparent;
+  color:var(--muted);cursor:pointer;flex:none}
+.icb:hover:not(:disabled){background:color-mix(in srgb,var(--ink) 8%,transparent);color:var(--ink)}
+.spin svg{animation:spin 1s linear infinite}
+
+.drop{display:flex;flex-direction:column;align-items:center;gap:3px;padding:26px 16px;
+  border:1.5px dashed color-mix(in srgb,var(--ink) 22%,transparent);
+  border-radius:12px;background:var(--surface2);cursor:pointer;text-align:center;transition:border-color .15s,background .15s}
+.drop:hover,.drop.over{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 7%,var(--surface2))}
+.drop:focus-within{outline:2px solid var(--accent);outline-offset:2px}
+.drop.locked{opacity:.5;cursor:not-allowed;border-style:solid}
+.drop-ic{color:var(--accent);display:block;margin-bottom:3px}
+.drop-t{font-weight:600}
+.drop-s{font-size:12px;color:var(--muted)}
+
+.chip-file{display:flex;align-items:center;gap:8px;margin-top:10px;padding:8px 9px;border:1px solid var(--line);
+  border-radius:10px;background:var(--surface2);color:var(--muted)}
+.chip-file .cn{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12.5px;color:var(--ink)}
+.chip-file .cs{font-size:11.5px;white-space:nowrap}
+.ferr{display:flex;align-items:flex-start;gap:7px;margin:10px 0 0;padding:8px 10px;border-radius:10px;font-size:12.5px;
+  color:var(--bad);background:color-mix(in srgb,var(--bad) 10%,transparent);border:1px solid color-mix(in srgb,var(--bad) 26%,transparent)}
+.ferr svg{flex:none;margin-top:1px}
+.ferr code{display:block;font-size:11.5px;opacity:.85;word-break:break-all}
+
+.run{margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+.stepper{display:flex;align-items:center;gap:7px;margin-bottom:14px}
+.step{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--muted)}
+.step .ic{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;border:1.5px solid var(--line);background:var(--surface)}
+.step.on{color:var(--accent)}
+.step.on .ic{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 14%,transparent)}
+.step.done{color:var(--ok)}
+.step.done .ic{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,transparent)}
+.step.bad{color:var(--bad)}
+.step.bad .ic{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 12%,transparent)}
+.sep{flex:1;height:2px;border-radius:2px;background:var(--line)}
+.sep.fill{background:var(--ok)}
+.rmain.rrow{display:flex;align-items:center;gap:14px}
+.rline{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:6px}
+.rt{font-weight:600}
+.rv{font-size:13px;font-variant-numeric:tabular-nums;color:var(--accent);font-weight:600}
+.rt2{font-weight:650;font-size:15px}
+.rsub{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rsub.err{white-space:normal;color:var(--bad)}
+.rsub.gap{margin-top:6px}
+.rinfo{min-width:0;flex:1}
+.racts{display:flex;align-items:center;gap:8px;margin-top:14px;flex-wrap:wrap}
+.aerr{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--bad);flex:1;min-width:0}
+.aerr svg{flex:none}
+.bigic{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;flex:none}
+.bigic.ok{color:var(--ok);background:color-mix(in srgb,var(--ok) 13%,transparent)}
+.bigic.bad{color:var(--bad);background:color-mix(in srgb,var(--bad) 13%,transparent)}
+.bigic.warn{color:var(--warn);background:color-mix(in srgb,var(--warn) 15%,transparent)}
+.ringwrap{position:relative;width:84px;height:84px;flex:none;display:grid;place-items:center}
+.ring{position:absolute;inset:0}
+.ring .rb{stroke:color-mix(in srgb,var(--ink) 10%,transparent)}
+.ring .rf{stroke:var(--accent);transition:stroke-dashoffset .35s ease}
+.ring.indet{animation:spin 1.15s linear infinite}
+.rpct{position:relative;font-size:15px;font-weight:600;font-variant-numeric:tabular-nums}
+
+progress{-webkit-appearance:none;appearance:none;display:block;width:100%;height:8px;border:0;background:transparent}
+progress::-webkit-progress-bar{background:color-mix(in srgb,var(--ink) 10%,transparent);border-radius:999px}
+progress::-webkit-progress-value{background:var(--accent);border-radius:999px;transition:width .2s linear}
+progress::-moz-progress-bar{background:var(--accent);border-radius:999px}
+
+.stats{display:flex;flex-wrap:wrap;gap:7px;padding:12px 16px;border-bottom:1px solid var(--line)}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:600;
+  color:var(--c);background:color-mix(in srgb,var(--c) 12%,transparent);border:1px solid color-mix(in srgb,var(--c) 24%,transparent)}
+.chip b{font-variant-numeric:tabular-nums}
+.c-running{--c:var(--accent)} .c-queued{--c:var(--muted)} .c-failed{--c:var(--bad)} .c-succeeded{--c:var(--ok)}
+.dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex:none}
+.c-running .dot,.b-running .dot,.live.ok .dot{animation:pulse 1.4s ease-in-out infinite}
+.live{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;color:var(--muted)}
+.live.ok{color:var(--ok)}
+.live.bad{color:var(--warn)}
+
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:600;
+  padding:9px 14px;border-bottom:1px solid var(--line);background:var(--surface2)}
+td{padding:9px 14px;border-bottom:1px solid var(--line);vertical-align:middle}
+tbody tr:last-child td{border-bottom:0}
+tbody tr.mine td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
+.c-act{text-align:right;white-space:nowrap}
+.jid{font-size:12px;font-weight:500}
+.jsub{font-size:11.5px;color:var(--muted)}
+.jerr{font-size:11.5px;color:var(--bad);max-width:34ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.c-prog{white-space:nowrap}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:999px;font-size:11.5px;font-weight:600;
+  color:var(--c);background:color-mix(in srgb,var(--c) 13%,transparent);border:1px solid color-mix(in srgb,var(--c) 26%,transparent)}
+.b-running{--c:var(--accent)} .b-queued{--c:var(--muted)} .b-failed{--c:var(--bad)} .b-succeeded{--c:var(--ok)}
+.bar{position:relative;display:inline-block;vertical-align:middle;width:84px;height:6px;border-radius:999px;
+  background:color-mix(in srgb,var(--ink) 11%,transparent);overflow:hidden}
+.bar>i{display:block;height:100%;border-radius:inherit;background:var(--c,var(--accent));transition:width .35s ease}
+.bar.s-running{--c:var(--accent)} .bar.s-queued{--c:var(--muted)} .bar.s-failed{--c:var(--bad)} .bar.s-succeeded{--c:var(--ok)}
+.bar.indet>i{animation:slide 1.2s ease-in-out infinite}
+.pct{margin-left:8px;font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.es{display:flex;align-items:center;justify-content:center;gap:8px;padding:28px 0;color:var(--muted);font-size:13px}
+.sk{display:block;border-radius:7px;background:linear-gradient(90deg,
+  color-mix(in srgb,var(--ink) 7%,transparent) 25%,
+  color-mix(in srgb,var(--ink) 13%,transparent) 37%,
+  color-mix(in srgb,var(--ink) 7%,transparent) 63%);
+  background-size:400% 100%;animation:sh 1.3s linear infinite}
+.sk-av{width:28px;height:28px;border-radius:50%}
+.sk-tx{width:88px;height:12px}
+.sk-chip{width:82px;height:22px;border-radius:999px}
+.sk-row{height:14px}
+
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes slide{0%{transform:translateX(-100%)}100%{transform:translateX(320%)}}
+@keyframes sh{0%{background-position:100% 0}100%{background-position:0 0}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media (max-width:520px){
+  td,th{padding:8px 10px}
+  .bar{width:54px}
+  .pct{display:none}
+  .jerr{max-width:20ch}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap top-in">
+    <div class="brand">
+      <span class="mark" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M8.5 13h7M8.5 16.5h4"/></svg></span>
+      <h1>CSV Processor</h1>
+    </div>
+    <div class="user" id="user"><span class="sk sk-av"></span><span class="sk sk-tx"></span></div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="grid">
+    <section class="panel" aria-labelledby="h-up">
+      <div class="phead"><h2 id="h-up">Upload CSV</h2></div>
+      <div class="pbody">
+        <form id="form" novalidate>
+          <label class="drop" id="drop">
+            <input class="sr" type="file" id="file" accept=".csv,text/csv" />
+            <span class="drop-ic" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5"/><path d="M4 16v2.5A2.5 2.5 0 0 0 6.5 21h11a2.5 2.5 0 0 0 2.5-2.5V16"/></svg></span>
+            <span class="drop-t">Drop CSV here</span>
+            <span class="drop-s">or browse</span>
+          </label>
+          <div class="chip-file" id="chip" hidden></div>
+          <p class="ferr" id="ferr" role="alert" hidden></p>
+          <button class="btn primary wide" type="submit" id="go" disabled>Process file</button>
+        </form>
+        <div class="run" id="run" hidden></div>
+      </div>
+    </section>
+
+    <section class="panel" aria-labelledby="h-q">
+      <div class="phead">
+        <h2 id="h-q">Recent jobs</h2>
+        <div class="phead-r">
+          <span class="live ok" id="live"><span class="dot"></span>Live</span>
+          <button class="btn sm" type="button" id="refresh"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-.7 4"/><path d="M20 4.5V11h-6.5"/></svg>Refresh</button>
+        </div>
+      </div>
+      <div class="stats" id="stats">
+        <span class="sk sk-chip"></span><span class="sk sk-chip"></span><span class="sk sk-chip"></span><span class="sk sk-chip"></span>
+      </div>
+      <div class="tw">
+        <table>
+          <thead><tr><th>Job</th><th>Status</th><th>Progress</th><th><span class="sr">Actions</span></th></tr></thead>
+          <tbody id="qbody"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</main>
+
+<p class="sr" id="sr" aria-live="polite"></p>
+
+<script>
+(function () {
+  'use strict';
+  var api = window.api;
+
+  var ICON = {
+    upload: '<path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5"/><path d="M4 16v2.5A2.5 2.5 0 0 0 6.5 21h11a2.5 2.5 0 0 0 2.5-2.5V16"/>',
+    cog: '<circle cx="12" cy="12" r="3.1"/><path d="M12 3v2M12 19v2M5.2 5.2l1.5 1.5M17.3 17.3l1.5 1.5M3 12h2M19 12h2M5.2 18.8l1.5-1.5M17.3 6.7l1.5-1.5"/>',
+    download: '<path d="M12 4v11m0 0 4.5-4.5M12 15l-4.5-4.5"/><path d="M4 17v1.5A2.5 2.5 0 0 0 6.5 21h11a2.5 2.5 0 0 0 2.5-2.5V17"/>',
+    check: '<path d="m5 12.8 4.6 4.6L19 7"/>',
+    alert: '<path d="M10.4 3.9 2.7 17.4A1.85 1.85 0 0 0 4.3 20.2h15.4a1.85 1.85 0 0 0 1.6-2.8L13.6 3.9a1.85 1.85 0 0 0-3.2 0Z"/><path d="M12 9v4.4"/><circle cx="12" cy="16.8" r=".95" fill="currentColor" stroke="none"/>',
+    x: '<path d="M6 6 18 18M18 6 6 18"/>',
+    refresh: '<path d="M20 11a8 8 0 1 0-.7 4"/><path d="M20 4.5V11h-6.5"/>',
+    file: '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/>',
+    clock: '<circle cx="12" cy="12" r="8.2"/><path d="M12 7.6V12l3 1.8"/>',
+    stop: '<rect x="7" y="7" width="10" height="10" rx="2.2"/>'
+  };
+  function svg(name, size) {
+    var s = size || 16;
+    return '<svg width="' + s + '" height="' + s + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + ICON[name] + '</svg>';
+  }
+  function $(sel, root) { return (root || document).querySelector(sel); }
+  function esc(v) {
+    return String(v == null ? '' : v).replace(/[&<>"]/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+    });
+  }
+  function num(n) { return Number(n || 0).toLocaleString('en-US'); }
+  function bytes(b) {
+    if (b < 1024) return b + ' B';
+    if (b < 1048576) return (b / 1024).toFixed(1) + ' KB';
+    return (b / 1048576).toFixed(1) + ' MB';
+  }
+  function msgOf(e) {
+    if (e && e.name === 'AbortError') return 'Cancelled';
+    return (e && e.message) ? e.message : 'Unexpected error';
+  }
+  function clamp(n) { return Math.max(0, Math.min(100, Math.round(Number(n) || 0))); }
+
+  var el = {
+    form: $('#form'), file: $('#file'), drop: $('#drop'), chip: $('#chip'), ferr: $('#ferr'),
+    go: $('#go'), run: $('#run'), qbody: $('#qbody'), stats: $('#stats'), live: $('#live'),
+    refresh: $('#refresh'), user: $('#user'), sr: $('#sr')
+  };
+
+  if (!api) {
+    el.qbody.innerHTML = '<tr><td colspan="4"><div class="es">' + svg('alert', 18) + 'Backend unavailable</div></td></tr>';
+    el.stats.innerHTML = '';
+    el.go.disabled = true;
+    return;
+  }
+
+  var S = {
+    file: null, fileId: null, jobId: null, job: null,
+    phase: 'idle', uploadPct: 0, err: null, actErr: '',
+    busy: false, cancelBusy: false, retryBusy: false, ctrl: null,
+    jobs: [], loaded: false,
+    rowBusy: new Set(), rowErr: new Map()
+  };
+
+  var LBL = { queued: 'Queued', running: 'Running', succeeded: 'Done', failed: 'Failed' };
+  var C = 2 * Math.PI * 38;
+
+  function announce(t) { el.sr.textContent = t; }
+
+  /* file selection */
+
+  el.file.addEventListener('change', function () {
+    var f = el.file.files && el.file.files[0];
+    if (f) setFile(f);
+  });
+  ['dragenter', 'dragover'].forEach(function (t) {
+    el.drop.addEventListener(t, function (e) { e.preventDefault(); if (!S.busy) el.drop.classList.add('over'); });
+  });
+  ['dragleave', 'dragend', 'drop'].forEach(function (t) {
+    el.drop.addEventListener(t, function () { el.drop.classList.remove('over'); });
+  });
+  el.drop.addEventListener('drop', function (e) {
+    e.preventDefault();
+    if (S.busy) return;
+    var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+    if (f) setFile(f);
+  });
+
+  function setFile(f) {
+    if (!/\.csv$/i.test(f.name) && f.type !== 'text/csv') {
+      formError('Not a CSV file', f.name); el.file.value = ''; return;
+    }
+    if (f.size === 0) { formError('File is empty', f.name); el.file.value = ''; return; }
+    clearFormError();
+    S.file = f;
+    renderChip();
+    if (S.phase !== 'idle' && !S.busy) resetRun(false);
+    el.go.disabled = false;
+  }
+  function formError(title, detail) {
+    el.ferr.innerHTML = svg('alert', 15) + '<span>' + esc(title) +
+      (detail ? '<code class="mono">' + esc(detail) + '</code>' : '') + '</span>';
+    el.ferr.hidden = false;
+  }
+  function clearFormError() { el.ferr.hidden = true; el.ferr.innerHTML = ''; }
+  function renderChip() {
+    el.chip.hidden = false;
+    el.chip.innerHTML = svg('file', 16) +
+      '<span class="cn mono" title="' + esc(S.file.name) + '">' + esc(S.file.name) + '</span>' +
+      '<span class="cs mono">' + bytes(S.file.size) + '</span>' +
+      '<button class="icb" type="button" data-act="clear" aria-label="Remove file"' + (S.busy ? ' disabled' : '') + '>' +
+      svg('x', 14) + '</button>';
+  }
+  el.chip.addEventListener('click', function (e) {
+    if (!e.target.closest('[data-act="clear"]') || S.busy) return;
+    S.file = null;
+    el.file.value = '';
+    el.chip.hidden = true;
+    el.chip.innerHTML = '';
+    el.go.disabled = true;
+    clearFormError();
+    el.file.focus();
+  });
+
+  /* run pipeline */
+
+  el.form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (S.busy) return;
+    if (!S.file) { formError('Choose a CSV file'); return; }
+    startRun();
+  });
+
+  function setFormLocked(v) {
+    S.busy = v;
+    el.file.disabled = v;
+    el.go.disabled = v || !S.file;
+    el.drop.classList.toggle('locked', v);
+    var clr = el.chip.querySelector('[data-act="clear"]');
+    if (clr) clr.disabled = v;
+  }
+
+  function startRun() {
+    S.err = null; S.actErr = ''; S.fileId = null; S.jobId = null; S.job = null;
+    S.uploadPct = 0; S.phase = 'uploading'; S.cancelBusy = false; S.retryBusy = false;
+    setFormLocked(true);
+    renderRun();
+    announce('Upload started');
+    var ctrl = S.ctrl = new AbortController();
+    api.uploadFile(S.file, {
+      onProgress: function (p) {
+        if (S.ctrl !== ctrl) return;
+        S.uploadPct = clamp(p);
+        if (S.phase === 'uploading') updateMeters();
+      },
+      signal: ctrl.signal
+    }).then(function (r) {
+      if (S.ctrl !== ctrl) return;
+      S.fileId = r && r.fileId;
+      startProcess();
+    }, function (err) {
+      if (S.ctrl !== ctrl) return;
+      endRun(err, 'upload');
+    });
+  }
+
+  function startProcess() {
+    S.err = null; S.actErr = ''; S.job = null; S.jobId = null; S.phase = 'processing';
+    S.cancelBusy = false; S.retryBusy = false;
+    setFormLocked(true);
+    renderRun();
+    var ctrl = S.ctrl = new AbortController();
+    api.processFile(S.fileId, { signal: ctrl.signal }).then(function (r) {
+      if (S.ctrl !== ctrl) return;
+      S.jobId = r && r.jobId;
+      S.job = { id: S.jobId, status: 'queued', progress: 0 };
+      renderRun();
+      poll();
+    }, function (err) {
+      if (S.ctrl !== ctrl) return;
+      endRun(err, 'process');
+    });
+  }
+
+  function endRun(err, stage) {
+    S.ctrl = null;
+    setFormLocked(false);
+    if (err && err.name === 'AbortError') {
+      S.phase = 'cancelled';
+      S.err = { stage: stage, msg: 'Cancelled' };
+      announce('Cancelled');
+    } else {
+      S.phase = 'failed';
+      S.err = { stage: stage, msg: msgOf(err) };
+      announce('Failed');
+    }
+    renderRun();
+  }
+
+  function resetRun(clearFile) {
+    if (S.busy && S.ctrl) S.ctrl.abort();
+    S.ctrl = null; S.phase = 'idle'; S.job = null; S.jobId = null; S.fileId = null;
+    S.err = null; S.actErr = ''; S.uploadPct = 0; S.cancelBusy = false; S.retryBusy = false;
+    if (clearFile) {
+      S.file = null;
+      el.file.value = '';
+      el.chip.hidden = true;
+      el.chip.innerHTML = '';
+    }
+    setFormLocked(false);
+    clearFormError();
+    renderRun();
+    renderQueue();
+    if (clearFile) el.file.focus();
+  }
+
+  el.run.addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-act]');
+    if (!b) return;
+    var a = b.getAttribute('data-act');
+    if (a === 'abort') cancelActive();
+    else if (a === 'retry') retryActive();
+    else if (a === 'reset') resetRun(true);
+  });
+
+  function cancelActive() {
+    S.actErr = '';
+    if (S.jobId) {
+      if (S.cancelBusy) return;
+      S.cancelBusy = true;
+      renderRun();
+      api.cancelJob(S.jobId).then(function (j) {
+        applyJob(j);
+        announce('Job cancelled');
+      }, function (err) {
+        S.actErr = 'Cancel failed — ' + msgOf(err);
+      }).then(function () {
+        S.cancelBusy = false;
+        renderRun();
+        poll();
+      });
+    } else if (S.ctrl) {
+      S.ctrl.abort();
+    }
+  }
+
+  function retryActive() {
+    if (S.retryBusy || S.busy) return;
+    var stage = S.err ? S.err.stage : 'job';
+    if (stage === 'job' && S.jobId) {
+      S.retryBusy = true;
+      S.actErr = '';
+      renderRun();
+      api.retryJob(S.jobId).then(function (j) {
+        S.err = null;
+        S.phase = 'processing';
+        setFormLocked(true);
+        applyJob(j);
+        announce('Job requeued');
+      }, function (err) {
+        S.actErr = 'Retry failed — ' + msgOf(err);
+      }).then(function () {
+        S.retryBusy = false;
+        renderRun();
+        poll();
+      });
+    } else if (stage === 'process' && S.fileId) {
+      startProcess();
+    } else if (S.file) {
+      startRun();
+    } else {
+      resetRun(true);
+    }
+  }
+
+  /* run card */
+
+  var runSig = null, refs = {};
+
+  function runKey() {
+    return [
+      S.phase,
+      S.job ? S.job.status : '-',
+      S.job && S.job.id ? 1 : 0,
+      S.job && S.job.error ? S.job.error : '',
+      S.job && S.job.result ? S.job.result.rows : '',
+      S.err ? S.err.stage + ':' + S.err.msg : '',
+      S.cancelBusy ? 1 : 0,
+      S.retryBusy ? 1 : 0,
+      S.actErr
+    ].join('|');
+  }
+
+  function renderRun() {
+    var k = runKey();
+    if (k !== runSig) { runSig = k; buildRun(); }
+    updateMeters();
+  }
+
+  function steps(stage, bad, done) {
+    var defs = [['upload', 'Upload'], ['cog', 'Process'], ['download', 'Done']];
+    var out = '';
+    for (var i = 0; i < 3; i++) {
+      var n = i + 1, cls = 'step', icon = defs[i][0];
+      if (done || n < stage) { cls += ' done'; icon = 'check'; }
+      else if (n === stage) { cls += bad ? ' bad' : ' on'; if (bad) icon = 'alert'; }
+      out += '<span class="' + cls + '"><span class="ic">' + svg(icon, 13) + '</span>' + defs[i][1] + '</span>';
+      if (i < 2) out += '<span class="sep' + ((done || n < stage) ? ' fill' : '') + '"></span>';
+    }
+    return out;
+  }
+
+  function ring(pct, indet) {
+    var off = indet ? C * 0.72 : C * (1 - pct / 100);
+    return '<div class="ringwrap" role="progressbar" aria-label="Job progress" aria-valuemin="0" aria-valuemax="100"' +
+      (indet ? '' : ' aria-valuenow="' + pct + '"') + '>' +
+      '<svg class="ring' + (indet ? ' indet' : '') + '" viewBox="0 0 88 88" aria-hidden="true">' +
+      '<circle class="rb" cx="44" cy="44" r="38" fill="none" stroke-width="7"/>' +
+      '<circle class="rf" id="ringFg" cx="44" cy="44" r="38" fill="none" stroke-width="7" stroke-linecap="round" ' +
+      'transform="rotate(-90 44 44)" stroke-dasharray="' + C.toFixed(2) + '" stroke-dashoffset="' + off.toFixed(2) + '"/>' +
+      '</svg><span class="rpct mono" id="ringPct">' + (indet ? '' : pct + '%') + '</span></div>';
+  }
+
+  function badge(s) {
+    return '<span class="badge b-' + s + '"><span class="dot"></span>' + (LBL[s] || s) + '</span>';
+  }
+
+  function outName() {
+    return S.file ? S.file.name.replace(/\.csv$/i, '') + '-processed.csv' : 'result.csv';
+  }
+
+  function buildRun() {
+    if (S.phase === 'idle') {
+      el.run.hidden = true;
+      el.run.innerHTML = '';
+      refs = {};
+      return;
+    }
+    el.run.hidden = false;
+    var p = S.phase, jb = S.job;
+    var bad = p === 'failed' || p === 'cancelled';
+    var done = p === 'done';
+    var stage = p === 'uploading' ? 1 : p === 'processing' ? 2 : done ? 3 : (S.err && S.err.stage === 'upload' ? 1 : 2);
+    var body = '';
+
+    if (p === 'uploading') {
+      body = '<div class="rmain">' +
+        '<div class="rline"><span class="rt">Uploading</span><span class="rv mono" id="upPct">' + S.uploadPct + '%</span></div>' +
+        '<progress id="upBar" max="100" value="' + S.uploadPct + '"></progress>' +
+        '<div class="rsub mono gap">' + esc(S.file ? S.file.name : '') + '</div></div>' +
+        '<div class="racts"><button class="btn sm" type="button" data-act="abort">Cancel</button></div>';
+    } else if (p === 'processing') {
+      var st = jb && jb.status ? jb.status : 'queued';
+      var pr = clamp(jb ? jb.progress : 0);
+      var indet = !jb || !jb.id || st === 'queued';
+      body = '<div class="rmain rrow">' + ring(pr, indet) +
+        '<div class="rinfo">' + badge(st) +
+        '<div class="rsub mono gap">' + esc(jb && jb.id ? jb.id : '') + '</div></div></div>' +
+        '<div class="racts">' +
+        (S.actErr ? '<span class="aerr">' + svg('alert', 14) + esc(S.actErr) + '</span>' : '') +
+        '<button class="btn sm" type="button" data-act="abort"' + (S.cancelBusy ? ' disabled' : '') + '>' +
+        (S.cancelBusy ? 'Cancelling' : 'Cancel') + '</button></div>';
+    } else if (done) {
+      var res = jb && jb.result ? jb.result : null;
+      body = '<div class="rmain rrow"><span class="bigic ok">' + svg('check', 21) + '</span>' +
+        '<div class="rinfo"><div class="rt2">Done</div>' +
+        '<div class="rsub mono">' + (res ? num(res.rows) + ' rows' : '') + '</div></div></div>' +
+        '<div class="racts">' +
+        (res && res.downloadUrl
+          ? '<a class="btn primary sm" href="' + esc(res.downloadUrl) + '" download="' + esc(outName()) + '">' +
+            svg('download', 15) + 'Download</a>'
+          : '<span class="aerr">' + svg('alert', 14) + 'No output returned</span>') +
+        '<button class="btn sm" type="button" data-act="reset">New file</button></div>';
+    } else {
+      var cancelled = p === 'cancelled';
+      var stg = S.err ? S.err.stage : 'job';
+      var title = cancelled ? 'Cancelled'
+        : stg === 'upload' ? 'Upload failed'
+          : stg === 'process' ? 'Could not start'
+            : 'Processing failed';
+      var detail = cancelled ? '' : (S.err ? S.err.msg : '');
+      body = '<div class="rmain rrow"><span class="bigic ' + (cancelled ? 'warn' : 'bad') + '">' +
+        svg(cancelled ? 'stop' : 'alert', 21) + '</span>' +
+        '<div class="rinfo"><div class="rt2">' + title + '</div>' +
+        (detail ? '<div class="rsub err">' + esc(detail) + '</div>' : '') +
+        (S.jobId ? '<div class="rsub mono">' + esc(S.jobId) + '</div>' : '') +
+        '</div></div>' +
+        '<div class="racts">' +
+        (S.actErr ? '<span class="aerr">' + svg('alert', 14) + esc(S.actErr) + '</span>' : '') +
+        '<button class="btn primary sm" type="button" data-act="retry"' + (S.retryBusy ? ' disabled' : '') + '>' +
+        svg('refresh', 15) + (S.retryBusy ? 'Retrying' : 'Retry') + '</button>' +
+        '<button class="btn sm" type="button" data-act="reset">New file</button></div>';
+    }
+
+    el.run.innerHTML = '<div class="stepper">' + steps(stage, bad, done) + '</div>' + body;
+    refs = {
+      upBar: el.run.querySelector('#upBar'),
+      upPct: el.run.querySelector('#upPct'),
+      ringFg: el.run.querySelector('#ringFg'),
+      ringPct: el.run.querySelector('#ringPct'),
+      ringWrap: el.run.querySelector('.ringwrap')
+    };
+  }
+
+  function updateMeters() {
+    if (S.phase === 'uploading' && refs.upBar) {
+      refs.upBar.value = S.uploadPct;
+      if (refs.upPct) refs.upPct.textContent = S.uploadPct + '%';
+    } else if (S.phase === 'processing' && refs.ringFg && S.job && S.job.id && S.job.status !== 'queued') {
+      var pr = clamp(S.job.progress);
+      refs.ringFg.setAttribute('stroke-dashoffset', (C * (1 - pr / 100)).toFixed(2));
+      if (refs.ringPct) refs.ringPct.textContent = pr + '%';
+      if (refs.ringWrap) refs.ringWrap.setAttribute('aria-valuenow', String(pr));
+    }
+  }
+
+  /* queue */
+
+  var rowMap = new Map();
+
+  function skeleton(n) {
+    var out = '';
+    for (var i = 0; i < n; i++) {
+      out += '<tr><td><span class="sk sk-row" style="width:96px"></span></td>' +
+        '<td><span class="sk sk-row" style="width:74px"></span></td>' +
+        '<td><span class="sk sk-row" style="width:84px"></span></td>' +
+        '<td><span class="sk sk-row" style="width:62px;margin-left:auto"></span></td></tr>';
+    }
+    return out;
+  }
+
+  function clearPlaceholders() {
+    if (el.qbody.querySelector('.sk, .es')) {
+      el.qbody.innerHTML = '';
+      rowMap.clear();
+    }
+  }
+
+  function renderQueue() {
+    if (!S.loaded) return;
+    var jobs = S.jobs;
+    var c = { running: 0, queued: 0, failed: 0, succeeded: 0 };
+    jobs.forEach(function (j) { if (c[j.status] != null) c[j.status]++; });
+    el.stats.innerHTML = ['running', 'queued', 'failed', 'succeeded'].map(function (k) {
+      return '<span class="chip c-' + k + '"><span class="dot"></span><b class="mono">' + c[k] + '</b>' +
+        LBL[k].toLowerCase() + '</span>';
+    }).join('');
+
+    if (!jobs.length) {
+      rowMap.clear();
+      el.qbody.innerHTML = '<tr><td colspan="4"><div class="es">' + svg('clock', 17) + 'No jobs yet</div></td></tr>';
+      return;
+    }
+    clearPlaceholders();
+
+    var seen = new Set();
+    jobs.forEach(function (j) {
+      seen.add(j.id);
+      var tr = rowMap.get(j.id);
+      if (!tr) {
+        tr = document.createElement('tr');
+        tr.setAttribute('data-id', j.id);
+        tr.innerHTML = '<td class="c-job"></td><td class="c-st"></td><td class="c-prog"></td><td class="c-act"></td>';
+        rowMap.set(j.id, tr);
+      }
+      updateRow(tr, j);
+      el.qbody.appendChild(tr);
+    });
+    rowMap.forEach(function (tr, id) {
+      if (!seen.has(id)) { tr.remove(); rowMap.delete(id); }
+    });
+  }
+
+  function updateRow(tr, j) {
+    var busy = S.rowBusy.has(j.id);
+    var rerr = S.rowErr.get(j.id) || '';
+    var pr = clamp(j.progress);
+    var mine = j.id === S.jobId;
+    var sig = [j.status, pr, j.error || '', j.result ? j.result.rows : '', busy ? 1 : 0, rerr, mine ? 1 : 0].join('|');
+    if (tr._sig === sig) return;
+    tr._sig = sig;
+    tr.classList.toggle('mine', mine);
+
+    var sub = '';
+    if (j.status === 'failed' && j.error) sub = '<div class="jerr" title="' + esc(j.error) + '">' + esc(j.error) + '</div>';
+    else if (j.status === 'succeeded' && j.result) sub = '<div class="jsub mono">' + num(j.result.rows) + ' rows</div>';
+    if (rerr) sub += '<div class="jerr">' + esc(rerr) + '</div>';
+    tr.children[0].innerHTML = '<div class="jid mono">' + esc(j.id) + '</div>' + sub;
+    tr.children[1].innerHTML = badge(j.status);
+
+    var queued = j.status === 'queued';
+    tr.children[2].innerHTML =
+      '<div class="bar s-' + j.status + (queued ? ' indet' : '') + '" role="progressbar" aria-label="Job progress" ' +
+      'aria-valuemin="0" aria-valuemax="100"' + (queued ? '' : ' aria-valuenow="' + pr + '"') + '>' +
+      '<i style="width:' + (queued ? 34 : pr) + '%"></i></div>' +
+      '<span class="pct mono">' + (queued ? '—' : pr + '%') + '</span>';
+
+    var act = '';
+    if (j.status === 'succeeded') {
+      if (j.result && j.result.downloadUrl) {
+        act = '<a class="btn sm" href="' + esc(j.result.downloadUrl) + '" download="' + esc(j.id) + '.csv">' +
+          svg('download', 14) + 'Download</a>';
+      }
+    } else if (j.status === 'failed') {
+      act = '<button class="btn sm" type="button" data-act="retry"' + (busy ? ' disabled' : '') + '>' +
+        svg('refresh', 14) + (busy ? 'Retrying' : 'Retry') + '</button>';
+    } else {
+      act = '<button class="btn sm" type="button" data-act="cancel"' + (busy ? ' disabled' : '') + '>' +
+        (busy ? 'Cancelling' : 'Cancel') + '</button>';
+    }
+    tr.children[3].innerHTML = act;
+  }
+
+  el.qbody.addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-act]');
+    if (!b) return;
+    var row = b.closest('tr');
+    if (!row) return;
+    var id = row.getAttribute('data-id');
+    var act = b.getAttribute('data-act');
+    if (!id || S.rowBusy.has(id)) return;
+    S.rowBusy.add(id);
+    S.rowErr.delete(id);
+    renderQueue();
+    (act === 'retry' ? api.retryJob(id) : api.cancelJob(id)).then(function (j) {
+      applyJob(j);
+      announce(act === 'retry' ? 'Job requeued' : 'Job cancelled');
+    }, function (err) {
+      S.rowErr.set(id, (act === 'retry' ? 'Retry failed — ' : 'Cancel failed — ') + msgOf(err));
+    }).then(function () {
+      S.rowBusy.delete(id);
+      renderQueue();
+      poll();
+    });
+  });
+
+  function applyJob(j) {
+    if (!j || !j.id) return;
+    var i = -1;
+    for (var k = 0; k < S.jobs.length; k++) { if (S.jobs[k].id === j.id) { i = k; break; } }
+    if (i >= 0) S.jobs[i] = j; else S.jobs.unshift(j);
+    renderQueue();
+    if (j.id === S.jobId) syncActive();
+  }
+
+  function syncActive() {
+    if (!S.jobId) return;
+    var j = null;
+    for (var i = 0; i < S.jobs.length; i++) { if (S.jobs[i].id === S.jobId) { j = S.jobs[i]; break; } }
+    if (!j) return;
+    S.job = j;
+    if (j.status === 'succeeded') {
+      if (S.phase !== 'done') announce('Processing finished');
+      S.phase = 'done';
+      S.err = null;
+      if (S.busy) setFormLocked(false);
+    } else if (j.status === 'failed') {
+      if (S.phase !== 'failed') announce('Processing failed');
+      S.phase = 'failed';
+      S.err = { stage: 'job', msg: j.error || 'Processing failed' };
+      if (S.busy) setFormLocked(false);
+    } else {
+      S.phase = 'processing';
+      if (!S.busy) setFormLocked(true);
+    }
+    renderRun();
+  }
+
+  /* polling */
+
+  var timer = null, polling = false;
+
+  function setLive(ok, err) {
+    el.live.className = 'live ' + (ok ? 'ok' : 'bad');
+    el.live.innerHTML = '<span class="dot"></span>' + (ok ? 'Live' : 'Retrying');
+    el.live.title = ok ? 'Updating automatically' : 'Last update failed: ' + msgOf(err);
+  }
+
+  function schedule() {
+    clearTimeout(timer);
+    if (document.hidden) return;
+    var hot = S.phase === 'uploading' || S.phase === 'processing' || S.jobs.some(function (j) {
+      return j.status === 'running' || j.status === 'queued';
+    });
+    timer = setTimeout(poll, hot ? 1200 : 3500);
+  }
+
+  function poll() {
+    if (polling) return Promise.resolve();
+    polling = true;
+    clearTimeout(timer);
+    return api.listJobs().then(function (jobs) {
+      S.jobs = Array.isArray(jobs) ? jobs : [];
+      S.loaded = true;
+      setLive(true);
+      renderQueue();
+      syncActive();
+    }, function (err) {
+      setLive(false, err);
+      if (!S.loaded) {
+        el.stats.innerHTML = '';
+        el.qbody.innerHTML = '<tr><td colspan="4"><div class="es">' + svg('alert', 17) + esc(msgOf(err)) + '</div></td></tr>';
+      }
+    }).then(function () {
+      polling = false;
+      schedule();
+    });
+  }
+
+  el.refresh.addEventListener('click', function () {
+    el.refresh.disabled = true;
+    el.refresh.classList.add('spin');
+    poll().then(function () {
+      el.refresh.disabled = false;
+      el.refresh.classList.remove('spin');
+    });
+  });
+
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) clearTimeout(timer); else poll();
+  });
+
+  /* header user */
+
+  function loadUser() {
+    el.user.innerHTML = '<span class="sk sk-av"></span><span class="sk sk-tx"></span>';
+    api.getUser().then(function (u) {
+      var ini = String((u && u.name) || '?').split(/\s+/).slice(0, 2).map(function (w) {
+        return w.charAt(0);
+      }).join('').toUpperCase();
+      el.user.innerHTML = '<span class="av">' + esc(ini) + '</span><span class="uwho"><b>' + esc(u.name) +
+        '</b><span class="uplan">' + esc(u.plan) + '</span></span>';
+    }, function () {
+      el.user.innerHTML = '<button class="btn sm" type="button" data-act="user">' + svg('refresh', 14) + 'Retry</button>';
+    });
+  }
+  el.user.addEventListener('click', function (e) {
+    if (e.target.closest('[data-act="user"]')) loadUser();
+  });
+
+  /* boot */
+
+  el.qbody.innerHTML = skeleton(5);
+  loadUser();
+  poll();
+})();
+</script>
+</body>
+</html>

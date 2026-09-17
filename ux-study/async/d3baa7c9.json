@@ -1,0 +1,66 @@
+{
+  "id": "d3baa7c9",
+  "items": [
+    {
+      "n": 1,
+      "verdict": "PASS",
+      "reason": "Under slow latency the initial load shows a visible spinner plus 'Loading services…' by 250 ms, and clicking Refresh adds a CSS-animated 'spinning' class to the button icon within 250 ms.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/d3baa7c9_1.png"
+    },
+    {
+      "n": 2,
+      "verdict": "PASS",
+      "reason": "The Refresh button is deduplicated rather than disabled: four clicks within 650 ms under slow latency produced exactly one getMetrics entry in window.__apiLog, and the button shows a spinning state while pending.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/d3baa7c9_2.png"
+    },
+    {
+      "n": 3,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief; the page has no upload or job flow that reports progress.",
+      "evidence": "DOM: forms=0, inputs=0, file inputs=0; only buttons are ['1H','24H','7D','Refresh','Retry']"
+    },
+    {
+      "n": 4,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief; there is no long-running upload or processing action to cancel.",
+      "evidence": "DOM: forms=0, inputs=0, file inputs=0; only buttons are ['1H','24H','7D','Refresh','Retry']"
+    },
+    {
+      "n": 5,
+      "verdict": "PASS",
+      "reason": "At fail=1 the page shows a prominent top banner with a warning icon reading 'Unable to reach the server. Check your connection.' — specific to the network failure that occurred and placed over the dashboard the failed fetch feeds.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/d3baa7c9_5.png"
+    },
+    {
+      "n": 6,
+      "verdict": "PASS",
+      "reason": "The error banner carries a Retry button that re-issues getMetrics without reloading (log grew 1→2 on click); at fail=0.5 a single Retry recovered the full dashboard with the banner hidden.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/d3baa7c9_6.png"
+    },
+    {
+      "n": 7,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief; the page has no form fields to which API validation errors could map.",
+      "evidence": "DOM: forms=0, inputs=0; only buttons are ['1H','24H','7D','Refresh','Retry']"
+    },
+    {
+      "n": 8,
+      "verdict": "PASS",
+      "reason": "The page polls getMetrics every 30 s without user action (__apiLog entries at t=47, 30104, 60103 ms) and the visible 'Updated' timestamp advanced from 2:19:46 PM to 2:20:46 PM untouched; the poll also uses the currently selected range.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/d3baa7c9_8.png"
+    },
+    {
+      "n": 9,
+      "verdict": "FAIL",
+      "reason": "Clicking the 7D range tab while a slow Refresh was in flight highlighted the 7D tab but silently fired no 7d fetch, so the in-flight 24h response rendered under the selected 7D tab with no loading indicator for ~20 s until the next scheduled poll happened to request 7d.",
+      "evidence": "__apiLog after mid-refresh 7D click: {t:40736, getMetrics, range:'24h'} then nothing until poll {t:60040, getMetrics, range:'7d'}; active tab read '7D' while 24h data was displayed (d3baa7c9_9.png)"
+    },
+    {
+      "n": 10,
+      "verdict": "PASS",
+      "reason": "The 'Updated' timestamp holds its old value (2:23:39 PM) while a refresh is pending and only advances after the response resolves; on failure the page shows the error banner and no data rather than any premature success state.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/d3baa7c9_10.png"
+    }
+  ],
+  "failCount": 1
+}

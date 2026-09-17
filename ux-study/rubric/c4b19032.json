@@ -1,0 +1,90 @@
+{
+  "id": "c4b19032",
+  "f1": {
+    "score": 5,
+    "observations": [
+      "Field validation state is graphical+text: `.has-error` applies a red 1.5px border plus a red box-shadow ring, and each inline `.field-error` renders a 12px red circle-exclamation SVG (`errIcon`) before the message, e.g. under Email in the error screenshot ('Enter a valid email address'); errors animate in via `@keyframes slideIn`.",
+      "Submission state is graphical+text: on submit the Pay button disables (opacity 0.65) and its label becomes a rotating 20px `.spinner` ring plus 'Processing…' (btnLabel.innerHTML = '<div class=\"spinner\"></div> Processing…'); async item 1 confirmed the spinner is visible within ~280 ms.",
+      "Order failure is graphical+text: the `.network-banner` shows a red circle-exclamation SVG, the message 'Connection failed. Check your network and try again.', and a Retry button, on a #fff3f3 background with red border directly under Pay now (async item 5 evidence).",
+      "Order success is graphical+text: the `.success-overlay` shows a 64px green circle containing a green check SVG (#34c759), the heading 'Order confirmed', and the monospace server order id (async item 10 evidence, ord_c8c999).",
+      "Metrics corroborate graphical support: desktop.graphical = 4 svg + 12 badges = 16 total, and the field/card-brand states additionally use color-coded borders (`.card-icons span.active` turns #0071e3 blue when the card number's first digit matches VISA/MC/AMEX).",
+      "Raw ratio: 3/3 inventory items graphical+text, 0 text-only, 0 missing."
+    ]
+  },
+  "f2": {
+    "score": 5,
+    "observations": [
+      "Measured desktop viewportWords is 54 and pageWords 56 for an entire three-section checkout plus order summary — the page shows almost no prose at all.",
+      "helperWords = 0 and longLeafWords = 0: there is not a single helper paragraph or >12-word leaf string on the idle page.",
+      "Button labels: metrics count 1 visible button with meanWords 2, maxWords 2 ('Pay now'); the only other buttons in source are 'Retry' (1 word) — all ≤3 words, longLabels is empty.",
+      "Field labels are single nouns or two words (Email, Full name, Address, City, Postal code, Country, Card number, Expiry, CVC); nothing restates what the inputs already show.",
+      "The only sentences on the whole page are in the success card: 'A confirmation email will be sent shortly. Thank you for your purchase.' — new information (email is coming) plus a one-sentence conventional close, not a restatement of visible UI.",
+      "Validation messages are one clause each ('City is required', 'Enter expiry as MM/YY') with no narration around them."
+    ]
+  },
+  "f3": {
+    "score": 4,
+    "observations": [
+      "Terminology is consistent throughout: the action is 'Pay now' everywhere, sections are consistently 'Contact'/'Shipping'/'Payment', and every required-field message follows the same '<Field> is required' / 'Enter a valid <thing>' pattern (source lines: 'Name is required', 'Address is required', 'City is required', 'Postal code is required', 'Enter a valid card number', 'Enter a valid CVC').",
+      "No placeholder/lorem text and no filler headings; the placeholders are realistic exemplars ('123 Main St', '4242 4242 4242 4242', 'MM / YY').",
+      "One copy-vs-behavior issue: the success card asserts 'A confirmation email will be sent shortly.' but nothing in the page or the api contract sends email — submitOrder only returns { orderId } — so the copy promises behavior that does not happen.",
+      "Copy otherwise matches behavior exactly: the banner text 'Connection failed. Check your network and try again.' appears precisely on err.code === 'NETWORK', and the Retry button really re-invokes submitOrder (async item 6 verified submitCalls 1→2 without reload)."
+    ]
+  },
+  "f4": {
+    "score": 4,
+    "observations": [
+      "The information architecture is unmistakably checkout-shaped: numbered step badges 1 Contact → 2 Shipping → 3 Payment, and a `position: sticky; top: 24px` order summary with Subtotal/Shipping/Tax/Total ($306.00/$8.99/$26.77/$341.76) keeping price and 'Pay now' in view while scrolling the form.",
+      "Payment-specific craft is real, not decorative: card number auto-groups into blocks of 4, expiry auto-formats to 'MM / YY', CVC is digit-clamped to 4, and typing a first digit of 4/5/3 highlights the VISA/MC/AMEX chip via `.card-icons span.active` — plus correct `autocomplete` (cc-number, cc-exp, cc-csc, postal-code) and `inputmode=numeric`.",
+      "The mobile media query sets `.order-summary { order: -1 }`, putting the cart and total above the form on a 390px screen (visible in idle_mobile) — a deliberate small-shop-shopper decision, not a default stacking.",
+      "The visual skin is nonetheless a stock recipe: Inter on #f5f5f7 with #1d1d1f text, #0071e3 primary, white 12px-radius cards with `0 1px 3px rgba(0,0,0,0.06)` shadows — an Apple-palette clone interchangeable with any dashboard, and the header 'logo' is a generic blue rounded square with a white checkmark; the shop itself has no name or identity anywhere.",
+      "Product thumbnails are emoji (🎧 ⌨️ 🖱️) in grey squares — placeholder-grade art rather than anything belonging to this shop."
+    ]
+  },
+  "hierarchy": {
+    "score": 5,
+    "observations": [
+      "Answered from the idle desktop screenshot before reading source: purpose read instantly as a checkout — 'Checkout' h1, numbered sections 1 Contact / 2 Shipping / 3 Payment, and an Order summary card listing three products with a bold Total $341.76. Matches the brief exactly.",
+      "Primary action read as 'Pay now' — the only saturated filled element on the page (solid #0071e3, full-width, 50px tall) sitting directly under the bold Total; confirmed by metrics primaryAction { tag: BUTTON, text: 'Pay now' }.",
+      "What needs attention read as the unfinished fields: 'Select country' and the Payment card fields still showing grey placeholder text, with the blue step badges sequencing the work; confirmed correct against the source (only email/name are prefilled from getUser, all shipping/payment inputs are empty placeholders).",
+      "Secondary information is correctly de-emphasized: summary lines in #6e6e73 grey, item variants in 12px #86868b, 'Secure checkout' in 12px grey below the button — nothing competes with Total and Pay now."
+    ]
+  },
+  "f1Inventory": [
+    {
+      "item": "field validation state",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "submission state",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "order success/failure",
+      "classification": "graphical+text"
+    }
+  ],
+  "f2Redundant": [],
+  "f3Issues": [
+    "Success-card copy 'A confirmation email will be sent shortly.' promises behavior that does not happen: neither the page nor the api contract sends any email; submitOrder resolves only { orderId }."
+  ],
+  "f4TaskDriven": [
+    "Numbered checkout steps 1 Contact → 2 Shipping → 3 Payment mirroring the buyer's mental model",
+    "Sticky order summary (`position: sticky; top: 24px`) keeping Total and Pay now visible while filling the form",
+    "Mobile `order: -1` on .order-summary so the cart and $341.76 total appear before the form on 390px screens",
+    "Live card-brand detection: first digit 4/5/3 highlights the VISA/MC/AMEX chip (updateCardIcon + .card-icons span.active)",
+    "Card number auto-grouping into 4-digit blocks, expiry auto-formatting to 'MM / YY', CVC digit clamping",
+    "Correct commerce autocomplete/inputmode attributes (cc-number, cc-exp, cc-csc, address-line1, postal-code, inputmode=numeric)",
+    "Email/name pre-fill from api.getUser() so a known customer types less",
+    "'Secure checkout' shield badge under the pay button as a payment-anxiety trust signal",
+    "Field-level scrollIntoView to the first invalid input on failed submit",
+    "Cart lines carry variant detail ('65%, Brown switches', 'Right-hand, White') and qty markup ('x2') with per-line subtotals"
+  ],
+  "f4Template": [
+    "Apple-clone palette: #f5f5f7 background, #1d1d1f text, #0071e3 primary, #ff3b30 error, #34c759 success, straight out of the stock 'clean minimal' scheme",
+    "Inter as the sole typeface with default weights 400–700",
+    "White cards, 12px border-radius, `0 1px 3px rgba(0,0,0,0.06)` shadow on grey — the default card-on-grey aesthetic",
+    "Header identity is a generic blue rounded-square checkmark logo; the shop has no name anywhere on the page",
+    "Emoji product thumbnails (🎧 ⌨️ 🖱️) in grey squares instead of any distinctive product art"
+  ]
+}

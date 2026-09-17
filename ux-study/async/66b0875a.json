@@ -1,0 +1,66 @@
+{
+  "id": "66b0875a",
+  "items": [
+    {
+      "n": 1,
+      "verdict": "PASS",
+      "reason": "At 300 ms after navigating under latency=slow the page already showed a skeleton with 'Loading / Fetching service metrics', and clicking Refresh flipped the button to 'Refreshing' with a spinner within 250 ms.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/66b0875a_1.png"
+    },
+    {
+      "n": 2,
+      "verdict": "PASS",
+      "reason": "While a slow refresh was pending the Refresh button was disabled (disabled attribute set, label 'Refreshing'); three rapid clicks produced exactly one new getMetrics call in __apiLog.",
+      "evidence": "<button class=\"btn btn-primary\" id=\"refreshBtn\" type=\"button\" title=\"Refresh now\" disabled=\"\"> ... 'Refreshing' — 3 clicks → 1 getMetrics call"
+    },
+    {
+      "n": 3,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief; the page has no upload or job-progress flows.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/66b0875a_1.png"
+    },
+    {
+      "n": 4,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief; there is no long-running upload or processing action to cancel.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/66b0875a_1.png"
+    },
+    {
+      "n": 5,
+      "verdict": "PASS",
+      "reason": "At fail=1 the services area is replaced by a prominent error card 'Can't reach the metrics API' with the specific detail 'Network request failed · NETWORK · attempt 1', and the header degrades honestly to 'Status unknown / Metrics unavailable'.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/66b0875a_5.png"
+    },
+    {
+      "n": 6,
+      "verdict": "PASS",
+      "reason": "The error card offers a 'Retry now' button that issued a fresh getMetrics call (counter advanced to 'attempt 4') plus an auto-retry countdown; at fail=0.5 the page recovered to the full dashboard without any reload.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/66b0875a_6.png"
+    },
+    {
+      "n": 7,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief; the page has no form submitting to a validating endpoint.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/66b0875a_1.png"
+    },
+    {
+      "n": 8,
+      "verdict": "PASS",
+      "reason": "With no interaction, an auto-refresh getMetrics call fired at t=30559 ms (log went from 1 to 2 calls), the 'Auto-refresh on, next in N seconds' countdown kept running, and the freshness label updated.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/66b0875a_8.png"
+    },
+    {
+      "n": 9,
+      "verdict": "PASS",
+      "reason": "Switching the range to 7d while a slow refresh was in flight cleanly issued a 7d fetch and settled on 7d data with the button re-enabled; opening and closing a service detail panel mid-refresh left no stuck spinner, error, or inconsistent state.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/66b0875a_9.png"
+    },
+    {
+      "n": 10,
+      "verdict": "PASS",
+      "reason": "During a pending slow refresh the freshness label stayed at the honest '11s ago' with 'Refreshing' shown, and only flipped to 'just now' after the server response resolved.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/66b0875a_10.png"
+    }
+  ],
+  "failCount": 0
+}

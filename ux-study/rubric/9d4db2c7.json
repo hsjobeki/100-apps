@@ -1,0 +1,82 @@
+{
+  "id": "9d4db2c7",
+  "hierarchy": {
+    "score": 5,
+    "observations": [
+      "Answered from idle desktop screenshot before reading source: page purpose read as a first-run onboarding wizard — centered card with 'Welcome, Alex!' and 'Let's set up your workspace in under a minute.', 4-dot step indicator with first dot active. Matches the brief (first-run experience) exactly.",
+      "Primary action read as the single filled indigo 'Get started' button — the only button on the page, on an otherwise empty gray canvas. Confirmed correct: it advances the wizard.",
+      "What needs attention read as the card itself and the active first step dot signalling a 4-step flow. Confirmed correct against the source (steps welcome→role→tour→ready). Nothing competes; viewportWords is 13, so the hierarchy is carried by exactly one heading, one subtitle, one button."
+    ]
+  },
+  "f1": {
+    "score": 5,
+    "observations": [
+      "Raw ratio: 2/2 inventory items graphical+text.",
+      "Onboarding progress is graphical twice over: the wizard's 4 `.step-dot` indicators with active/done states (visible in idle_desktop, step 2 active in error_desktop), and the dashboard 'Getting started' checklist with a `.progress-bar`/`.progress-fill` width-% bar, per-item SVG check icons, and supporting text '${doneCount}/${items.length} complete'.",
+      "Empty state is graphical+text: a folder-with-plus SVG `.empty-icon`, heading 'No projects yet', one-line desc, and a 'New project' button with a plus-sign SVG.",
+      "Metrics corroborate a graphical idle screen: desktop.graphical = { svg: 2, badges: 1, total: 3 } against only 13 visible words.",
+      "Minor caveat: the wizard dots carry no text equivalent (no 'Step 1 of 4'); the text support for onboarding progress comes from the checklist surface ('2/3 complete')."
+    ]
+  },
+  "f2": {
+    "score": 4,
+    "observations": [
+      "Measured: desktop viewportWords 13, pageWords 13, helperWords 9, longLeafWords 0, longLeaves empty — the idle screen is exceptionally terse.",
+      "Every button label is ≤3 words: 'Get started', 'Continue', 'Back', 'Open dashboard', 'New project', 'Create', 'Cancel', 'Delete', 'Delete account'; metrics labels.maxWords = 2, longLabels = [].",
+      "Each wizard step has exactly one one-line subtitle ('Let's set up your workspace in under a minute.', 'We'll tailor the experience to fit.', 'Create your first project to get going.'); modal helper text is one clause ('Give it a name — you can change it later.').",
+      "One violation of the 5-anchor: the tour step's subtitle 'Everything to manage your work in one place.' restates what the four feature tiles directly below it already show."
+    ]
+  },
+  "f3": {
+    "score": 3,
+    "observations": [
+      "4 issues found, placing it at the anchor's 3-band (2 to 4 issues). All are copy-promising-behavior-that-does-not-happen or filler; terminology is otherwise consistent ('Launchpad', 'workspace', 'project' used uniformly) and placeholder text is genuine ('e.g. Q4 Campaign').",
+      "The role step's 'We'll tailor the experience to fit.' promises tailoring, but picking Personal/Team/Freelance/Startup changes nothing except a display line in Settings → Workspace → Type.",
+      "The tour step advertises 'File Processing — Upload CSVs and transform data' and 'Monitoring — Track service health at a glance', but the app has only Projects and Settings tabs; neither surface exists.",
+      "The 'Getting started' checklist hardcodes 'Set up your profile' as done: true — it shows a completed step the user never performed and that the app offers no way to perform."
+    ]
+  },
+  "f4": {
+    "score": 4,
+    "observations": [
+      "The information architecture is clearly driven by the first-run brief: a full-screen 4-step wizard gated on user.hasCompletedOnboarding, a post-onboarding 'Getting started' checklist with progress bar that removes itself when all items are done, and a dedicated empty state ('No projects yet' + folder-plus icon + inline 'New project' CTA) — the exact surfaces a no-projects first run needs, ending the wizard with 'Create your first project to get going.' which hands off directly to the empty state.",
+      "The visual language is stock SaaS: Inter from Google Fonts, indigo primary on white cards over a light-gray canvas, an indigo→pink gradient strip on the card top, bottom-right toasts, centered modals, topbar with logo left / avatar right — none of it specific to this task.",
+      "Net: task-shaped layout and flow (could not be mistaken for the checkout or dashboard briefs) wearing an interchangeable template skin — above 'competent but template-like', below 'type and color clearly driven by this task'."
+    ]
+  },
+  "f1Inventory": [
+    {
+      "item": "onboarding progress",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "empty state",
+      "classification": "graphical+text"
+    }
+  ],
+  "f2Redundant": [
+    "\"Everything to manage your work in one place.\" — tour-step subtitle restating the four feature tiles rendered directly beneath it."
+  ],
+  "f3Issues": [
+    "\"We'll tailor the experience to fit.\" (role step subtitle) — the Personal/Team/Freelance/Startup choice tailors nothing; it only sets a text line in Settings → Workspace → Type.",
+    "\"File Processing — Upload CSVs and transform data\" (tour feature tile) — no such surface exists; the app has only Projects and Settings tabs.",
+    "\"Monitoring — Track service health at a glance\" (tour feature tile) — no such surface exists anywhere in the app.",
+    "\"Set up your profile\" checklist item is hardcoded done: true — displays as a completed step the user never performed and cannot perform."
+  ],
+  "f4TaskDriven": [
+    "Full-screen 4-step onboarding wizard gated on user.hasCompletedOnboarding, with step-dot progress and a role-picker step",
+    "'Getting started' checklist with progress bar and 'n/3 complete' counter that auto-dismisses once all items are done",
+    "Dedicated empty state: folder-plus SVG, 'No projects yet', one-line value prop, inline 'New project' CTA",
+    "Wizard hand-off copy 'Create your first project to get going.' pointing straight at the empty state's CTA",
+    "Type-DELETE-to-confirm gate on account deletion, keeping destructive actions out of a first-run user's easy reach"
+  ],
+  "f4Template": [
+    "Inter font via Google Fonts with the standard weight ladder (400/500/600/700)",
+    "Indigo/violet primary buttons on white cards over a light-gray page — canonical SaaS palette",
+    "Indigo→pink gradient strip across the card top",
+    "Bottom-right toast stack and centered modal overlay",
+    "Topbar with logo left and initials-avatar right; Projects/Settings tab nav",
+    "Four-icon feature grid in the tour step — stock onboarding trope",
+    "'Danger zone' settings section with warning-triangle icon"
+  ]
+}

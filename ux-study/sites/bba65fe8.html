@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Service Health</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f1117;--surface:#1a1d27;--surface2:#242836;--border:#2e3345;
+  --text:#e4e7ef;--text2:#9ba1b5;--text3:#6b7180;
+  --green:#22c55e;--green-bg:rgba(34,197,94,.12);
+  --amber:#f59e0b;--amber-bg:rgba(245,158,11,.12);
+  --red:#ef4444;--red-bg:rgba(239,68,68,.12);
+  --blue:#3b82f6;
+  --radius:10px;
+}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;min-height:100vh}
+.container{max-width:1320px;margin:0 auto;padding:20px 24px}
+
+/* Header */
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+.header h1{font-size:20px;font-weight:700;letter-spacing:-.3px;display:flex;align-items:center;gap:10px}
+.header-right{display:flex;align-items:center;gap:12px}
+.pulse{width:8px;height:8px;border-radius:50%;display:inline-block;position:relative}
+.pulse::after{content:'';position:absolute;inset:-4px;border-radius:50%;animation:pulse-ring 2s ease-out infinite;opacity:0}
+@keyframes pulse-ring{0%{transform:scale(.8);opacity:.6}100%{transform:scale(2.2);opacity:0}}
+.pulse.ok{background:var(--green)}.pulse.ok::after{box-shadow:0 0 0 2px var(--green)}
+.pulse.warn{background:var(--amber)}.pulse.warn::after{box-shadow:0 0 0 2px var(--amber)}
+.pulse.crit{background:var(--red)}.pulse.crit::after{box-shadow:0 0 0 2px var(--red)}
+.last-updated{font-size:12px;color:var(--text3)}
+
+/* Summary bar */
+.summary{display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap}
+.summary-card{flex:1;min-width:140px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px}
+.summary-card .label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:4px}
+.summary-card .value{font-size:28px;font-weight:700;letter-spacing:-.5px}
+.summary-card .value.ok{color:var(--green)}
+.summary-card .value.warn{color:var(--amber)}
+.summary-card .value.crit{color:var(--red)}
+
+/* Range selector */
+.range-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px}
+.range-bar h2{font-size:15px;font-weight:600;color:var(--text2)}
+.range-btns{display:flex;gap:4px;background:var(--surface);border-radius:8px;padding:3px;border:1px solid var(--border)}
+.range-btns button{border:none;background:none;color:var(--text3);font-family:inherit;font-size:13px;font-weight:500;padding:5px 14px;border-radius:6px;cursor:pointer;transition:all .15s}
+.range-btns button:hover{color:var(--text)}
+.range-btns button.active{background:var(--blue);color:#fff}
+
+/* Service grid */
+.services{display:grid;grid-template-columns:repeat(auto-fill,minmax(400px,1fr));gap:14px}
+
+/* Service card */
+.svc-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;transition:border-color .2s}
+.svc-card:hover{border-color:#4a5170}
+.svc-card.status-down{border-left:3px solid var(--red)}
+.svc-card.status-degraded{border-left:3px solid var(--amber)}
+.svc-card.status-healthy{border-left:3px solid var(--green)}
+
+.svc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.svc-name{font-size:15px;font-weight:600;display:flex;align-items:center;gap:8px}
+.status-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.status-dot.healthy{background:var(--green)}
+.status-dot.degraded{background:var(--amber)}
+.status-dot.down{background:var(--red)}
+.status-badge{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;padding:3px 8px;border-radius:5px}
+.status-badge.healthy{background:var(--green-bg);color:var(--green)}
+.status-badge.degraded{background:var(--amber-bg);color:var(--amber)}
+.status-badge.down{background:var(--red-bg);color:var(--red)}
+
+.svc-metrics{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px}
+.metric-box .metric-label{font-size:11px;color:var(--text3);margin-bottom:2px}
+.metric-box .metric-val{font-size:18px;font-weight:700;letter-spacing:-.3px}
+.metric-box .metric-unit{font-size:11px;font-weight:400;color:var(--text3)}
+.metric-box .metric-delta{font-size:11px;font-weight:500;margin-top:1px}
+.metric-delta.up-bad{color:var(--red)}
+.metric-delta.down-good{color:var(--green)}
+.metric-delta.neutral{color:var(--text3)}
+
+.svc-charts{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.chart-wrap{position:relative}
+.chart-label{font-size:11px;color:var(--text3);margin-bottom:4px}
+.chart-canvas{width:100%;height:48px;display:block}
+
+/* Loading / error states */
+.state-overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:var(--bg);z-index:100;flex-direction:column;gap:16px}
+.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.error-box{background:var(--surface);border:1px solid var(--red);border-radius:var(--radius);padding:24px 32px;text-align:center;max-width:400px}
+.error-box h3{color:var(--red);margin-bottom:8px;font-size:15px}
+.error-box p{color:var(--text2);font-size:13px;margin-bottom:16px}
+.error-box button{background:var(--blue);color:#fff;border:none;font-family:inherit;font-size:13px;font-weight:500;padding:8px 20px;border-radius:6px;cursor:pointer}
+.error-box button:hover{opacity:.9}
+
+.hidden{display:none!important}
+
+/* Uptime bar */
+.uptime-bar-wrap{margin-top:2px;height:6px;background:var(--surface2);border-radius:3px;overflow:hidden}
+.uptime-bar-fill{height:100%;border-radius:3px;transition:width .4s ease}
+
+@media(max-width:500px){
+  .services{grid-template-columns:1fr}
+  .svc-metrics{grid-template-columns:1fr 1fr}
+  .svc-charts{grid-template-columns:1fr}
+  .summary{flex-direction:column}
+}
+</style>
+</head>
+<body>
+
+<div class="state-overlay" id="loadingState">
+  <div class="spinner"></div>
+  <span style="color:var(--text2);font-size:13px">Loading services…</span>
+</div>
+
+<div class="state-overlay hidden" id="errorState">
+  <div class="error-box">
+    <h3 id="errorTitle">Connection Lost</h3>
+    <p id="errorMsg">Unable to fetch service data.</p>
+    <button id="retryBtn">Retry</button>
+  </div>
+</div>
+
+<div class="container hidden" id="mainContent">
+  <div class="header">
+    <h1><span class="pulse" id="globalPulse"></span> Service Health</h1>
+    <div class="header-right">
+      <span class="last-updated" id="lastUpdated"></span>
+    </div>
+  </div>
+
+  <div class="summary" id="summaryBar"></div>
+
+  <div class="range-bar">
+    <h2>Services</h2>
+    <div class="range-btns" id="rangeBtns">
+      <button data-range="1h">1h</button>
+      <button data-range="24h" class="active">24h</button>
+      <button data-range="7d">7d</button>
+    </div>
+  </div>
+
+  <div class="services" id="serviceGrid"></div>
+</div>
+
+<script>
+(function(){
+  const $ = s => document.querySelector(s);
+  const $$ = s => document.querySelectorAll(s);
+
+  let currentRange = '24h';
+  let services = [];
+  let pollTimer = null;
+  let firstLoad = true;
+
+  // --- Init ---
+  async function init() {
+    try {
+      await fetchAndRender();
+      showMain();
+      startPolling();
+    } catch (e) {
+      showError(e);
+    }
+  }
+
+  function showMain() {
+    $('#loadingState').classList.add('hidden');
+    $('#errorState').classList.add('hidden');
+    $('#mainContent').classList.remove('hidden');
+    firstLoad = false;
+  }
+
+  function showError(err) {
+    $('#loadingState').classList.add('hidden');
+    if (!firstLoad) {
+      // If we already have data, just show stale indicator
+      updateTimestamp(true);
+      return;
+    }
+    const el = $('#errorState');
+    el.classList.remove('hidden');
+    $('#errorTitle').textContent = err.code === 'NETWORK' ? 'Connection Lost' : 'Error';
+    $('#errorMsg').textContent = err.message || 'Unable to fetch service data.';
+  }
+
+  $('#retryBtn').addEventListener('click', () => {
+    $('#errorState').classList.add('hidden');
+    $('#loadingState').classList.remove('hidden');
+    init();
+  });
+
+  // --- Data ---
+  async function fetchAndRender() {
+    const data = await api.getMetrics(currentRange);
+    services = data.services.slice().sort((a, b) => {
+      const order = { down: 0, degraded: 1, healthy: 2 };
+      return (order[a.status] ?? 2) - (order[b.status] ?? 2);
+    });
+    renderSummary();
+    renderGrid();
+    updateTimestamp(false);
+  }
+
+  function startPolling() {
+    if (pollTimer) clearInterval(pollTimer);
+    pollTimer = setInterval(async () => {
+      try { await fetchAndRender(); } catch(e) { updateTimestamp(true); }
+    }, 10000);
+  }
+
+  function updateTimestamp(stale) {
+    const now = new Date();
+    const t = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    $('#lastUpdated').textContent = stale ? `Stale · last ${t}` : `Updated ${t}`;
+    $('#lastUpdated').style.color = stale ? 'var(--amber)' : '';
+  }
+
+  // --- Range ---
+  $('#rangeBtns').addEventListener('click', async e => {
+    const btn = e.target.closest('button[data-range]');
+    if (!btn || btn.dataset.range === currentRange) return;
+    currentRange = btn.dataset.range;
+    $$('#rangeBtns button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    try { await fetchAndRender(); } catch(e) { /* keep stale */ }
+  });
+
+  // --- Summary ---
+  function renderSummary() {
+    const counts = { healthy: 0, degraded: 0, down: 0 };
+    let totalUptime = 0;
+    let worstLatency = 0;
+    services.forEach(s => {
+      counts[s.status] = (counts[s.status] || 0) + 1;
+      totalUptime += s.uptimePct;
+      const last = s.latencyMs[s.latencyMs.length - 1] || 0;
+      if (last > worstLatency) worstLatency = last;
+    });
+
+    const avgUptime = services.length ? (totalUptime / services.length) : 100;
+    const overall = counts.down > 0 ? 'crit' : counts.degraded > 0 ? 'warn' : 'ok';
+
+    // Global pulse
+    const pulse = $('#globalPulse');
+    pulse.className = 'pulse ' + overall;
+
+    const bar = $('#summaryBar');
+    bar.innerHTML = `
+      <div class="summary-card">
+        <div class="label">Healthy</div>
+        <div class="value ok">${counts.healthy}</div>
+      </div>
+      <div class="summary-card">
+        <div class="label">Degraded</div>
+        <div class="value ${counts.degraded ? 'warn' : 'ok'}">${counts.degraded}</div>
+      </div>
+      <div class="summary-card">
+        <div class="label">Down</div>
+        <div class="value ${counts.down ? 'crit' : 'ok'}">${counts.down}</div>
+      </div>
+      <div class="summary-card">
+        <div class="label">Avg Uptime</div>
+        <div class="value ${avgUptime >= 99.5 ? 'ok' : avgUptime >= 98 ? 'warn' : 'crit'}">${avgUptime.toFixed(1)}<span class="metric-unit">%</span></div>
+      </div>
+      <div class="summary-card">
+        <div class="label">Peak Latency</div>
+        <div class="value ${worstLatency > 500 ? 'crit' : worstLatency > 200 ? 'warn' : 'ok'}">${Math.round(worstLatency)}<span class="metric-unit">ms</span></div>
+      </div>
+    `;
+  }
+
+  // --- Service Grid ---
+  function renderGrid() {
+    const grid = $('#serviceGrid');
+    grid.innerHTML = '';
+    services.forEach(svc => {
+      const card = document.createElement('div');
+      card.className = `svc-card status-${svc.status}`;
+
+      const latArr = svc.latencyMs || [];
+      const errArr = svc.errorRate || [];
+      const curLat = latArr[latArr.length - 1] || 0;
+      const prevLat = latArr.length > 1 ? latArr[latArr.length - 2] : curLat;
+      const curErr = errArr[errArr.length - 1] || 0;
+      const prevErr = errArr.length > 1 ? errArr[errArr.length - 2] : curErr;
+      const latDelta = curLat - prevLat;
+      const errDelta = curErr - prevErr;
+
+      const latDeltaClass = latDelta > 10 ? 'up-bad' : latDelta < -10 ? 'down-good' : 'neutral';
+      const errDeltaClass = errDelta > 0.5 ? 'up-bad' : errDelta < -0.5 ? 'down-good' : 'neutral';
+      const latSign = latDelta > 0 ? '+' : '';
+      const errSign = errDelta > 0 ? '+' : '';
+
+      const uptimeColor = svc.uptimePct >= 99.5 ? 'var(--green)' : svc.uptimePct >= 98 ? 'var(--amber)' : 'var(--red)';
+
+      card.innerHTML = `
+        <div class="svc-top">
+          <span class="svc-name"><span class="status-dot ${svc.status}"></span>${esc(svc.name)}</span>
+          <span class="status-badge ${svc.status}">${svc.status}</span>
+        </div>
+        <div class="svc-metrics">
+          <div class="metric-box">
+            <div class="metric-label">Latency</div>
+            <div class="metric-val">${Math.round(curLat)}<span class="metric-unit">ms</span></div>
+            <div class="metric-delta ${latDeltaClass}">${latSign}${Math.round(latDelta)}ms</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-label">Error Rate</div>
+            <div class="metric-val">${curErr.toFixed(1)}<span class="metric-unit">%</span></div>
+            <div class="metric-delta ${errDeltaClass}">${errSign}${errDelta.toFixed(1)}%</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-label">Uptime</div>
+            <div class="metric-val" style="color:${uptimeColor}">${svc.uptimePct.toFixed(2)}<span class="metric-unit">%</span></div>
+            <div class="uptime-bar-wrap"><div class="uptime-bar-fill" style="width:${svc.uptimePct}%;background:${uptimeColor}"></div></div>
+          </div>
+        </div>
+        <div class="svc-charts">
+          <div class="chart-wrap">
+            <div class="chart-label">Latency Trend</div>
+            <canvas class="chart-canvas" data-chart="latency"></canvas>
+          </div>
+          <div class="chart-wrap">
+            <div class="chart-label">Error Rate Trend</div>
+            <canvas class="chart-canvas" data-chart="error"></canvas>
+          </div>
+        </div>
+      `;
+      grid.appendChild(card);
+
+      // Draw sparklines
+      const latCanvas = card.querySelector('[data-chart="latency"]');
+      const errCanvas = card.querySelector('[data-chart="error"]');
+      drawSparkline(latCanvas, latArr, svc.status === 'down' ? '#ef4444' : svc.status === 'degraded' ? '#f59e0b' : '#3b82f6');
+      drawSparkline(errCanvas, errArr, errArr.some(v => v > 5) ? '#ef4444' : '#f59e0b');
+    });
+  }
+
+  // --- Sparkline ---
+  function drawSparkline(canvas, data, color) {
+    if (!data.length) return;
+    const rect = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    const w = rect.width || 200;
+    const h = rect.height || 48;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    canvas.style.width = w + 'px';
+    canvas.style.height = h + 'px';
+
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+
+    const pad = 2;
+    const min = Math.min(...data);
+    const max = Math.max(...data);
+    const range = max - min || 1;
+    const stepX = (w - pad * 2) / (data.length - 1 || 1);
+
+    // Fill gradient
+    const grad = ctx.createLinearGradient(0, 0, 0, h);
+    grad.addColorStop(0, color + '30');
+    grad.addColorStop(1, color + '05');
+
+    ctx.beginPath();
+    ctx.moveTo(pad, h);
+    data.forEach((v, i) => {
+      const x = pad + i * stepX;
+      const y = pad + (1 - (v - min) / range) * (h - pad * 2);
+      if (i === 0) ctx.lineTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+    ctx.lineTo(pad + (data.length - 1) * stepX, h);
+    ctx.closePath();
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    // Line
+    ctx.beginPath();
+    data.forEach((v, i) => {
+      const x = pad + i * stepX;
+      const y = pad + (1 - (v - min) / range) * (h - pad * 2);
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1.5;
+    ctx.lineJoin = 'round';
+    ctx.stroke();
+
+    // Last point dot
+    const lastX = pad + (data.length - 1) * stepX;
+    const lastY = pad + (1 - (data[data.length - 1] - min) / range) * (h - pad * 2);
+    ctx.beginPath();
+    ctx.arc(lastX, lastY, 3, 0, Math.PI * 2);
+    ctx.fillStyle = color;
+    ctx.fill();
+  }
+
+  function esc(s) {
+    const d = document.createElement('span');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  // Kick off
+  init();
+
+  // Redraw sparklines on resize
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => renderGrid(), 150);
+  });
+})();
+</script>
+</body>
+</html>

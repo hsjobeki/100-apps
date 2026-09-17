@@ -1,0 +1,66 @@
+{
+  "id": "e4ba8894",
+  "items": [
+    {
+      "n": 1,
+      "verdict": "PASS",
+      "reason": "Within 250 ms of clicking Save changes the button showed a spinner, aria-busy=true, label 'Saving', and the live region announced 'Saving profile'; project delete likewise announced 'Deleting project Q3 Website Rebuild' within 250 ms.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/e4ba8894_1.png"
+    },
+    {
+      "n": 2,
+      "verdict": "PASS",
+      "reason": "Triple-clicking Save changes and double-clicking the project-delete confirm under slow latency each produced exactly one backend call in __apiLog (updateSettings / deleteProject); the pending button is disabled with label 'Saving', and 'Delete forever' disables with label 'Deleting'.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/e4ba8894_2.png"
+    },
+    {
+      "n": 3,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief; the page has no upload or job-progress surface.",
+      "evidence": "Page body: 'Profile … Preferences … Projects … Danger zone Delete account' — no upload control, no job list, no progress-bearing API in use (only getUser/updateSettings/deleteProject/deleteAccount in __apiLog)."
+    },
+    {
+      "n": 4,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief; there is no long-running upload or processing action to cancel.",
+      "evidence": "Only actions present are Save changes, per-row Delete project, and Delete account; __apiLog showed only getUser, updateSettings, deleteProject, deleteAccount."
+    },
+    {
+      "n": 5,
+      "verdict": "PASS",
+      "reason": "At fail=1 a role=alert error box appeared 10 px below the Save button reading 'Profile not saved. Network error. Nothing changed.', and a failed project delete rendered '“Q3 Website Rebuild” not deleted. Network error. Nothing changed.' inline inside that project's own row.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/e4ba8894_5b.png"
+    },
+    {
+      "n": 6,
+      "verdict": "PASS",
+      "reason": "Both error boxes carry a Retry button; clicking the profile Retry re-issued updateSettings in __apiLog without any reload, and the failed project row kept its data with its own inline Retry.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/e4ba8894_6.png"
+    },
+    {
+      "n": 7,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief; the API raises field-level VALIDATION errors only for submitOrder, which this page never calls.",
+      "evidence": "__apiLog across all runs contained only getUser, updateSettings, deleteProject, deleteAccount — no submitOrder, so no API field-validation payload exists."
+    },
+    {
+      "n": 8,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief; no server-side state advances on its own for a settings page.",
+      "evidence": "No polling calls in __apiLog after load (single getUser); page has no job or metrics view whose server state changes over time."
+    },
+    {
+      "n": 9,
+      "verdict": "PASS",
+      "reason": "Opening and Cancel-closing the delete-account modal during a pending save, and arming/Keep-dismissing the inline project confirm mid-save, all left the UI coherent — the save later landed as 'Profile saved' with the button re-enabled, 3 rows intact, no stray alerts; during a pending deleteAccount the modal deliberately locks Cancel/Escape rather than abandoning the action, then resolves to a clean 'Account deleted. Confirmed by the server.' terminal state.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/e4ba8894_9c.png"
+    },
+    {
+      "n": 10,
+      "verdict": "PASS",
+      "reason": "Instrumenting api.deleteProject under slow latency showed the row stayed rendered through the whole 5.6 s pending window (samples every 200 ms) and disappeared only after the promise resolved at t=5663 ms; the save flow shows 'Saving' while pending and announces 'Profile saved' only after resolution, and the account end screen literally says 'Confirmed by the server.'",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/e4ba8894_del_pending.png"
+    }
+  ],
+  "failCount": 0
+}

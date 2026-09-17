@@ -1,0 +1,84 @@
+{
+  "id": "77c750eb",
+  "f1": {
+    "score": 5,
+    "observations": [
+      "Field validation state: `.field.has-error input` gets a red 1.5px border (#ff3b30) plus a red box-shadow, and each `.field-error` message is prefixed with an inline red circle-exclamation SVG — visible on all seven flagged fields in the loading/error screenshots (e.g. 'Enter a valid email address' under Email).",
+      "Submission state: `setSubmitting(true)` disables the button (opacity 0.6, cursor not-allowed) and swaps the label to an animated `.spinner` ring (20px, 0.7s rotation) plus 'Processing…', confirmed by the async rater's item 1 evidence.",
+      "Order success: a 72px green (#34c759) `.check-circle` containing a white SVG checkmark sits above the 'Order confirmed' heading; failure: the `.alert.error` banner pairs a red warning-icon SVG with the message text on a #fff2f2 background.",
+      "Metrics corroborate a graphics-forward page: `desktop.graphical` counts 4 svg + 8 badges = 12 total, against only 54 page words."
+    ]
+  },
+  "f2": {
+    "score": 5,
+    "observations": [
+      "Measured `desktop.viewportWords` is 49 and `pageWords` 54 for the whole checkout — the page carries almost no prose at all.",
+      "`helperWords: 0` and `longLeafWords: 0`; there is not a single `p`/`small` helper sentence or leaf element over 12 words in the idle DOM.",
+      "Button labels: `labels.count: 1`, `meanWords: 2`, `maxWords: 2` ('Pay $127.97'); the only other clickable copy is the two-word 'Try again' retry link — all within the ≤3-word anchor.",
+      "Field labels are one to two words each (Email, Full name, Address, City, Postal code, Country, Card number, Expiry, CVC); nothing restates what the UI already shows.",
+      "The single non-form line, 'Encrypted and secure' (3 words), is a trust cue rather than narration; error strings like 'Enter your postal code' are one clause with no preamble."
+    ]
+  },
+  "f3": {
+    "score": 4,
+    "observations": [
+      "Terminology is consistent end to end: label 'Postal code' ↔ error 'Enter your postal code' ↔ API field `postalCode`; 'Pay $127.97' matches the summary 'Total $127.97' exactly.",
+      "Error copy matches behavior: 'Connection lost. Please check your internet and try again.' is accompanied by a working 'Try again' button (async item 6 observed a second submitOrder without reload), and every client message ('Enter a valid email address', 'Enter a valid CVC') corresponds to the actual validation rule in `clientValidate()`.",
+      "One issue found: the `.secure-note` claim 'Encrypted and secure' asserts data handling the page does not perform — the submission is a plain `window.api.submitOrder` call with no encryption of its own, so this is an unbacked trust claim in a transactional UI.",
+      "Placeholders are legitimate format examples, not filler: 'you@example.com', '1234 5678 9012 3456', 'MM / YY', '123'."
+    ]
+  },
+  "f4": {
+    "score": 4,
+    "observations": [
+      "Interaction detail is clearly checkout-driven: the card input auto-groups digits into 4-blocks, expiry auto-inserts ' / ' after two digits, CVC strips non-digits, and all three carry `inputmode=\"numeric\"`, `maxlength`, and correct `autocomplete` cc-* tokens.",
+      "The primary button label 'Pay $127.97' embeds the live order total, and the sticky (`position: sticky; top: 24px`) Order summary keeps items, Subtotal $119.97, Shipping $8.00, and Total $127.97 alongside the form; on mobile `order: -1` moves the summary above the form.",
+      "The visual identity is stock: Inter on #f5f5f7 with white 12px-radius cards and the Apple system palette (#0071e3 blue, #ff3b30 red, #34c759 green, #1d1d1f/#6e6e73 grays), a meaningless three-line blue logo, and emoji product thumbnails (☕ 🥬 🧵) — the shop itself has no name or character.",
+      "Net: strong task-specific mechanics over a template-grade skin — above 'competent but template-like' but short of a design clearly owned by this shop."
+    ]
+  },
+  "hierarchy": {
+    "score": 4,
+    "observations": [
+      "Answered from the idle desktop screenshot alone: purpose read immediately as an online-shop checkout ('Checkout' title, numbered ① Contact ② Shipping ③ Payment cards, Order summary with three priced items) — correct per the brief.",
+      "What needs attention read correctly as step ① Contact's empty Email field ('you@example.com' placeholder) at the top of an explicitly numbered sequence, with the bold 'Total $127.97' as the secondary anchor.",
+      "The primary action failed the 'obvious' bar: no Pay/submit button is visible anywhere in the 1440×900 idle viewport — it had to be inferred from the step numbering, and metrics confirm the actual primary action is the below-the-fold 'Pay $127.97' button.",
+      "Two of three answers correct and obvious, the third correct but only by inference, so 4 rather than 5."
+    ]
+  },
+  "f1Inventory": [
+    {
+      "item": "field validation state",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "submission state",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "order success/failure",
+      "classification": "graphical+text"
+    }
+  ],
+  "f2Redundant": [],
+  "f3Issues": [
+    "'Encrypted and secure' (`.secure-note`) — copy promising behavior that does not happen: the page performs no encryption; submission is a plain window.api.submitOrder call, so the security claim is unbacked."
+  ],
+  "f4TaskDriven": [
+    "Card number input auto-formats into 4-digit groups with inputmode=numeric, maxlength=19, autocomplete=cc-number",
+    "Expiry input auto-inserts ' / ' after two digits (MM / YY), CVC input strips non-digits and caps at 4",
+    "Primary button label 'Pay $127.97' embeds the exact order total at the commit point",
+    "Sticky order summary sidebar (position: sticky; top: 24px) with per-item name, Qty, price, Subtotal/Shipping/Total breakdown",
+    "Mobile layout reorders the order summary above the form (order: -1 at ≤820px) so the buyer sees the charge first",
+    "Numbered step badges ① Contact ② Shipping ③ Payment matching the canonical checkout sequence",
+    "Lock icons on the Pay button and the secure-note as checkout trust cues",
+    "Full autocomplete coverage (email, name, address-line1, address-level2, postal-code, country, cc-exp, cc-csc) tuned to a payment form",
+    "Success screen surfaces the server order id ('Order ord_…') in monospace and echoes the entered email"
+  ],
+  "f4Template": [
+    "Inter font over #f5f5f7 background with white 12px-radius cards and 0 1px 3px shadows — the ubiquitous card-on-gray look",
+    "Color palette lifted wholesale from the Apple system palette: #0071e3 primary, #ff3b30 error, #34c759 success, #1d1d1f/#6e6e73 text grays",
+    "Generic blue rounded-square logo with three white lines; the 'small online shop' has no name or brand anywhere",
+    "Emoji characters (☕ 🥬 🧵) standing in for product thumbnails"
+  ]
+}

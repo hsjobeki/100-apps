@@ -1,0 +1,94 @@
+{
+  "id": "0373bf32",
+  "f1": {
+    "score": 5,
+    "observations": [
+      "Per-service health is rendered graphically three ways at once: a colored status dot, a colored card left-border, and a colored chip with a tiny SVG glyph (✕ for DOWN, △ for DEGRADED, ✓ for HEALTHY) plus the text label — see media-worker's red '✕ DOWN' chip in the idle desktop shot.",
+      "Latency trend is an SVG sparkline with gradient area fill and an endpoint dot, accompanied by a trend-arrow SVG with signed percent ('-11%' on media-worker) and the current numeric value ('846 ms').",
+      "Error-rate trend is an SVG bar chart (barChart()) whose per-bar fill-opacity scales with magnitude, again with trend arrow ('+20%' on notifier) and current value ('7.25 %').",
+      "Uptime uses a native <meter min=95 max=100 low=99 high=99.9 optimum=100> that colors amber/red below SLA thresholds, next to the numeric '98.90 %'.",
+      "The summary banner adds a segmented red/amber/green proportion bar (class hbar with role=img and aria-label '1 down, 1 degraded, 4 healthy') and a status halo icon.",
+      "Measured graphical totals confirm this: 35 svg, 6 meter, 1 role=progressbar, 23 badges — total 65 graphical indicators on the idle desktop page.",
+      "Raw ratio: 4/4 inventory items are graphical+text; 0 text-only, 0 missing."
+    ]
+  },
+  "f2": {
+    "score": 5,
+    "observations": [
+      "desktop.viewportWords = 96 for an entire six-service dashboard; helperWords = 0 and longLeafWords = 0 — there is not a single <p>/<small> helper sentence or >12-word leaf node in the idle state.",
+      "Every real control label is ≤3 words: '1h', '24h', '7d', 'Retry', 'Show all', and icon buttons with aria-labels 'Refresh', 'Pause auto-refresh', 'Close'.",
+      "The metrics file's labels.meanWords = 5.75 / maxWords = 10 is an artifact of whole service cards being <button> elements; the 10-'word' longLabels are card metric contents ('media-worker DOWN Latency -11% 846ms …'), not verbose button copy.",
+      "Error copy is minimal and additive, never narrating the UI: 'Metrics API unreachable' + 'No metrics for the 1h range.' + machine line 'NETWORK · Network request failed', and the stale banner 'NETWORK · showing data from 11s ago'.",
+      "Status text is compressed to the essentials: 'Outage', '2 of 6 impacted', '3s ago' — no headings restating what charts already show."
+    ]
+  },
+  "f3": {
+    "score": 5,
+    "observations": [
+      "Terminology is consistent end to end: the META table defines Down/Degraded/Healthy once and both the summary count chips ('1 Down', '1 Degraded', '4 Healthy') and the card chips (DOWN/DEGRADED/HEALTHY, uppercased by CSS) draw from it.",
+      "Copy matches verified behavior: the 'Retry' buttons fire a real getMetrics (async item 6 PASS), 'showing data from Xs ago' reflects the true updatedAt which never advances on failed refreshes (item 10 PASS), and the pause button's title flips between 'Pause auto-refresh'/'Resume auto-refresh' in renderHeader().",
+      "Empty/unknown states use precise, distinct wordings for distinct scopes: 'no data yet' (never loaded), 'no series' (a chart with <2 points), 'Not in this range' (drawer service absent from latest response) — no placeholder or lorem text anywhere.",
+      "No filler and no marketing tone: the only prose on the page is status and error text; even the error detail line is the raw code + message ('NETWORK · Network request failed').",
+      "Zero issues found across the four categories (inconsistent naming, filler, marketing tone, copy/behavior mismatch, placeholder)."
+    ]
+  },
+  "f4": {
+    "score": 5,
+    "observations": [
+      "The layout is triage-ordered for an on-call engineer: sortedServices() ranks down < degraded < healthy so media-worker (DOWN) is always the top-left card, and the summary banner leads with the worst status as a one-word headline ('Outage').",
+      "Color is semantic and load-bearing, not decorative: card border, sparkline stroke, bar chart, chip, and halo all take the service's status color (C.ok/warn/bad), and the segmented hbar shows the fleet's health proportion at a glance.",
+      "Type choices serve the task: JetBrains Mono for all numeric readouts (846 ms, 29.1 %, 98.90 %) so values align and scan, Inter for labels; dark theme fits a monitoring console watched at night.",
+      "Purpose-built mechanics no template ships: a countdown ring (stroke-dashoffset on #ringval) around the Refresh button showing time to next 10 s poll, a pause/resume toggle, an 'Xs ago' freshness label, and a stale-data banner that is distinct from the empty-state error panel.",
+      "The uptime <meter> encodes SLA semantics directly in markup (min=95 low=99 high=99.9 optimum=100), so 98.9 % renders as sub-SLA amber/red rather than a generic full-looking bar.",
+      "Template-side residue is limited to the generic card-grid + header-toolbar skeleton and skeleton-shimmer loaders."
+    ]
+  },
+  "hierarchy": {
+    "score": 5,
+    "observations": [
+      "Answered from the idle desktop screenshot before reading source — purpose: obviously a service health dashboard ('Service health' title, six per-service cards with latency/error sparklines and uptime); matches the brief exactly.",
+      "What needs attention is unmissable: red 'Outage — 2 of 6 impacted' banner with red/amber/green segment bar and '1 Down / 1 Degraded / 4 Healthy' counts, and the media-worker card carries a red left border plus a red '✕ DOWN' chip while notifier is amber 'DEGRADED'; severity sorting puts both first.",
+      "Primary action reads correctly as triage-plus-scope: the 1h/24h/7d range toggle (24h active) and refresh/pause sit top-right with a '3s ago' freshness dot; for a read-first monitoring page this is the right emphasis, and all three answers checked out against the brief."
+    ]
+  },
+  "f1Inventory": [
+    {
+      "item": "per-service health",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "latency trend",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "error-rate trend",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "uptime",
+      "classification": "graphical+text"
+    }
+  ],
+  "f2Redundant": [],
+  "f3Issues": [],
+  "f4TaskDriven": [
+    "Severity-sorted card grid (down < degraded < healthy) so the failing service is always first",
+    "Worst-status summary banner with one-word headline ('Outage') and 'N of M impacted' subline",
+    "Segmented red/amber/green fleet-health proportion bar with aria-label counts",
+    "Status color propagated through card border, chip, dot, sparkline stroke, and bar chart per service",
+    "Countdown ring around the Refresh button visualizing time until the next 10 s auto-poll",
+    "Pause/resume auto-refresh toggle with 'paused · Xs ago' freshness label",
+    "Stale-data banner ('NETWORK · showing data from 11s ago' + Retry) distinct from the no-data error panel",
+    "Uptime <meter> with SLA thresholds (low=99, high=99.9) so sub-SLA uptime renders amber/red",
+    "Trend arrows with signed percent computed head-vs-tail across the selected range",
+    "Clickable status count chips that filter the grid by down/degraded/healthy",
+    "Per-service drawer with large gridded charts and Now/Min/Avg/Max stats in monospace",
+    "JetBrains Mono for all numeric readouts, Inter for labels; dark NOC-style theme",
+    "Range guard ('never present one range's data as another's') swapping to skeletons on range change"
+  ],
+  "f4Template": [
+    "Standard responsive card-grid layout under a header toolbar",
+    "Skeleton-shimmer loading placeholders (common dashboard pattern)",
+    "Generic top-left logo + product-name brand block"
+  ]
+}

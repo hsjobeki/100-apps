@@ -1,0 +1,66 @@
+{
+  "id": "15e2b809",
+  "items": [
+    {
+      "n": 1,
+      "verdict": "PASS",
+      "reason": "A full-screen spinner is visible while the initial getUser call pends (confirmed present at ~220ms after navigation under latency=slow, welcome screen still hidden), and buttons switch to a spinner state within 120-250ms of clicking (Continue → 'Saving', Create → 'Creating').",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/15e2b809_1.png"
+    },
+    {
+      "n": 2,
+      "verdict": "PASS",
+      "reason": "Triple-clicking Continue under slow latency produced exactly one updateSettings call and the button went disabled with a spinner ('Saving') within 250ms; the Create button likewise becomes disabled 'Creating' immediately and is also disabled until a project name is entered.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/15e2b809_2.png"
+    },
+    {
+      "n": 3,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief.",
+      "evidence": "N/A per task instructions; no upload or job-progress API surface is exercised by this page."
+    },
+    {
+      "n": 4,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief.",
+      "evidence": "N/A per task instructions; no long-running upload/processing flow applies to this page."
+    },
+    {
+      "n": 5,
+      "verdict": "PASS",
+      "reason": "Failures show an action-specific message in a prominent fixed red banner: 'Could not save preferences. Check your connection.' for the preferences save and 'Network issue. Your project wasn't created.' for project creation; the banner is global (top of page) rather than adjacent to the button, but on this single-card wizard the relevant element is unambiguous.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/15e2b809_5.png"
+    },
+    {
+      "n": 6,
+      "verdict": "PASS",
+      "reason": "After a failure the primary button re-enables and clicking it again re-issues the call without a reload (a fresh updateSettings entry appeared in __apiLog). Caveat: the banner's dedicated Retry button is dead — two clicks produced zero API calls and only hid the banner — so recovery works only through the form's own button.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/15e2b809_6.png"
+    },
+    {
+      "n": 7,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief.",
+      "evidence": "N/A per task instructions; the page has no API-driven field validation (submitOrder) surface."
+    },
+    {
+      "n": 8,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief.",
+      "evidence": "N/A per task instructions; no polled server state applies to this onboarding page."
+    },
+    {
+      "n": 9,
+      "verdict": "FAIL",
+      "reason": "Cancelling the dashboard's New project dialog while the create was pending still popped a 'Project created!' success modal seconds later, over a dashboard whose empty state had been removed but which lists no project anywhere; similarly, clicking Back mid-create in the wizard let me return to Preferences and the app then force-jumped to the dashboard success modal sitting on top of a 'No projects yet' empty state.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/15e2b809_9b.png"
+    },
+    {
+      "n": 10,
+      "verdict": "PASS",
+      "reason": "Success is gated on the server call resolving: the button stays in a disabled 'Creating'/'Saving' spinner state for the whole pending window under slow latency and the success modal appears only after updateSettings resolves; when the call fails, no success state is shown — only the error banner ('Network issue. Your project wasn't created.').",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/15e2b809_10.png"
+    }
+  ],
+  "failCount": 1
+}

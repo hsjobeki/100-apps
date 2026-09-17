@@ -1,0 +1,88 @@
+{
+  "id": "4ecba86c",
+  "f1": {
+    "score": 5,
+    "observations": [
+      "Field validation state is fully graphical+text: inputs get class has-error (1.5px --danger #ef4444 border plus rgba(239,68,68,.1) box-shadow) and a .field-error row combining a 12px circle-exclamation SVG with the message text; the error_desktop screenshot shows this on 7 fields at once (e.g. #emailError 'Enter a valid email address.').",
+      "Submission state is graphical only while pending: .btn-submit.loading shows a 20px animated .spinner, hides the label via .btn-label{opacity:0}, and dims the disabled button (opacity:.6); the async rater's item-1 evidence captured <button class='btn-submit loading' disabled> with the spinner at 250 ms. No 'Processing…' text accompanies the spinner.",
+      "Order success is graphical+text: #successOverlay renders a 64px green-circle checkmark SVG (.success-icon, stroke #059669) above 'Order confirmed!' and the monospace order id; order failure is graphical+text via #networkAlert (16px alert icon + 'Connection failed. Please check your network and try again.' + Retry button) and icon+text field errors for VALIDATION rejections (async item 7).",
+      "Raw ratio: 3/3 inventory items have a graphical indicator (2 graphical+text, 1 graphical only); 0/3 text only; 0/3 missing. Metrics corroborate: graphical.total 24 (14 svg, 10 badges), and the badge count includes the Visa/MC/Amex card-type chips that highlight from the typed card prefix.",
+      "Score 5: the scale's degradation path (about half text-only at 3, nearly all text-only or missing at 1) is entirely absent — no inventory item is text-only or missing; the sole deviation from the 5-anchor is that the pending spinner lacks supporting text."
+    ]
+  },
+  "f2": {
+    "score": 5,
+    "observations": [
+      "Measured desktop.viewportWords is 50 and pageWords 55 for the whole checkout; helperWords 0 and longLeafWords 0 — there is not a single <p>/<small> helper sentence or >12-word leaf node anywhere on the idle page.",
+      "labels.count 1, meanWords 2, maxWords 2, longLabels []: the only button label on the idle page is 'Pay $147.43', which also carries the exact total — no label exceeds 3 words ('Retry', 'Continue shopping' are 1 and 2 words).",
+      "The only multi-sentence copy on the page appears in states that need it: the network banner 'Connection failed. Please check your network and try again.' (9 words, names the cause and the next step) and field errors of 3-6 words each ('Enter your city.', 'Enter expiry as MM/YY.').",
+      "The success card's 'Thank you for your purchase.' was considered for redundancy against the 'Order confirmed!' heading and judged conventional commerce courtesy rather than the UI narrating itself; nothing on the page restates what the layout already shows.",
+      "'Secure, encrypted checkout' (3 words) under the Pay button is the closest thing to decoration text and stays within the 3-word label bound."
+    ]
+  },
+  "f3": {
+    "score": 4,
+    "observations": [
+      "Terminology is consistent throughout: section labels (Contact/Shipping/Payment) match the payload fields, all nine client-side error strings follow one imperative pattern ('Enter your street address.', 'Select your country.'), and the API's own validation string is rendered verbatim in the right field (async item 7).",
+      "One copy/behavior mismatch: 'Continue shopping' (#continueBtn) promises a return to a shop, but its handler only removes the overlay and wipes every form field (fields.forEach(f => { inputEls[f].value = ''; })) — there is no shop to continue to and the user's entered data is destroyed.",
+      "Copy otherwise matches verified behavior: 'Retry' genuinely re-issues submitOrder without reload (async item 6), and the banner's 'try again' instruction is backed by the adjacent Retry button.",
+      "Not counted as issues: the hardcoded fallback '<span class=\"btn-label\">Pay $142.97</span>' in the HTML disagrees with the computed $147.43 total but is overwritten by script before paint (metrics primaryAction.text is 'Pay $147.43'), so it is never user-visible; 'MC' is a terse brand chip alongside Visa/Amex, not an inconsistent name for the same thing; 'Secure, encrypted checkout' is a standard trust badge, not marketing tone in a tool UI.",
+      "No lorem/unfinished placeholder text anywhere; input placeholders are all realistic exemplars ('4242 4242 4242 4242', 'MM / YY', '94102')."
+    ]
+  },
+  "f4": {
+    "score": 4,
+    "observations": [
+      "The interaction layer is clearly checkout-driven: the submit button carries the live total ('Pay $147.43', recomputed from cart items + 8% tax + $5.99 shipping in script), card number auto-groups into 4-digit blocks, expiry auto-inserts ' / ', CVC strips non-digits, and Visa/MC/Amex chips highlight from the typed card prefix (4→Visa, 5→MC, 34/37→Amex).",
+      "Structure fits the buyer's task: sticky itemized order summary (position:sticky;top:24px) with qty and line totals beside a 3-step numbered form, and at ≤800px the summary is reordered above the form (.order-summary{order:-1}) so the mobile screenshot leads with what is being paid for.",
+      "Platform affordances are wired for a real checkout: autocomplete=cc-number/cc-exp/cc-csc/address-line1/postal-code, inputmode=numeric and maxlength on card fields, Enter-to-submit from any field, and email/name prefill from api.getUser().",
+      "The visual skin is template: Inter from Google Fonts, indigo #4f46e5 primary on #f5f5f7 gray with 12px-radius white cards is the stock generated-page palette; the header is a generic rounded-square checkmark logo with no shop name, and product thumbnails are emoji (headphones, plug, phone) rather than any shop identity.",
+      "Score 4: layout and behavior are driven by this task and user, but type and color are interchangeable with any other brief's output, so the 5-anchor ('layout, type, and color choices clearly driven by this task') is not fully met."
+    ]
+  },
+  "hierarchy": {
+    "score": 4,
+    "observations": [
+      "Answered from the idle desktop screenshot before reading source: purpose read instantly as an online-shop checkout ('Checkout' h1, numbered 1 Contact / 2 Shipping / 3 Payment cards, 'Order summary' with 3 items, subtotal/shipping/tax and Total $147.43) — correct against the brief.",
+      "What needs attention read correctly: empty Shipping and Payment fields with 'Select country' pending, while Contact is prefilled (alex@example.com / Alex Rivera); the numbered indigo step badges make the sequence unambiguous.",
+      "The primary action failed the 'obvious' bar: no Pay/submit button is visible anywhere in the 1440x900 idle viewport — the page cuts off at the Expiry/CVC row, and 'Pay $147.43' (confirmed later by metrics primaryAction.text) had to be inferred as existing below the fold.",
+      "All three answers proved correct against the brief, but one of the three (primary action) was inferred rather than seen, so this is a point below the 5-anchor 'all correct and obvious'."
+    ]
+  },
+  "f1Inventory": [
+    {
+      "item": "field validation state",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "submission state",
+      "classification": "graphical only"
+    },
+    {
+      "item": "order success/failure",
+      "classification": "graphical+text"
+    }
+  ],
+  "f2Redundant": [],
+  "f3Issues": [
+    "'Continue shopping' (#continueBtn) promises a return to shopping that does not happen: the handler only hides the success overlay and clears every form field; there is no shop view, and the user's entered contact/shipping data is silently wiped."
+  ],
+  "f4TaskDriven": [
+    "Submit button label carries the live order total ('Pay $147.43'), recomputed in script from cart line items, 8% tax, and $5.99 shipping",
+    "Sticky itemized order summary (position:sticky;top:24px) with per-item qty, line totals, subtotal/shipping/tax/total breakdown",
+    "Card brand chips Visa/MC/Amex that highlight live from the typed card prefix (4→Visa, 5→MC, 34/37→Amex)",
+    "Input mask formatting: card number auto-grouped into 4-digit blocks, expiry auto-formatted to 'MM / YY', CVC restricted to 4 digits",
+    "Checkout-grade platform hints: autocomplete cc-number/cc-exp/cc-csc/address-line1/address-level2/postal-code/country, inputmode=numeric, maxlength on card fields",
+    "Mobile reordering: at ≤800px .order-summary{order:-1} puts the cart and total above the form (visible in the mobile screenshot)",
+    "Three numbered steps Contact → Shipping → Payment matching the buyer's mental model",
+    "'Secure, encrypted checkout' lock badge directly under the Pay button — a checkout trust convention",
+    "Email and name prefilled from api.getUser() so a known customer starts at Shipping",
+    "On validation failure the first errored field is scrolled into view and focused (verified by async items 5 and 7)"
+  ],
+  "f4Template": [
+    "Inter from Google Fonts with indigo #4f46e5 primary on #f5f5f7 gray — the stock Tailwind-palette look interchangeable with any generated page",
+    "Generic rounded-square checkmark header logo and no shop name or brand identity anywhere",
+    "Emoji product thumbnails (headphones, plug, phone) in gray squares instead of any product or shop imagery",
+    "Default white cards with 12px radius and 1px #d1d5db borders as the universal surface treatment"
+  ]
+}

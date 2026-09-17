@@ -1,0 +1,1753 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Service health</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080b10;
+    --bg-2: #0d1219;
+    --panel: #111823;
+    --panel-2: #151d29;
+    --line: #202a38;
+    --line-2: #2c3949;
+    --text: #e8eef6;
+    --dim: #8d9bad;
+    --dim-2: #64748b;
+    --ok: #34d399;
+    --warn: #fbbf24;
+    --bad: #fb7185;
+    --accent: #60a5fa;
+    --ok-bg: rgba(52, 211, 153, .12);
+    --warn-bg: rgba(251, 191, 36, .13);
+    --bad-bg: rgba(251, 113, 133, .14);
+    --shadow: 0 18px 40px -22px rgba(0, 0, 0, .9);
+    --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body { height: 100%; }
+
+  body {
+    margin: 0;
+    background:
+      radial-gradient(900px 480px at 82% -12%, rgba(96, 165, 250, .09), transparent 62%),
+      radial-gradient(760px 420px at 6% 0%, rgba(52, 211, 153, .06), transparent 60%),
+      var(--bg);
+    color: var(--text);
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 15px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  button { font: inherit; color: inherit; cursor: pointer; }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ---------- top loading bar ---------- */
+  #topbar {
+    position: fixed;
+    inset: 0 0 auto 0;
+    height: 2px;
+    z-index: 60;
+    overflow: hidden;
+  }
+  #topbar[hidden] { display: none; }
+  #topbar::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    width: 36%;
+    background: linear-gradient(90deg, transparent, var(--accent), #a78bfa, transparent);
+    animation: slide 1.05s cubic-bezier(.4, 0, .2, 1) infinite;
+  }
+  @keyframes slide {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(380%); }
+  }
+
+  /* ---------- header ---------- */
+  .app-head {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding: 14px clamp(14px, 3vw, 30px);
+    background: rgba(8, 11, 16, .82);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+
+  .brand-mark {
+    width: 36px; height: 36px;
+    display: grid; place-items: center;
+    border-radius: 10px;
+    background: linear-gradient(160deg, #1b2636, #121a26);
+    border: 1px solid var(--line-2);
+    color: var(--accent);
+    flex: none;
+  }
+
+  .title { font-size: 15px; font-weight: 650; letter-spacing: -.01em; line-height: 1.2; }
+
+  .sub {
+    font-size: 12px;
+    color: var(--dim-2);
+    font-family: var(--mono);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+  .tabs {
+    display: flex;
+    gap: 2px;
+    padding: 3px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+  }
+
+  .tab {
+    position: relative;
+    border: 0;
+    background: transparent;
+    color: var(--dim);
+    font-size: 13px;
+    font-weight: 550;
+    font-family: var(--mono);
+    padding: 5px 13px;
+    border-radius: 7px;
+    transition: color .13s, background .13s;
+  }
+  .tab:hover { color: var(--text); }
+  .tab[aria-selected="true"] {
+    background: var(--panel-2);
+    color: var(--text);
+    box-shadow: inset 0 0 0 1px var(--line-2);
+  }
+  .tab .dotload {
+    position: absolute;
+    left: 50%; bottom: 1px;
+    width: 14px; height: 2px;
+    margin-left: -7px;
+    border-radius: 2px;
+    background: var(--accent);
+    animation: pulseline .9s ease-in-out infinite;
+  }
+  @keyframes pulseline { 0%, 100% { opacity: .25; } 50% { opacity: 1; } }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    height: 34px;
+    padding: 0 12px;
+    border-radius: 9px;
+    border: 1px solid var(--line);
+    background: var(--panel);
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 550;
+    transition: border-color .13s, background .13s, opacity .13s;
+  }
+  .btn:hover:not(:disabled) { border-color: var(--line-2); background: var(--panel-2); }
+  .btn:disabled { opacity: .55; cursor: not-allowed; }
+  .btn svg { flex: none; }
+
+  .btn-primary {
+    border-color: rgba(96, 165, 250, .45);
+    background: rgba(96, 165, 250, .14);
+    color: #cfe2ff;
+  }
+  .btn-primary:hover:not(:disabled) { background: rgba(96, 165, 250, .22); }
+
+  .live-btn .ring-wrap { position: relative; width: 18px; height: 18px; flex: none; }
+  .live-btn .ring { transform: rotate(-90deg); }
+  .live-btn .ring-track { stroke: var(--line-2); }
+  .live-btn .ring-fill { stroke: var(--ok); transition: stroke-dashoffset .2s linear; }
+  .live-btn[data-live="false"] .ring-fill { stroke: var(--dim-2); }
+  .live-btn[data-live="false"] { color: var(--dim); }
+
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 8px; }
+
+  /* ---------- layout ---------- */
+  main { padding: clamp(16px, 2.4vw, 26px) clamp(14px, 3vw, 30px) 64px; max-width: 1360px; margin: 0 auto; }
+
+  /* ---------- hero verdict ---------- */
+  .hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 22px;
+    flex-wrap: wrap;
+    padding: 18px 20px;
+    border-radius: 16px;
+    border: 1px solid var(--line);
+    background: linear-gradient(180deg, var(--panel), rgba(13, 18, 25, .6));
+    box-shadow: var(--shadow);
+    transition: border-color .2s;
+  }
+  .hero[data-worst="down"] { border-color: rgba(251, 113, 133, .4); }
+  .hero[data-worst="degraded"] { border-color: rgba(251, 191, 36, .34); }
+
+  .verdict { display: flex; align-items: center; gap: 16px; min-width: 0; }
+
+  .verdict-glyph {
+    width: 46px; height: 46px;
+    display: grid; place-items: center;
+    border-radius: 13px;
+    flex: none;
+  }
+  .verdict-glyph svg { width: 24px; height: 24px; }
+
+  .verdict-text {
+    font-size: clamp(21px, 2.6vw, 27px);
+    font-weight: 680;
+    letter-spacing: -.025em;
+    line-height: 1.15;
+  }
+  .verdict-sub { margin-top: 3px; font-size: 12.5px; color: var(--dim); font-family: var(--mono); }
+  .verdict-sub .sep { color: var(--line-2); padding: 0 6px; }
+
+  .stale-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-left: 8px;
+    padding: 1px 7px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-family: var(--mono);
+    color: var(--warn);
+    background: var(--warn-bg);
+    border: 1px solid rgba(251, 191, 36, .3);
+  }
+
+  /* status strip */
+  .strip { display: flex; align-items: flex-end; gap: 6px; }
+  .seg {
+    position: relative;
+    width: 34px;
+    padding: 0;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 4px;
+  }
+  .seg .seg-bar {
+    display: block;
+    height: 30px;
+    border-radius: 5px;
+    background: var(--line);
+    transition: background .2s, height .2s, box-shadow .2s;
+  }
+  .seg[data-status="healthy"] .seg-bar { height: 16px; background: var(--ok); }
+  .seg[data-status="degraded"] .seg-bar { height: 26px; background: var(--warn); }
+  .seg[data-status="down"] .seg-bar {
+    height: 36px;
+    background: var(--bad);
+    box-shadow: 0 0 0 1px rgba(251, 113, 133, .35), 0 0 16px -2px rgba(251, 113, 133, .75);
+  }
+  .seg:hover .seg-bar { filter: brightness(1.22); }
+  .seg .seg-cap { display: block; height: 3px; border-radius: 3px; background: transparent; }
+  .seg:hover .seg-cap, .seg:focus-visible .seg-cap { background: var(--dim-2); }
+
+  /* ---------- error bar ---------- */
+  .error-bar {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    flex-wrap: wrap;
+    margin-top: 14px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid rgba(251, 113, 133, .38);
+    background: var(--bad-bg);
+  }
+  .error-bar[hidden] { display: none; }
+  .error-bar .eb-icon { color: var(--bad); display: grid; place-items: center; flex: none; }
+  .error-bar .eb-text { min-width: 0; flex: 1; }
+  .error-bar .eb-title { display: block; font-weight: 600; font-size: 13.5px; }
+  .error-bar .eb-detail { display: block; font-size: 12.5px; color: var(--dim); font-family: var(--mono); margin-top: 1px; word-break: break-word; }
+  .error-bar .btn { background: rgba(255, 255, 255, .05); border-color: rgba(251, 113, 133, .45); }
+
+  /* ---------- grid ---------- */
+  .grid {
+    margin-top: 16px;
+    display: grid;
+    gap: 14px;
+    grid-template-columns: repeat(auto-fill, minmax(322px, 1fr));
+  }
+  .grid.updating { opacity: .62; transition: opacity .18s; }
+
+  .card {
+    position: relative;
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 0 0 14px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: linear-gradient(180deg, var(--panel), var(--bg-2));
+    overflow: hidden;
+    transition: border-color .15s, transform .15s, box-shadow .15s;
+  }
+  .card:hover { border-color: var(--line-2); transform: translateY(-1px); box-shadow: var(--shadow); }
+  .card::before {
+    content: "";
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--line-2);
+  }
+  .card[data-status="healthy"]::before { background: var(--ok); }
+  .card[data-status="degraded"]::before { background: var(--warn); }
+  .card[data-status="down"]::before { background: var(--bad); }
+  .card[data-status="down"] { border-color: rgba(251, 113, 133, .34); }
+
+  .card-head { display: flex; align-items: center; gap: 10px; padding: 13px 14px 11px 16px; }
+
+  .svc-name {
+    font-size: 14.5px;
+    font-weight: 620;
+    letter-spacing: -.01em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .glyph { display: grid; place-items: center; flex: none; width: 18px; height: 18px; }
+  .glyph svg { width: 15px; height: 15px; }
+  .g-healthy { color: var(--ok); }
+  .g-degraded { color: var(--warn); }
+  .g-down { color: var(--bad); }
+  .pulse { animation: pulse 1.9s ease-in-out infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .38; } }
+
+  .badge {
+    font-size: 11px;
+    font-weight: 600;
+    font-family: var(--mono);
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 6px;
+    flex: none;
+  }
+  .b-healthy { color: var(--ok); background: var(--ok-bg); }
+  .b-degraded { color: var(--warn); background: var(--warn-bg); }
+  .b-down { color: var(--bad); background: var(--bad-bg); }
+
+  .changed {
+    display: none;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-family: var(--mono);
+    color: var(--accent);
+    background: rgba(96, 165, 250, .12);
+    border-radius: 6px;
+    padding: 2px 7px;
+    flex: none;
+  }
+  .changed.on { display: inline-flex; }
+
+  .metrics { display: grid; gap: 12px; padding: 0 14px 0 16px; }
+
+  .metric { display: block; }
+  .m-top { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+  .m-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    color: var(--dim-2);
+  }
+  .m-val { font-family: var(--mono); font-size: 16px; font-weight: 550; letter-spacing: -.02em; }
+  .m-val .unit { font-size: 11px; color: var(--dim-2); margin-left: 2px; font-weight: 400; }
+
+  .spark { display: block; width: 100%; height: 34px; margin-top: 4px; overflow: visible; }
+  .spark .area { stroke: none; }
+  .spark .line { fill: none; stroke-width: 1.6px; }
+  .spark .tip { stroke: var(--bg); stroke-width: 1.5px; }
+
+  .bars { display: block; width: 100%; height: 30px; margin-top: 4px; }
+
+  .m-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 3px;
+    font-size: 11px;
+    font-family: var(--mono);
+    color: var(--dim-2);
+  }
+  .trend { display: inline-flex; align-items: center; gap: 3px; }
+  .t-bad { color: var(--bad); }
+  .t-good { color: var(--ok); }
+  .t-flat { color: var(--dim-2); }
+
+  /* uptime */
+  .uptime-row { display: flex; align-items: center; gap: 10px; margin-top: 7px; }
+  .meter-wrap { position: relative; display: block; flex: 1; min-width: 0; }
+  meter {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 7px;
+    display: block;
+    border: 0;
+    background: var(--line);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  meter::-webkit-meter-inner-element { display: block; }
+  meter::-webkit-meter-bar { background: var(--line); border: 0; border-radius: 6px; height: 7px; }
+  meter::-webkit-meter-optimum-value { background: var(--ok); border-radius: 6px; }
+  meter::-webkit-meter-suboptimum-value { background: var(--warn); border-radius: 6px; }
+  meter::-webkit-meter-even-less-good-value { background: var(--bad); border-radius: 6px; }
+  meter::-moz-meter-bar { background: var(--ok); }
+  .slo-tick {
+    position: absolute;
+    top: -3px;
+    bottom: -3px;
+    width: 2px;
+    background: var(--dim-2);
+    opacity: .75;
+    border-radius: 2px;
+  }
+
+  /* skeleton */
+  .skel {
+    border-radius: 14px;
+    border: 1px solid var(--line);
+    background: var(--panel);
+    height: 250px;
+    position: relative;
+    overflow: hidden;
+  }
+  .skel::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .045), transparent);
+    animation: shimmer 1.25s linear infinite;
+  }
+  @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+
+  /* empty / hard error */
+  .panel-msg {
+    margin-top: 16px;
+    padding: 46px 22px;
+    border-radius: 16px;
+    border: 1px solid var(--line);
+    background: var(--panel);
+    text-align: center;
+  }
+  .panel-msg .pm-glyph {
+    width: 54px; height: 54px;
+    margin: 0 auto 14px;
+    display: grid; place-items: center;
+    border-radius: 15px;
+    color: var(--bad);
+    background: var(--bad-bg);
+  }
+  .panel-msg h2 { margin: 0; font-size: 17px; font-weight: 640; letter-spacing: -.01em; }
+  .panel-msg .pm-detail { margin: 6px 0 0; font-family: var(--mono); font-size: 12.5px; color: var(--dim); }
+  .panel-msg .pm-actions { margin-top: 18px; display: flex; gap: 10px; justify-content: center; align-items: center; flex-wrap: wrap; }
+  .retry-count { font-size: 12px; font-family: var(--mono); color: var(--dim-2); }
+
+  /* ---------- detail drawer ---------- */
+  dialog#detail {
+    border: 0;
+    padding: 0;
+    margin: 0 0 0 auto;
+    height: 100%;
+    max-height: 100%;
+    width: min(470px, 100%);
+    max-width: 100%;
+    background: var(--bg-2);
+    color: var(--text);
+    border-left: 1px solid var(--line);
+    box-shadow: -30px 0 60px -30px rgba(0, 0, 0, .9);
+  }
+  dialog#detail::backdrop { background: rgba(4, 7, 11, .66); backdrop-filter: blur(2px); }
+  dialog#detail[open] { display: flex; flex-direction: column; animation: slidein .17s ease-out; }
+  @keyframes slidein { from { transform: translateX(22px); opacity: .4; } to { transform: none; opacity: 1; } }
+
+  .d-head {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 16px 16px 14px;
+    border-bottom: 1px solid var(--line);
+    flex: none;
+  }
+  .d-head h2 { margin: 0; font-size: 16px; font-weight: 640; letter-spacing: -.01em; }
+  .d-sub { font-size: 12px; color: var(--dim-2); font-family: var(--mono); }
+
+  .icon-btn {
+    width: 32px; height: 32px;
+    display: grid; place-items: center;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: var(--panel);
+    flex: none;
+  }
+  .icon-btn:hover { border-color: var(--line-2); background: var(--panel-2); }
+
+  .d-body { padding: 16px; overflow: auto; flex: 1; }
+  .d-block + .d-block { margin-top: 20px; }
+  .d-block-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+  .d-now { font-family: var(--mono); font-size: 17px; font-weight: 550; }
+  .d-now .unit { font-size: 11px; color: var(--dim-2); margin-left: 2px; font-weight: 400; }
+
+  .chart { position: relative; margin-top: 8px; padding-left: 44px; user-select: none; }
+  .chart .plot-wrap {
+    position: relative;
+    height: 126px;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, .012), transparent);
+    overflow: hidden;
+  }
+  .chart svg.plot { display: block; width: 100%; height: 100%; }
+  .chart .grid-line { stroke: var(--line); stroke-width: 1px; stroke-dasharray: 3 4; }
+  .y-axis {
+    position: absolute;
+    left: 0; top: 0;
+    width: 40px;
+    height: 126px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-end;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    color: var(--dim-2);
+    padding: 2px 0;
+  }
+  .x-axis {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 5px;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    color: var(--dim-2);
+  }
+  .cross {
+    position: absolute;
+    top: 0; bottom: 0;
+    width: 1px;
+    background: var(--dim-2);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .chart.hovering .cross { opacity: .85; }
+  .tipbox {
+    position: absolute;
+    top: 6px;
+    transform: translateX(-50%);
+    padding: 3px 7px;
+    border-radius: 6px;
+    background: rgba(8, 11, 16, .94);
+    border: 1px solid var(--line-2);
+    font-family: var(--mono);
+    font-size: 11px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .chart.hovering .tipbox { opacity: 1; }
+
+  .stats { display: flex; gap: 7px; margin-top: 9px; flex-wrap: wrap; }
+  .stat {
+    flex: 1;
+    min-width: 66px;
+    padding: 7px 9px;
+    border-radius: 8px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+  }
+  .stat span {
+    display: block;
+    font-size: 10px;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    color: var(--dim-2);
+    font-weight: 600;
+  }
+  .stat b { font-family: var(--mono); font-size: 13.5px; font-weight: 550; }
+
+  .d-foot {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border-top: 1px solid var(--line);
+    flex: none;
+  }
+  .copy-msg { font-size: 12px; font-family: var(--mono); color: var(--dim-2); }
+  .copy-msg.ok { color: var(--ok); }
+  .copy-msg.err { color: var(--bad); }
+
+  @media (max-width: 620px) {
+    .app-head { padding: 11px 14px; gap: 10px; }
+    .controls { width: 100%; justify-content: space-between; }
+    .hero { padding: 15px 16px; }
+    .strip { width: 100%; justify-content: space-between; }
+    .seg { width: auto; flex: 1; }
+    .grid { grid-template-columns: 1fr; }
+    dialog#detail {
+      width: 100%;
+      height: 92%;
+      margin: auto 0 0;
+      border-left: 0;
+      border-top: 1px solid var(--line);
+      border-radius: 16px 16px 0 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; }
+  }
+</style>
+</head>
+<body>
+
+<div id="topbar" role="progressbar" aria-label="Loading metrics" hidden></div>
+
+<header class="app-head">
+  <div class="brand">
+    <div class="brand-mark" aria-hidden="true">
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 12h3.5l2.5-7 4 14 2.5-7H21"/>
+      </svg>
+    </div>
+    <div>
+      <div class="title">Service health</div>
+      <div class="sub" id="headSub">Connecting</div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <div class="tabs" role="tablist" aria-label="Time range">
+      <button class="tab" role="tab" type="button" data-range="1h" aria-selected="false">1h</button>
+      <button class="tab" role="tab" type="button" data-range="24h" aria-selected="true">24h</button>
+      <button class="tab" role="tab" type="button" data-range="7d" aria-selected="false">7d</button>
+    </div>
+
+    <button class="btn live-btn" id="liveBtn" type="button" data-live="true" title="Pause auto-refresh">
+      <span class="ring-wrap" aria-hidden="true">
+        <svg class="ring" width="18" height="18" viewBox="0 0 18 18">
+          <circle class="ring-track" cx="9" cy="9" r="7" fill="none" stroke-width="2"/>
+          <circle class="ring-fill" id="ringFill" cx="9" cy="9" r="7" fill="none" stroke-width="2"
+                  stroke-linecap="round" stroke-dasharray="43.98" stroke-dashoffset="0"/>
+        </svg>
+      </span>
+      <span id="liveLabel">Live</span>
+    </button>
+
+    <button class="btn btn-primary" id="refreshBtn" type="button" title="Refresh now">
+      <svg id="refreshIcon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/>
+      </svg>
+      <span id="refreshLabel">Refresh</span>
+    </button>
+  </div>
+</header>
+
+<main>
+  <section class="hero" id="hero" data-worst="none" aria-live="polite">
+    <div class="verdict">
+      <div class="verdict-glyph" id="heroGlyph" aria-hidden="true"></div>
+      <div>
+        <div class="verdict-text" id="heroText">Loading</div>
+        <div class="verdict-sub" id="heroSub">Fetching service metrics</div>
+      </div>
+    </div>
+    <div class="strip" id="strip"></div>
+  </section>
+
+  <div class="error-bar" id="errorBar" hidden role="alert">
+    <span class="eb-icon" aria-hidden="true">
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M12 8v5"/><path d="M12 16.5v.01"/><circle cx="12" cy="12" r="9"/>
+      </svg>
+    </span>
+    <span class="eb-text">
+      <span class="eb-title" id="ebTitle">Refresh failed</span>
+      <span class="eb-detail" id="ebDetail"></span>
+    </span>
+    <button class="btn" id="ebRetry" type="button">Retry</button>
+  </div>
+
+  <section class="grid" id="grid" aria-label="Services"></section>
+  <div id="panelMsg"></div>
+</main>
+
+<dialog id="detail" aria-labelledby="dTitle">
+  <div class="d-head">
+    <span class="glyph" id="dGlyph" aria-hidden="true"></span>
+    <div style="flex:1;min-width:0">
+      <h2 id="dTitle">Service</h2>
+      <div class="d-sub" id="dSub"></div>
+    </div>
+    <button class="icon-btn" id="dClose" type="button" aria-label="Close">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round">
+        <path d="M6 6l12 12M18 6L6 18"/>
+      </svg>
+    </button>
+  </div>
+  <div class="d-body" id="dBody"></div>
+  <div class="d-foot">
+    <button class="btn" id="dCopy" type="button">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/>
+      </svg>
+      <span id="dCopyLabel">Copy summary</span>
+    </button>
+    <span class="copy-msg" id="dCopyMsg"></span>
+  </div>
+</dialog>
+
+<script>
+(function () {
+  "use strict";
+
+  var api = window.api;
+
+  /* ------------------------------------------------------------------ */
+  /* constants                                                          */
+  /* ------------------------------------------------------------------ */
+
+  var RANGES = {
+    "1h":  { ms: 3600e3,   poll: 10000, label: "1h" },
+    "24h": { ms: 86400e3,  poll: 30000, label: "24h" },
+    "7d":  { ms: 604800e3, poll: 60000, label: "7d" }
+  };
+  var RANK = { down: 0, degraded: 1, healthy: 2 };
+  var LABEL = { down: "Down", degraded: "Degraded", healthy: "Healthy" };
+  var SLO = 99.9;
+  var UP_MIN = 97;
+  var SLO_POS = (((SLO - UP_MIN) / (100 - UP_MIN)) * 100).toFixed(1);
+
+  var GLYPH = {
+    healthy: '<svg viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="8" r="5"/></svg>',
+    degraded: '<svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1.6 15.2 14.4H.8Z"/></svg>',
+    down: '<svg viewBox="0 0 16 16" fill="currentColor"><path d="M5.4 1.2h5.2L14.8 5.4v5.2l-4.2 4.2H5.4L1.2 10.6V5.4Z"/></svg>'
+  };
+  var BIG_GLYPH = {
+    healthy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6.5 9.5 17.5 4 12"/></svg>',
+    degraded: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.2 22 20.5H2Z"/><path d="M12 10v4"/><path d="M12 17.2v.01"/></svg>',
+    down: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.2"/><path d="M12 16.4v.01"/></svg>',
+    none: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/></svg>'
+  };
+  var ARROW_UP = '<svg width="9" height="9" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M6 1.5 11 8.5H1Z"/></svg>';
+  var ARROW_DOWN = '<svg width="9" height="9" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M6 10.5 1 3.5h10Z"/></svg>';
+  var ARROW_FLAT = '<svg width="9" height="9" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><rect x="1.5" y="5" width="9" height="2" rx="1"/></svg>';
+  var RING_LEN = 43.98;
+
+  /* ------------------------------------------------------------------ */
+  /* state                                                              */
+  /* ------------------------------------------------------------------ */
+
+  var state = {
+    range: "24h",
+    services: null,     // last successfully loaded payload
+    dataRange: null,    // range that payload belongs to
+    loading: false,
+    error: null,        // { message, code }
+    lastUpdated: 0,
+    failures: 0,
+    live: true,
+    selected: null,
+    nextAt: 0,
+    nextDelay: 0,
+    errScale: 1
+  };
+
+  var lastStatus = Object.create(null);   // name -> status seen on the previous poll
+  var changedAt = Object.create(null);    // name -> when we observed a transition
+  var reqSeq = 0;
+  var inflightRange = null;
+  var pollTimer = null;
+  var cards = new Map();
+  var cardOrder = "";
+
+  var el = {
+    topbar: document.getElementById("topbar"),
+    headSub: document.getElementById("headSub"),
+    tabs: Array.prototype.slice.call(document.querySelectorAll(".tab")),
+    liveBtn: document.getElementById("liveBtn"),
+    liveLabel: document.getElementById("liveLabel"),
+    ringFill: document.getElementById("ringFill"),
+    refreshBtn: document.getElementById("refreshBtn"),
+    refreshLabel: document.getElementById("refreshLabel"),
+    refreshIcon: document.getElementById("refreshIcon"),
+    hero: document.getElementById("hero"),
+    heroGlyph: document.getElementById("heroGlyph"),
+    heroText: document.getElementById("heroText"),
+    heroSub: document.getElementById("heroSub"),
+    strip: document.getElementById("strip"),
+    errorBar: document.getElementById("errorBar"),
+    ebTitle: document.getElementById("ebTitle"),
+    ebDetail: document.getElementById("ebDetail"),
+    ebRetry: document.getElementById("ebRetry"),
+    grid: document.getElementById("grid"),
+    panelMsg: document.getElementById("panelMsg"),
+    detail: document.getElementById("detail"),
+    dGlyph: document.getElementById("dGlyph"),
+    dTitle: document.getElementById("dTitle"),
+    dSub: document.getElementById("dSub"),
+    dBody: document.getElementById("dBody"),
+    dClose: document.getElementById("dClose"),
+    dCopy: document.getElementById("dCopy"),
+    dCopyLabel: document.getElementById("dCopyLabel"),
+    dCopyMsg: document.getElementById("dCopyMsg")
+  };
+
+  /* ------------------------------------------------------------------ */
+  /* helpers                                                            */
+  /* ------------------------------------------------------------------ */
+
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  function num(arr) {
+    var out = [];
+    if (!Array.isArray(arr)) return out;
+    for (var i = 0; i < arr.length; i++) {
+      var v = Number(arr[i]);
+      if (isFinite(v)) out.push(v);
+    }
+    return out;
+  }
+
+  function mean(a) {
+    if (!a.length) return 0;
+    var s = 0;
+    for (var i = 0; i < a.length; i++) s += a[i];
+    return s / a.length;
+  }
+
+  function minOf(a) { return a.length ? Math.min.apply(null, a) : 0; }
+  function maxOf(a) { return a.length ? Math.max.apply(null, a) : 0; }
+  function last(a) { return a.length ? a[a.length - 1] : 0; }
+
+  function fmtMs(v) { return Math.round(v).toLocaleString(); }
+
+  function fmtPct(v) {
+    if (!isFinite(v)) return "0";
+    return v >= 10 ? v.toFixed(1) : v.toFixed(2);
+  }
+
+  function relTime(t) {
+    if (!t) return "never";
+    var s = Math.max(0, Math.round((Date.now() - t) / 1000));
+    if (s < 5) return "just now";
+    if (s < 60) return s + "s ago";
+    var m = Math.round(s / 60);
+    if (m < 60) return m + "m ago";
+    return Math.round(m / 60) + "h ago";
+  }
+
+  function shortAgo(t) {
+    var s = Math.max(0, Math.round((Date.now() - t) / 1000));
+    if (s < 10) return "now";
+    if (s < 60) return s + "s";
+    var m = Math.round(s / 60);
+    if (m < 60) return m + "m";
+    return Math.round(m / 60) + "h";
+  }
+
+  function agoLabel(ms) {
+    var m = Math.round(ms / 60000);
+    if (m < 60) return "-" + m + "m";
+    var h = Math.round(m / 60);
+    if (h < 48) return "-" + h + "h";
+    return "-" + Math.round(h / 24) + "d";
+  }
+
+  function scaleOf(values) {
+    var mn = minOf(values), mx = maxOf(values);
+    if (!isFinite(mn) || !isFinite(mx)) { mn = 0; mx = 1; }
+    if (mx - mn < 1e-9) mx = mn + (Math.abs(mn) > 1e-9 ? Math.abs(mn) * 0.2 : 1);
+    return { min: mn, max: mx };
+  }
+
+  function linePath(values, h, pad) {
+    var n = values.length;
+    if (!n) return "";
+    var s = scaleOf(values);
+    var span = s.max - s.min;
+    var dx = n > 1 ? 100 / (n - 1) : 0;
+    var d = "";
+    for (var i = 0; i < n; i++) {
+      var y = h - pad - ((values[i] - s.min) / span) * (h - 2 * pad);
+      d += (i ? "L" : "M") + (i * dx).toFixed(2) + "," + y.toFixed(2);
+    }
+    return d;
+  }
+
+  function areaPath(values, h, pad) {
+    var d = linePath(values, h, pad);
+    return d ? d + "L100," + h + "L0," + h + "Z" : "";
+  }
+
+  function lastPoint(values, h, pad) {
+    var n = values.length;
+    if (!n) return { x: 0, y: h / 2 };
+    var s = scaleOf(values);
+    return { x: 100, y: h - pad - ((values[n - 1] - s.min) / (s.max - s.min)) * (h - 2 * pad) };
+  }
+
+  function bucket(values, maxBars) {
+    if (values.length <= maxBars) return values.slice();
+    var out = [], size = values.length / maxBars;
+    for (var i = 0; i < maxBars; i++) {
+      var m = -Infinity;
+      var from = Math.floor(i * size);
+      var to = Math.max(from + 1, Math.floor((i + 1) * size));
+      for (var j = from; j < to && j < values.length; j++) if (values[j] > m) m = values[j];
+      out.push(m === -Infinity ? 0 : m);
+    }
+    return out;
+  }
+
+  function barsSVG(values, h, color) {
+    var b = bucket(values, 34);
+    if (!b.length) return "";
+    var mx = maxOf(b);
+    if (mx <= 0) mx = 1;
+    var slot = 100 / b.length;
+    var w = Math.max(1.1, slot * 0.66);
+    var out = "";
+    for (var i = 0; i < b.length; i++) {
+      var frac = b[i] / mx;
+      var bh = Math.max(1.2, frac * h);
+      var x = i * slot + (slot - w) / 2;
+      out += '<rect x="' + x.toFixed(2) + '" y="' + (h - bh).toFixed(2) +
+             '" width="' + w.toFixed(2) + '" height="' + bh.toFixed(2) +
+             '" rx="0.6" fill="' + color + '" fill-opacity="' + (0.32 + 0.68 * frac).toFixed(2) + '"/>';
+    }
+    return out;
+  }
+
+  function trendPct(values) {
+    if (values.length < 4) return 0;
+    var k = Math.max(1, Math.floor(values.length / 4));
+    var a = mean(values.slice(0, k));
+    var b = mean(values.slice(values.length - k));
+    if (Math.abs(a) < 1e-9) return b > 0 ? 100 : 0;
+    return ((b - a) / Math.abs(a)) * 100;
+  }
+
+  function trendHTML(pct) {
+    var abs = Math.abs(pct);
+    if (abs < 3) return '<span class="trend t-flat">' + ARROW_FLAT + "flat</span>";
+    return '<span class="trend ' + (pct > 0 ? "t-bad" : "t-good") + '">' +
+      (pct > 0 ? ARROW_UP : ARROW_DOWN) + Math.round(abs) + "%</span>";
+  }
+
+  function normStatus(s) {
+    return (s === "down" || s === "degraded" || s === "healthy") ? s : "degraded";
+  }
+
+  function sortServices(list) {
+    return list.slice().sort(function (a, b) {
+      var d = RANK[normStatus(a.status)] - RANK[normStatus(b.status)];
+      return d || String(a.name).localeCompare(String(b.name));
+    });
+  }
+
+  /* errorRate may arrive as a fraction (0..1) or as a percentage; detect per payload */
+  function detectErrScale(list) {
+    var mx = 0;
+    for (var i = 0; i < list.length; i++) {
+      var m = maxOf(num(list[i].errorRate));
+      if (m > mx) mx = m;
+    }
+    return mx <= 1.0001 ? 100 : 1;
+  }
+
+  function errSeries(svc) {
+    var raw = num(svc.errorRate);
+    if (state.errScale === 1) return raw;
+    var out = new Array(raw.length);
+    for (var i = 0; i < raw.length; i++) out[i] = raw[i] * 100;
+    return out;
+  }
+
+  function accentOf(status) {
+    return status === "down" ? "#fb7185" : status === "degraded" ? "#fbbf24" : "#34d399";
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* data loading                                                       */
+  /* ------------------------------------------------------------------ */
+
+  function clearPoll() {
+    if (pollTimer) { clearTimeout(pollTimer); pollTimer = null; }
+    state.nextAt = 0;
+  }
+
+  function schedule() {
+    clearPoll();
+    if (!state.live || document.hidden) { renderRing(); return; }
+    var delay = state.error
+      ? Math.min(30000, 3000 * Math.pow(2, Math.max(0, state.failures - 1)))
+      : RANGES[state.range].poll;
+    state.nextDelay = delay;
+    state.nextAt = Date.now() + delay;
+    pollTimer = setTimeout(load, delay);
+    renderRing();
+  }
+
+  function settle(seq, range) {
+    if (seq !== reqSeq) return;
+    if (inflightRange === range) inflightRange = null;
+    state.loading = false;
+    render();
+    schedule();
+  }
+
+  function load() {
+    var range = state.range;
+    if (inflightRange === range) return;   // an identical request is already pending
+    clearPoll();
+    var seq = ++reqSeq;
+    inflightRange = range;
+    state.loading = true;
+    renderChrome();
+
+    api.getMetrics(range).then(function (res) {
+      if (seq !== reqSeq) return;          // superseded by a newer request
+      var list = (res && Array.isArray(res.services)) ? res.services : [];
+      state.errScale = detectErrScale(list);
+
+      for (var i = 0; i < list.length; i++) {
+        var nm = String(list[i].name);
+        var st = normStatus(list[i].status);
+        if (lastStatus[nm] !== undefined && lastStatus[nm] !== st) changedAt[nm] = Date.now();
+        lastStatus[nm] = st;
+      }
+
+      state.services = list;
+      state.dataRange = range;
+      state.lastUpdated = Date.now();
+      state.error = null;
+      state.failures = 0;
+      settle(seq, range);
+    }, function (err) {
+      if (seq !== reqSeq) return;
+      state.failures++;
+      state.error = {
+        message: (err && err.message) ? String(err.message) : "Request failed",
+        code: (err && err.code) ? String(err.code) : "UNKNOWN"
+      };
+      settle(seq, range);
+    });
+  }
+
+  function setRange(range) {
+    if (!RANGES[range] || range === state.range) return;  // repeat clicks are ignored
+    state.range = range;
+    state.failures = 0;
+    state.error = null;
+    load();
+    render();
+  }
+
+  function manualRefresh() {
+    if (state.loading) return;   // never fire a second request while one is pending
+    load();
+    render();
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* render: chrome                                                     */
+  /* ------------------------------------------------------------------ */
+
+  function renderRing() {
+    var frac = 0;
+    if (state.loading) frac = 1;
+    else if (state.live && state.nextAt) {
+      frac = Math.max(0, Math.min(1, (state.nextAt - Date.now()) / Math.max(1, state.nextDelay)));
+    }
+    el.ringFill.setAttribute("stroke-dashoffset", (RING_LEN * (1 - frac)).toFixed(2));
+    if (state.live && state.nextAt && !state.loading) {
+      el.liveBtn.setAttribute("aria-label",
+        "Auto-refresh on, next in " + Math.max(0, Math.round((state.nextAt - Date.now()) / 1000)) + " seconds. Pause");
+    } else {
+      el.liveBtn.setAttribute("aria-label", state.live ? "Auto-refresh on. Pause" : "Auto-refresh paused. Resume");
+    }
+  }
+
+  function renderChrome() {
+    el.topbar.hidden = !state.loading;
+    el.refreshBtn.disabled = state.loading;
+    el.refreshLabel.textContent = state.loading ? "Refreshing" : "Refresh";
+    el.refreshIcon.style.animation = state.loading ? "spin .9s linear infinite" : "";
+
+    for (var i = 0; i < el.tabs.length; i++) {
+      var t = el.tabs[i];
+      var on = t.dataset.range === state.range;
+      t.setAttribute("aria-selected", on ? "true" : "false");
+      var mark = t.querySelector(".dotload");
+      if (on && state.loading) {
+        if (!mark) {
+          mark = document.createElement("span");
+          mark.className = "dotload";
+          t.appendChild(mark);
+        }
+      } else if (mark) {
+        mark.remove();
+      }
+    }
+
+    el.liveBtn.dataset.live = state.live ? "true" : "false";
+    el.liveLabel.textContent = state.live ? "Live" : "Paused";
+    el.liveBtn.title = state.live ? "Pause auto-refresh" : "Resume auto-refresh";
+
+    var bits = [];
+    if (state.services) bits.push(state.services.length + " services");
+    bits.push(RANGES[state.range].label + " window");
+    bits.push(state.lastUpdated ? relTime(state.lastUpdated) : (state.loading ? "loading" : "no data"));
+    el.headSub.textContent = bits.join(" · ");
+
+    renderRing();
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* render: hero + strip                                               */
+  /* ------------------------------------------------------------------ */
+
+  function renderHero() {
+    var list = state.services;
+
+    if (!list) {
+      el.hero.dataset.worst = "none";
+      el.heroGlyph.style.color = "var(--dim-2)";
+      el.heroGlyph.style.background = "rgba(255,255,255,.04)";
+      el.heroGlyph.innerHTML = BIG_GLYPH.none;
+      el.heroText.textContent = state.error ? "Status unknown" : "Loading";
+      el.heroSub.textContent = state.error ? "Metrics unavailable" : "Fetching service metrics";
+      el.strip.innerHTML = "";
+      delete el.strip.dataset.key;
+      return;
+    }
+
+    var down = 0, deg = 0, ok = 0;
+    for (var i = 0; i < list.length; i++) {
+      var s = normStatus(list[i].status);
+      if (s === "down") down++; else if (s === "degraded") deg++; else ok++;
+    }
+    var worst = down ? "down" : (deg ? "degraded" : (list.length ? "healthy" : "none"));
+    el.hero.dataset.worst = worst;
+
+    var color = worst === "down" ? "var(--bad)" : worst === "degraded" ? "var(--warn)" : "var(--ok)";
+    var bgc = worst === "down" ? "var(--bad-bg)" : worst === "degraded" ? "var(--warn-bg)" : "var(--ok-bg)";
+    el.heroGlyph.style.color = list.length ? color : "var(--dim-2)";
+    el.heroGlyph.style.background = list.length ? bgc : "rgba(255,255,255,.04)";
+    el.heroGlyph.innerHTML = BIG_GLYPH[worst] || BIG_GLYPH.none;
+
+    var head;
+    if (down && deg) head = down + " down · " + deg + " degraded";
+    else if (down) head = down + (down === 1 ? " service down" : " services down");
+    else if (deg) head = deg + (deg === 1 ? " service degraded" : " services degraded");
+    else if (list.length) head = "All systems healthy";
+    else head = "No services";
+    el.heroText.textContent = head;
+
+    var sub = ok + " healthy of " + list.length + '<span class="sep">·</span>' + esc(relTime(state.lastUpdated));
+    if (state.error) {
+      sub += '<span class="stale-chip"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" ' +
+        'stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><circle cx="12" cy="12" r="9"/>' +
+        '<path d="M12 7.5V12l3 2"/></svg>stale</span>';
+    }
+    el.heroSub.innerHTML = sub;
+
+    var sorted = sortServices(list);
+    var key = sorted.map(function (s) { return s.name + ":" + normStatus(s.status); }).join("|");
+    if (el.strip.dataset.key !== key) {
+      el.strip.dataset.key = key;
+      var html = "";
+      for (var k = 0; k < sorted.length; k++) {
+        var st = normStatus(sorted[k].status);
+        var nm = esc(sorted[k].name);
+        html += '<button class="seg" type="button" data-status="' + st + '" data-name="' + nm +
+          '" title="' + nm + " — " + LABEL[st] + '" aria-label="' + nm + ", " + LABEL[st] +
+          '"><span class="seg-bar"></span><span class="seg-cap"></span></button>';
+      }
+      el.strip.innerHTML = html;
+    }
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* render: cards                                                      */
+  /* ------------------------------------------------------------------ */
+
+  function buildCard(name) {
+    var btn = document.createElement("button");
+    btn.className = "card";
+    btn.type = "button";
+    btn.dataset.name = name;
+    btn.innerHTML =
+      '<span class="card-head">' +
+        '<span class="glyph"></span>' +
+        '<span class="svc-name"></span>' +
+        '<span class="changed"><svg width="9" height="9" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true">' +
+          '<circle cx="6" cy="6" r="3.4"/></svg><span class="changed-t"></span></span>' +
+        '<span class="badge"></span>' +
+      "</span>" +
+      '<span class="metrics">' +
+        '<span class="metric">' +
+          '<span class="m-top"><span class="m-label">Latency</span><span class="m-val lat-val"></span></span>' +
+          '<svg class="spark" viewBox="0 0 100 34" preserveAspectRatio="none" aria-hidden="true">' +
+            '<path class="area lat-area"></path>' +
+            '<path class="line lat-line" vector-effect="non-scaling-stroke"></path>' +
+            '<circle class="tip lat-tip" r="2.2" vector-effect="non-scaling-stroke"></circle>' +
+          "</svg>" +
+          '<span class="m-foot"><span class="lat-trend"></span><span class="lat-span"></span></span>' +
+        "</span>" +
+        '<span class="metric">' +
+          '<span class="m-top"><span class="m-label">Errors</span><span class="m-val err-val"></span></span>' +
+          '<svg class="bars err-bars" viewBox="0 0 100 30" preserveAspectRatio="none" aria-hidden="true"></svg>' +
+          '<span class="m-foot"><span class="err-trend"></span><span class="err-span"></span></span>' +
+        "</span>" +
+        '<span class="metric">' +
+          '<span class="m-top"><span class="m-label">Uptime</span><span class="m-val up-val"></span></span>' +
+          '<span class="uptime-row">' +
+            '<span class="meter-wrap">' +
+              '<meter class="up-meter" min="97" max="100" low="99.5" high="99.9" optimum="100" value="100"></meter>' +
+              '<span class="slo-tick" style="left:' + SLO_POS + '%"></span>' +
+            "</span>" +
+            '<span class="m-foot" style="margin:0"><span>SLO ' + SLO + "%</span></span>" +
+          "</span>" +
+        "</span>" +
+      "</span>";
+
+    var refs = {
+      el: btn,
+      glyph: btn.querySelector(".glyph"),
+      name: btn.querySelector(".svc-name"),
+      badge: btn.querySelector(".badge"),
+      changed: btn.querySelector(".changed"),
+      changedT: btn.querySelector(".changed-t"),
+      latVal: btn.querySelector(".lat-val"),
+      latArea: btn.querySelector(".lat-area"),
+      latLine: btn.querySelector(".lat-line"),
+      latTip: btn.querySelector(".lat-tip"),
+      latTrend: btn.querySelector(".lat-trend"),
+      latSpan: btn.querySelector(".lat-span"),
+      errVal: btn.querySelector(".err-val"),
+      errBars: btn.querySelector(".err-bars"),
+      errTrend: btn.querySelector(".err-trend"),
+      errSpan: btn.querySelector(".err-span"),
+      upVal: btn.querySelector(".up-val"),
+      upMeter: btn.querySelector(".up-meter")
+    };
+    btn.addEventListener("click", function () { openDetail(name); });
+    return refs;
+  }
+
+  function updateChangedChip(c, name) {
+    var ch = changedAt[name];
+    if (ch && Date.now() - ch < 300000) {
+      c.changed.classList.add("on");
+      c.changedT.textContent = shortAgo(ch);
+      c.changed.title = "Status changed " + relTime(ch);
+    } else {
+      c.changed.classList.remove("on");
+    }
+  }
+
+  function updateCard(c, svc) {
+    var st = normStatus(svc.status);
+    var lat = num(svc.latencyMs);
+    var errs = errSeries(svc);
+    var up = Number(svc.uptimePct);
+    var accent = accentOf(st);
+
+    c.el.dataset.status = st;
+    c.name.textContent = svc.name;
+    c.glyph.className = "glyph g-" + st + (st === "down" ? " pulse" : "");
+    c.glyph.innerHTML = GLYPH[st];
+    c.badge.className = "badge b-" + st;
+    c.badge.textContent = LABEL[st];
+    updateChangedChip(c, String(svc.name));
+
+    c.latVal.innerHTML = lat.length ? esc(fmtMs(last(lat))) + '<span class="unit">ms</span>' : "—";
+    c.latArea.setAttribute("d", areaPath(lat, 34, 4));
+    c.latArea.setAttribute("fill", accent);
+    c.latArea.setAttribute("fill-opacity", "0.14");
+    c.latLine.setAttribute("d", linePath(lat, 34, 4));
+    c.latLine.setAttribute("stroke", accent);
+    var lp = lastPoint(lat, 34, 4);
+    c.latTip.setAttribute("cx", lp.x);
+    c.latTip.setAttribute("cy", lp.y.toFixed(2));
+    c.latTip.setAttribute("fill", accent);
+    c.latTip.style.display = lat.length ? "" : "none";
+    c.latTrend.innerHTML = lat.length ? trendHTML(trendPct(lat)) : "";
+    c.latSpan.textContent = lat.length ? fmtMs(minOf(lat)) + "–" + fmtMs(maxOf(lat)) + " ms" : "no data";
+
+    c.errVal.innerHTML = errs.length ? esc(fmtPct(last(errs))) + '<span class="unit">%</span>' : "—";
+    c.errBars.innerHTML = barsSVG(errs, 30, "#fb7185");
+    c.errTrend.innerHTML = errs.length ? trendHTML(trendPct(errs)) : "";
+    c.errSpan.textContent = errs.length ? "peak " + fmtPct(maxOf(errs)) + "%" : "no data";
+
+    if (isFinite(up)) {
+      c.upVal.innerHTML = esc(up.toFixed(2)) + '<span class="unit">%</span>';
+      c.upMeter.value = Math.max(UP_MIN, Math.min(100, up));
+      c.upMeter.title = "Uptime " + up.toFixed(2) + "% (SLO " + SLO + "%)";
+    } else {
+      c.upVal.textContent = "—";
+      c.upMeter.value = UP_MIN;
+    }
+
+    c.el.setAttribute("aria-label",
+      svc.name + ", " + LABEL[st] +
+      ". Latency " + (lat.length ? fmtMs(last(lat)) + " ms" : "unknown") +
+      ", errors " + (errs.length ? fmtPct(last(errs)) + "%" : "unknown") +
+      ", uptime " + (isFinite(up) ? up.toFixed(2) + "%" : "unknown") + ". Open details");
+  }
+
+  function renderSkeletons() {
+    if (el.grid.dataset.mode === "skel") return;
+    el.grid.dataset.mode = "skel";
+    cards.clear();
+    cardOrder = "";
+    var html = "";
+    for (var i = 0; i < 6; i++) html += '<div class="skel"></div>';
+    el.grid.innerHTML = html;
+  }
+
+  function renderCards() {
+    var list = state.services;
+
+    if (!list) {
+      if (state.error) {
+        if (el.grid.dataset.mode !== "none") {
+          el.grid.innerHTML = "";
+          el.grid.dataset.mode = "none";
+          cards.clear();
+          cardOrder = "";
+        }
+      } else {
+        renderSkeletons();
+      }
+      return;
+    }
+
+    if (el.grid.dataset.mode !== "cards") {
+      el.grid.innerHTML = "";
+      el.grid.dataset.mode = "cards";
+      cards.clear();
+      cardOrder = "";
+    }
+
+    var sorted = sortServices(list);
+    var seen = Object.create(null);
+
+    for (var i = 0; i < sorted.length; i++) {
+      var key = String(sorted[i].name);
+      seen[key] = true;
+      var c = cards.get(key);
+      if (!c) { c = buildCard(key); cards.set(key, c); el.grid.appendChild(c.el); }
+      updateCard(c, sorted[i]);
+    }
+
+    cards.forEach(function (c, key) {
+      if (!seen[key]) { c.el.remove(); cards.delete(key); }
+    });
+
+    var order = sorted.map(function (s) { return s.name; }).join("|");
+    if (order !== cardOrder) {
+      cardOrder = order;
+      for (var j = 0; j < sorted.length; j++) el.grid.appendChild(cards.get(String(sorted[j].name)).el);
+    }
+
+    el.grid.classList.toggle("updating", state.loading && state.dataRange !== state.range);
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* render: errors                                                     */
+  /* ------------------------------------------------------------------ */
+
+  function renderErrors() {
+    var hasData = !!state.services;
+
+    if (state.error && hasData) {
+      el.errorBar.hidden = false;
+      el.ebTitle.textContent = "Refresh failed — showing last known data";
+      var d = state.error.message + " · " + state.error.code + " · last good " + relTime(state.lastUpdated);
+      if (state.live && state.nextAt && !state.loading) {
+        d += " · auto-retry in " + Math.max(0, Math.round((state.nextAt - Date.now()) / 1000)) + "s";
+      }
+      el.ebDetail.textContent = d;
+      el.ebRetry.disabled = state.loading;
+      el.ebRetry.textContent = state.loading ? "Retrying" : "Retry";
+    } else {
+      el.errorBar.hidden = true;
+    }
+
+    if (state.error && !hasData) {
+      if (el.panelMsg.dataset.mode !== "error") {
+        el.panelMsg.dataset.mode = "error";
+        el.panelMsg.innerHTML =
+          '<div class="panel-msg">' +
+            '<div class="pm-glyph"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+              'stroke-width="2" stroke-linecap="round"><path d="M12 8v5"/><path d="M12 16.5v.01"/>' +
+              '<circle cx="12" cy="12" r="9"/></svg></div>' +
+            "<h2>Can't reach the metrics API</h2>" +
+            '<p class="pm-detail" id="pmDetail"></p>' +
+            '<div class="pm-actions">' +
+              '<button class="btn btn-primary" id="pmRetry" type="button">Retry now</button>' +
+              '<span class="retry-count" id="pmCount"></span>' +
+            "</div>" +
+          "</div>";
+        document.getElementById("pmRetry").addEventListener("click", manualRefresh);
+      }
+      var det = document.getElementById("pmDetail");
+      var cnt = document.getElementById("pmCount");
+      var rb = document.getElementById("pmRetry");
+      if (det) det.textContent = state.error.message + " · " + state.error.code + " · attempt " + state.failures;
+      if (rb) { rb.disabled = state.loading; rb.textContent = state.loading ? "Retrying" : "Retry now"; }
+      if (cnt) {
+        cnt.textContent = state.loading
+          ? "contacting server"
+          : (state.live && state.nextAt
+              ? "auto-retry in " + Math.max(0, Math.round((state.nextAt - Date.now()) / 1000)) + "s"
+              : "auto-retry paused");
+      }
+    } else if (!state.error && hasData && state.services.length === 0) {
+      if (el.panelMsg.dataset.mode !== "empty") {
+        el.panelMsg.dataset.mode = "empty";
+        el.panelMsg.innerHTML =
+          '<div class="panel-msg"><div class="pm-glyph" style="color:var(--dim);background:rgba(255,255,255,.04)">' +
+          '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
+          'stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg></div>' +
+          '<h2>No services reporting</h2><p class="pm-detail">Nothing registered in this window.</p></div>';
+      }
+    } else if (el.panelMsg.dataset.mode !== "none") {
+      el.panelMsg.dataset.mode = "none";
+      el.panelMsg.innerHTML = "";
+    }
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* detail drawer                                                      */
+  /* ------------------------------------------------------------------ */
+
+  function findService(name) {
+    if (!state.services) return null;
+    for (var i = 0; i < state.services.length; i++) {
+      if (String(state.services[i].name) === String(name)) return state.services[i];
+    }
+    return null;
+  }
+
+  function chartHTML(cls, values, unit, color, mode) {
+    if (!values.length) return '<div class="chart"><div class="plot-wrap"></div></div>';
+    var s = scaleOf(values);
+    var body = mode === "bars"
+      ? barsSVG(values, 100, color)
+      : '<path d="' + areaPath(values, 100, 6) + '" fill="' + color + '" fill-opacity="0.15"/>' +
+        '<path d="' + linePath(values, 100, 6) + '" fill="none" stroke="' + color +
+        '" stroke-width="1.8" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>';
+    var grid = "";
+    for (var g = 1; g < 4; g++) {
+      grid += '<line class="grid-line" x1="0" x2="100" y1="' + (g * 25) + '" y2="' + (g * 25) +
+              '" vector-effect="non-scaling-stroke"/>';
+    }
+    var fmt = unit === "ms" ? fmtMs : fmtPct;
+    var top = mode === "bars" ? maxOf(values) : s.max;
+    var bot = mode === "bars" ? 0 : s.min;
+    var span = RANGES[state.dataRange || state.range].ms;
+    return '<div class="chart ' + cls + '">' +
+      '<div class="y-axis"><span>' + esc(fmt(top)) + "</span><span>" + esc(fmt(bot)) + "</span></div>" +
+      '<div class="plot-wrap">' +
+        '<svg class="plot" viewBox="0 0 100 100" preserveAspectRatio="none">' + grid + body + "</svg>" +
+        '<div class="cross"></div><div class="tipbox"></div>' +
+      "</div>" +
+      '<div class="x-axis"><span>' + esc(agoLabel(span)) + "</span><span>now</span></div>" +
+      "</div>";
+  }
+
+  function statsHTML(values, unit) {
+    if (!values.length) return "";
+    var fmt = unit === "ms" ? fmtMs : fmtPct;
+    return '<div class="stats">' +
+      '<div class="stat"><span>now</span><b>' + esc(fmt(last(values))) + "</b></div>" +
+      '<div class="stat"><span>min</span><b>' + esc(fmt(minOf(values))) + "</b></div>" +
+      '<div class="stat"><span>avg</span><b>' + esc(fmt(mean(values))) + "</b></div>" +
+      '<div class="stat"><span>max</span><b>' + esc(fmt(maxOf(values))) + "</b></div>" +
+      "</div>";
+  }
+
+  function wireChart(chart, values, unit) {
+    var wrap = chart.querySelector(".plot-wrap");
+    var cross = chart.querySelector(".cross");
+    var tip = chart.querySelector(".tipbox");
+    if (!wrap || !cross || !tip || !values.length) return;
+    var span = RANGES[state.dataRange || state.range].ms;
+    var fmt = unit === "ms" ? fmtMs : fmtPct;
+
+    wrap.addEventListener("pointermove", function (e) {
+      var r = wrap.getBoundingClientRect();
+      if (!r.width) return;
+      var x = Math.max(0, Math.min(r.width, e.clientX - r.left));
+      var idx = values.length > 1 ? Math.round((x / r.width) * (values.length - 1)) : 0;
+      idx = Math.max(0, Math.min(values.length - 1, idx));
+      var px = values.length > 1 ? (idx / (values.length - 1)) * r.width : r.width / 2;
+      cross.style.left = px + "px";
+      tip.style.left = Math.max(44, Math.min(r.width - 44, px)) + "px";
+      var age = (values.length - 1 - idx) * (span / values.length);
+      tip.textContent = fmt(values[idx]) + (unit === "ms" ? " ms" : "%") + "   " + (age < 30000 ? "now" : agoLabel(age));
+      chart.classList.add("hovering");
+    });
+    wrap.addEventListener("pointerleave", function () { chart.classList.remove("hovering"); });
+  }
+
+  function detailSub(svc) {
+    var s = LABEL[normStatus(svc.status)] + " · " + RANGES[state.dataRange || state.range].label +
+      " · " + relTime(state.lastUpdated);
+    if (state.loading) s += " · refreshing";
+    else if (state.error) s += " · stale";
+    return s;
+  }
+
+  function renderDetail() {
+    if (!state.selected || !el.detail.open) return;
+    var svc = findService(state.selected);
+
+    if (!svc) {
+      el.dTitle.textContent = state.selected;
+      el.dSub.textContent = "Not in the current window";
+      el.dGlyph.className = "glyph";
+      el.dGlyph.innerHTML = "";
+      el.dBody.innerHTML =
+        '<div class="panel-msg" style="margin:0;padding:34px 18px">' +
+          '<div class="pm-glyph" style="color:var(--dim);background:rgba(255,255,255,.04)">' +
+          '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
+          'stroke-linecap="round"><path d="M12 8v5"/><path d="M12 16.5v.01"/><circle cx="12" cy="12" r="9"/></svg></div>' +
+          "<h2>No data for this service</h2>" +
+          '<p class="pm-detail">' + esc(RANGES[state.range].label) + " window</p></div>";
+      return;
+    }
+
+    var st = normStatus(svc.status);
+    var lat = num(svc.latencyMs);
+    var errs = errSeries(svc);
+    var up = Number(svc.uptimePct);
+    var accent = accentOf(st);
+    var upClamped = isFinite(up) ? Math.max(UP_MIN, Math.min(100, up)) : UP_MIN;
+
+    el.dGlyph.className = "glyph g-" + st + (st === "down" ? " pulse" : "");
+    el.dGlyph.innerHTML = GLYPH[st];
+    el.dTitle.textContent = svc.name;
+    el.dSub.textContent = detailSub(svc);
+
+    el.dBody.innerHTML =
+      '<div class="d-block">' +
+        '<div class="d-block-head"><span class="m-label">Latency</span><span class="d-now">' +
+          (lat.length ? esc(fmtMs(last(lat))) + '<span class="unit">ms</span>' : "—") + "</span></div>" +
+        chartHTML("lat-chart", lat, "ms", accent, "line") +
+        statsHTML(lat, "ms") +
+      "</div>" +
+      '<div class="d-block">' +
+        '<div class="d-block-head"><span class="m-label">Error rate</span><span class="d-now">' +
+          (errs.length ? esc(fmtPct(last(errs))) + '<span class="unit">%</span>' : "—") + "</span></div>" +
+        chartHTML("err-chart", errs, "%", "#fb7185", "bars") +
+        statsHTML(errs, "%") +
+      "</div>" +
+      '<div class="d-block">' +
+        '<div class="d-block-head"><span class="m-label">Uptime</span><span class="d-now">' +
+          (isFinite(up) ? esc(up.toFixed(2)) + '<span class="unit">%</span>' : "—") + "</span></div>" +
+        '<div class="uptime-row">' +
+          '<span class="meter-wrap">' +
+            '<meter min="97" max="100" low="99.5" high="99.9" optimum="100" value="' + upClamped + '"></meter>' +
+            '<span class="slo-tick" style="left:' + SLO_POS + '%"></span>' +
+          "</span>" +
+        "</div>" +
+        '<div class="m-foot"><span>97%</span><span>SLO ' + SLO + "%</span><span>100%</span></div>" +
+        '<div class="m-foot">' +
+          (isFinite(up) && up < SLO
+            ? '<span class="trend t-bad">' + ARROW_DOWN + "below SLO</span>"
+            : '<span class="trend t-good">' + ARROW_UP + "meets SLO</span>") +
+          "<span>" + esc((((upClamped - UP_MIN) / (100 - UP_MIN)) * 100).toFixed(0)) + "% of band</span>" +
+        "</div>" +
+      "</div>";
+
+    var latChart = el.dBody.querySelector(".lat-chart");
+    var errChart = el.dBody.querySelector(".err-chart");
+    if (latChart) wireChart(latChart, lat, "ms");
+    if (errChart) wireChart(errChart, errs, "%");
+  }
+
+  function openDetail(name) {
+    state.selected = name;
+    el.dCopyMsg.textContent = "";
+    el.dCopyMsg.className = "copy-msg";
+    el.dCopyLabel.textContent = "Copy summary";
+    if (!el.detail.open) el.detail.showModal();
+    renderDetail();
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* master render                                                      */
+  /* ------------------------------------------------------------------ */
+
+  function render() {
+    renderChrome();
+    renderHero();
+    renderCards();
+    renderErrors();
+    renderDetail();
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* events                                                             */
+  /* ------------------------------------------------------------------ */
+
+  el.tabs.forEach(function (t) {
+    t.addEventListener("click", function () { setRange(t.dataset.range); });
+  });
+
+  el.refreshBtn.addEventListener("click", manualRefresh);
+  el.ebRetry.addEventListener("click", manualRefresh);
+
+  el.liveBtn.addEventListener("click", function () {
+    state.live = !state.live;
+    if (state.live) {
+      if (state.loading) schedule(); else load();
+    } else {
+      clearPoll();
+    }
+    render();
+  });
+
+  el.strip.addEventListener("click", function (e) {
+    var seg = e.target && e.target.closest ? e.target.closest(".seg") : null;
+    if (seg) openDetail(seg.dataset.name);
+  });
+
+  el.dClose.addEventListener("click", function () { el.detail.close(); });
+
+  el.detail.addEventListener("click", function (e) {
+    if (e.target === el.detail) el.detail.close();   // click outside the panel
+  });
+
+  el.detail.addEventListener("close", function () {
+    state.selected = null;
+    el.dBody.innerHTML = "";
+  });
+
+  el.dCopy.addEventListener("click", function () {
+    var svc = findService(state.selected);
+    if (!svc) return;
+    var lat = num(svc.latencyMs), errs = errSeries(svc), up = Number(svc.uptimePct);
+    var text = [
+      svc.name + " — " + LABEL[normStatus(svc.status)],
+      "window: " + RANGES[state.dataRange || state.range].label,
+      "latency: now " + fmtMs(last(lat)) + " ms, avg " + fmtMs(mean(lat)) + " ms, max " + fmtMs(maxOf(lat)) + " ms",
+      "errors: now " + fmtPct(last(errs)) + "%, max " + fmtPct(maxOf(errs)) + "%",
+      "uptime: " + (isFinite(up) ? up.toFixed(2) + "%" : "unknown") + " (SLO " + SLO + "%)",
+      "observed: " + new Date(state.lastUpdated || Date.now()).toISOString()
+    ].join("\n");
+
+    function ok() {
+      el.dCopyMsg.textContent = "Copied to clipboard";
+      el.dCopyMsg.className = "copy-msg ok";
+      el.dCopyLabel.textContent = "Copied";
+      setTimeout(function () {
+        el.dCopyLabel.textContent = "Copy summary";
+        el.dCopyMsg.textContent = "";
+        el.dCopyMsg.className = "copy-msg";
+      }, 1800);
+    }
+    function fail() {
+      el.dCopyMsg.textContent = "Clipboard blocked by browser";
+      el.dCopyMsg.className = "copy-msg err";
+    }
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(ok, fail);
+    } else {
+      fail();
+    }
+  });
+
+  document.addEventListener("visibilitychange", function () {
+    if (document.hidden) clearPoll();
+    else if (state.live) { load(); render(); }
+  });
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "r" || e.metaKey || e.ctrlKey || e.altKey) return;
+    var ae = document.activeElement;
+    var tag = ae && ae.tagName ? ae.tagName : "";
+    if (tag === "INPUT" || tag === "TEXTAREA" || (ae && ae.isContentEditable)) return;
+    manualRefresh();
+  });
+
+  /* keep relative times, the countdown ring and retry counters honest */
+  setInterval(function () {
+    renderRing();
+    if (!state.services && !state.error) return;
+    renderChrome();
+    if (state.services) {
+      renderHero();
+      cards.forEach(updateChangedChip);
+    }
+    renderErrors();
+    if (el.detail.open) {
+      var svc = findService(state.selected);
+      if (svc) el.dSub.textContent = detailSub(svc);
+    }
+  }, 1000);
+
+  /* ------------------------------------------------------------------ */
+  /* boot                                                               */
+  /* ------------------------------------------------------------------ */
+
+  if (!api || typeof api.getMetrics !== "function") {
+    state.error = { message: "Metrics API is not available on this page", code: "NO_API" };
+    state.failures = 1;
+    state.live = false;
+    render();
+    return;
+  }
+
+  renderSkeletons();   // on screen before the first response lands
+  render();
+  load();
+})();
+</script>
+</body>
+</html>

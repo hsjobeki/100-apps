@@ -1,0 +1,66 @@
+{
+  "id": "a8143c63",
+  "items": [
+    {
+      "n": 1,
+      "verdict": "PASS",
+      "reason": "Under slow latency the table shows skeleton loading bars within 280 ms of navigation (30 .skeleton-bar elements observed), the clicked Retry button is visibly disabled (opacity 0.4, cursor not-allowed) 124 ms after click, and the Refresh button gets a spinning icon within 200 ms.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/a8143c63_1.png"
+    },
+    {
+      "n": 2,
+      "verdict": "PASS",
+      "reason": "While a retry is pending the row's action button is disabled (.action-btn:disabled { opacity: 0.4; cursor: not-allowed }); three clicks within 300 ms under slow latency produced exactly one retryJob call in window.__apiLog.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/a8143c63_2.png"
+    },
+    {
+      "n": 3,
+      "verdict": "PASS",
+      "reason": "Every running job row shows a graphical progress bar plus a numeric percent (e.g. 'Running 67%'), failed jobs show a partial red bar with 'Stopped at 38%', and succeeded jobs show a full green bar; these track the API's job progress values.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/a8143c63_3.png"
+    },
+    {
+      "n": 4,
+      "verdict": "PASS",
+      "reason": "Queued and running jobs have a Cancel button; clicking it issued one cancelJob call, the row updated to 'Failed / Cancelled by admin' with a Retry button, and a toast 'Job job_6c43ad cancelled' confirmed it.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/a8143c63_4.png"
+    },
+    {
+      "n": 5,
+      "verdict": "PASS",
+      "reason": "With fail=1 a failed retry raised a visible toast naming the exact action and cause ('Network error — could not retry job'), and each failed job row shows its specific server error (e.g. 'Row 88: column \"email\" is empty') in red directly beside its Retry button; only caveat is the action-failure toast sits bottom-right rather than in the row.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/a8143c63_5.png"
+    },
+    {
+      "n": 6,
+      "verdict": "PASS",
+      "reason": "After the retry failed on the network, the row returned to its Failed state with the Retry button re-enabled; clicking it again fired a second retryJob call (retryJob count went 1 to 2) with no page reload.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/a8143c63_6.png"
+    },
+    {
+      "n": 7,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief: the page is a job-queue admin table with no form submitting field-level payloads, so API field-validation mapping cannot arise.",
+      "evidence": "Page contains no form fields: table columns are 'JOB ID STATUS PROGRESS DETAILS ACTIONS'; only buttons are filter tabs, Refresh, Retry, Cancel."
+    },
+    {
+      "n": 8,
+      "verdict": "PASS",
+      "reason": "The page polls listJobs every 3 s ('Auto-refresh on' badge); with no interaction over 9 s, job_c9fff9 advanced from 'Running 48%' to 'Running 81%' and job_f692a8 went from 'Running 92%' to 'Succeeded Complete 8,931 rows · Download'.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/a8143c63_8.png"
+    },
+    {
+      "n": 9,
+      "verdict": "PASS",
+      "reason": "Starting a retry under slow latency and then switching to the Succeeded filter and back mid-flight left nothing broken: the pending row still showed its disabled Retry button, filters rendered correct rows, and the retry later resolved to 'Queued ... Cancel' with exactly one retryJob call and no stray toasts or errors.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/a8143c63_9.png"
+    },
+    {
+      "n": 10,
+      "verdict": "PASS",
+      "reason": "The UI is not optimistic: instrumenting api.retryJob showed the row kept 'Failed ... Retry(disabled)' for the entire 3.9 s pending window and only flipped to the queued state after the promise resolved (resolve at 3892 ms, UI change first sampled at 3991 ms).",
+      "evidence": "Row at 607ms: 'job_9d8189 Failed Stopped at 53% Malformed CSV header Retry' (button disabled); retryJob resolved at 3892ms; row at 3991ms: 'job_9d8189 Queued Waiting Waiting in queue Cancel'."
+    }
+  ],
+  "failCount": 0
+}

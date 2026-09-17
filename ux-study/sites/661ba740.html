@@ -1,0 +1,757 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Job Queue Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0f1117;
+  --surface: #1a1d27;
+  --surface-raised: #222639;
+  --border: #2e3348;
+  --border-light: #3a3f56;
+  --text: #e2e4ed;
+  --text-secondary: #8b8fa7;
+  --text-muted: #5d6178;
+  --blue: #4c8dff;
+  --blue-dim: rgba(76,141,255,.12);
+  --green: #34d399;
+  --green-dim: rgba(52,211,153,.12);
+  --amber: #fbbf24;
+  --amber-dim: rgba(251,191,36,.12);
+  --red: #f87171;
+  --red-dim: rgba(248,113,113,.12);
+  --purple: #a78bfa;
+  --purple-dim: rgba(167,139,250,.12);
+  --radius: 8px;
+  --radius-sm: 5px;
+  --font: 'Inter', -apple-system, sans-serif;
+}
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  min-height: 100vh;
+}
+.app { max-width: 1280px; margin: 0 auto; padding: 24px 28px; }
+
+/* Header */
+.header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+.header h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
+.header-right { display: flex; align-items: center; gap: 12px; }
+.poll-indicator {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; color: var(--text-muted);
+}
+.poll-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--green);
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: .4; }
+  50% { opacity: 1; }
+}
+.poll-indicator.paused .poll-dot { background: var(--text-muted); animation: none; }
+.btn-pause {
+  background: var(--surface-raised); border: 1px solid var(--border);
+  color: var(--text-secondary); padding: 5px 12px; border-radius: var(--radius-sm);
+  font-size: 12px; cursor: pointer; font-family: var(--font);
+  transition: border-color .15s, color .15s;
+}
+.btn-pause:hover { border-color: var(--border-light); color: var(--text); }
+
+/* Stats row */
+.stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 20px; }
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  display: flex; flex-direction: column; gap: 4px;
+  position: relative; overflow: hidden;
+}
+.stat-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 2px;
+}
+.stat-card.total::before { background: var(--blue); }
+.stat-card.queued::before { background: var(--purple); }
+.stat-card.running::before { background: var(--amber); }
+.stat-card.succeeded::before { background: var(--green); }
+.stat-card.failed::before { background: var(--red); }
+.stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: .6px; color: var(--text-muted); font-weight: 500; }
+.stat-value { font-size: 28px; font-weight: 700; letter-spacing: -1px; line-height: 1.1; }
+.stat-card.total .stat-value { color: var(--blue); }
+.stat-card.queued .stat-value { color: var(--purple); }
+.stat-card.running .stat-value { color: var(--amber); }
+.stat-card.succeeded .stat-value { color: var(--green); }
+.stat-card.failed .stat-value { color: var(--red); }
+
+/* Toolbar */
+.toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; gap: 12px; flex-wrap: wrap; }
+.filters { display: flex; gap: 4px; }
+.filter-btn {
+  background: transparent; border: 1px solid transparent;
+  color: var(--text-muted); padding: 5px 12px; border-radius: var(--radius-sm);
+  font-size: 12px; cursor: pointer; font-family: var(--font);
+  font-weight: 500; transition: all .15s;
+}
+.filter-btn:hover { color: var(--text-secondary); }
+.filter-btn.active {
+  background: var(--surface-raised);
+  border-color: var(--border);
+  color: var(--text);
+}
+.filter-btn .count {
+  display: inline-block; margin-left: 4px;
+  background: var(--surface); padding: 1px 6px;
+  border-radius: 10px; font-size: 10px; color: var(--text-muted);
+  font-weight: 600;
+}
+.filter-btn.active .count { background: var(--border); color: var(--text-secondary); }
+.search-box {
+  background: var(--surface); border: 1px solid var(--border);
+  color: var(--text); padding: 6px 12px; border-radius: var(--radius-sm);
+  font-size: 13px; font-family: var(--font); width: 220px;
+  transition: border-color .15s;
+}
+.search-box::placeholder { color: var(--text-muted); }
+.search-box:focus { outline: none; border-color: var(--blue); }
+
+/* Table */
+.table-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+table { width: 100%; border-collapse: collapse; }
+thead th {
+  text-align: left; padding: 10px 16px;
+  font-size: 11px; text-transform: uppercase; letter-spacing: .6px;
+  color: var(--text-muted); font-weight: 600;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  position: sticky; top: 0;
+  white-space: nowrap; user-select: none; cursor: pointer;
+}
+thead th:hover { color: var(--text-secondary); }
+thead th .sort-arrow { font-size: 10px; margin-left: 3px; opacity: .5; }
+thead th.sorted .sort-arrow { opacity: 1; color: var(--blue); }
+tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background .1s;
+}
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: var(--surface-raised); }
+td { padding: 10px 16px; font-size: 13px; vertical-align: middle; }
+td.id-cell {
+  font-family: 'SF Mono', 'Menlo', 'Consolas', monospace;
+  font-size: 12px; color: var(--text-secondary);
+}
+
+/* Status badge */
+.status-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 3px 10px; border-radius: 12px;
+  font-size: 12px; font-weight: 600;
+  white-space: nowrap;
+}
+.status-badge .dot {
+  width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+}
+.status-badge.queued { background: var(--purple-dim); color: var(--purple); }
+.status-badge.queued .dot { background: var(--purple); }
+.status-badge.running { background: var(--amber-dim); color: var(--amber); }
+.status-badge.running .dot { background: var(--amber); animation: pulse-dot 1.2s ease-in-out infinite; }
+.status-badge.succeeded { background: var(--green-dim); color: var(--green); }
+.status-badge.succeeded .dot { background: var(--green); }
+.status-badge.failed { background: var(--red-dim); color: var(--red); }
+.status-badge.failed .dot { background: var(--red); }
+
+/* Progress bar */
+.progress-wrap { display: flex; align-items: center; gap: 8px; min-width: 140px; }
+.progress-bar {
+  flex: 1; height: 6px; background: var(--border);
+  border-radius: 3px; overflow: hidden;
+}
+.progress-fill {
+  height: 100%; border-radius: 3px;
+  transition: width .4s ease;
+}
+.progress-fill.queued { background: var(--purple); width: 0; }
+.progress-fill.running { background: var(--amber); }
+.progress-fill.succeeded { background: var(--green); width: 100%; }
+.progress-fill.failed { background: var(--red); }
+.progress-pct { font-size: 12px; color: var(--text-muted); min-width: 32px; text-align: right; font-variant-numeric: tabular-nums; }
+
+/* Error display */
+.error-text {
+  font-size: 12px; color: var(--red); max-width: 280px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.result-text {
+  font-size: 12px; color: var(--text-secondary);
+}
+.result-text a {
+  color: var(--blue); text-decoration: none;
+}
+.result-text a:hover { text-decoration: underline; }
+.na-text { color: var(--text-muted); font-size: 12px; }
+
+/* Actions */
+.actions { display: flex; gap: 6px; }
+.action-btn {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 4px 10px; border-radius: var(--radius-sm);
+  font-size: 12px; font-weight: 500; cursor: pointer;
+  border: 1px solid transparent;
+  font-family: var(--font);
+  transition: all .15s;
+  white-space: nowrap;
+}
+.action-btn:disabled {
+  opacity: .35; cursor: not-allowed;
+}
+.action-btn.retry {
+  background: var(--blue-dim); color: var(--blue);
+  border-color: rgba(76,141,255,.25);
+}
+.action-btn.retry:hover:not(:disabled) { background: rgba(76,141,255,.2); }
+.action-btn.cancel {
+  background: var(--red-dim); color: var(--red);
+  border-color: rgba(248,113,113,.2);
+}
+.action-btn.cancel:hover:not(:disabled) { background: rgba(248,113,113,.2); }
+
+/* Loading skeleton */
+.skeleton-row td { padding: 14px 16px; }
+.skeleton {
+  height: 14px; background: var(--border);
+  border-radius: 4px; animation: shimmer 1.5s ease-in-out infinite;
+}
+@keyframes shimmer {
+  0%, 100% { opacity: .3; }
+  50% { opacity: .6; }
+}
+
+/* Empty state */
+.empty-state {
+  text-align: center; padding: 48px 20px;
+  color: var(--text-muted); font-size: 14px;
+}
+.empty-state svg { margin-bottom: 12px; opacity: .4; }
+
+/* Error banner */
+.error-banner {
+  display: none; align-items: center; gap: 10px;
+  background: var(--red-dim); border: 1px solid rgba(248,113,113,.25);
+  border-radius: var(--radius); padding: 10px 16px;
+  margin-bottom: 16px; font-size: 13px; color: var(--red);
+}
+.error-banner.visible { display: flex; }
+.error-banner svg { flex-shrink: 0; }
+.error-banner .dismiss {
+  margin-left: auto; background: none; border: none;
+  color: var(--red); cursor: pointer; opacity: .6; font-size: 18px;
+  line-height: 1;
+}
+.error-banner .dismiss:hover { opacity: 1; }
+
+/* Toast */
+.toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 100; display: flex; flex-direction: column; gap: 8px; }
+.toast {
+  background: var(--surface-raised); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 10px 16px;
+  font-size: 13px; color: var(--text);
+  box-shadow: 0 8px 24px rgba(0,0,0,.4);
+  animation: toast-in .25s ease;
+  display: flex; align-items: center; gap: 8px;
+}
+.toast.success { border-color: rgba(52,211,153,.3); }
+.toast.error { border-color: rgba(248,113,113,.3); }
+.toast .toast-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.toast.success .toast-dot { background: var(--green); }
+.toast.error .toast-dot { background: var(--red); }
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Detail panel */
+.detail-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.5); z-index: 50;
+}
+.detail-overlay.open { display: block; }
+.detail-panel {
+  position: fixed; top: 0; right: 0; bottom: 0;
+  width: 420px; max-width: 90vw;
+  background: var(--surface); border-left: 1px solid var(--border);
+  z-index: 51; overflow-y: auto; padding: 24px;
+  transform: translateX(100%);
+  transition: transform .2s ease;
+}
+.detail-overlay.open .detail-panel { transform: translateX(0); }
+.detail-close {
+  background: none; border: none; color: var(--text-muted);
+  cursor: pointer; font-size: 20px; float: right; line-height: 1;
+}
+.detail-close:hover { color: var(--text); }
+.detail-title { font-size: 16px; font-weight: 700; margin-bottom: 20px; }
+.detail-section { margin-bottom: 20px; }
+.detail-label { font-size: 11px; text-transform: uppercase; letter-spacing: .6px; color: var(--text-muted); margin-bottom: 6px; font-weight: 500; }
+.detail-value { font-size: 14px; }
+.detail-error-box {
+  background: var(--red-dim); border: 1px solid rgba(248,113,113,.2);
+  border-radius: var(--radius-sm); padding: 10px 12px;
+  font-size: 13px; color: var(--red); word-break: break-word;
+  font-family: 'SF Mono', 'Menlo', 'Consolas', monospace;
+}
+.detail-result-box {
+  background: var(--green-dim); border: 1px solid rgba(52,211,153,.2);
+  border-radius: var(--radius-sm); padding: 10px 12px;
+  font-size: 13px; color: var(--green);
+}
+.detail-actions { display: flex; gap: 8px; margin-top: 20px; }
+.detail-actions .action-btn { padding: 7px 16px; font-size: 13px; }
+
+/* Responsive */
+@media (max-width: 900px) {
+  .stats { grid-template-columns: repeat(3, 1fr); }
+  .app { padding: 16px; }
+}
+@media (max-width: 600px) {
+  .stats { grid-template-columns: repeat(2, 1fr); }
+  .header { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .toolbar { flex-direction: column; align-items: stretch; }
+  .search-box { width: 100%; }
+  td.hide-mobile, th.hide-mobile { display: none; }
+  .detail-panel { width: 100%; max-width: 100%; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <h1>Job Queue</h1>
+    <div class="header-right">
+      <div class="poll-indicator" id="pollIndicator">
+        <span class="poll-dot"></span>
+        <span id="pollLabel">Live</span>
+      </div>
+      <button class="btn-pause" id="pollToggle">Pause</button>
+    </div>
+  </div>
+
+  <div class="error-banner" id="errorBanner">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M8 4.5v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="11" r=".75" fill="currentColor"/></svg>
+    <span id="errorMsg">Failed to load jobs</span>
+    <button class="dismiss" id="errorDismiss">&times;</button>
+  </div>
+
+  <div class="stats" id="stats">
+    <div class="stat-card total">
+      <span class="stat-label">Total</span>
+      <span class="stat-value" id="statTotal">—</span>
+    </div>
+    <div class="stat-card queued">
+      <span class="stat-label">Queued</span>
+      <span class="stat-value" id="statQueued">—</span>
+    </div>
+    <div class="stat-card running">
+      <span class="stat-label">Running</span>
+      <span class="stat-value" id="statRunning">—</span>
+    </div>
+    <div class="stat-card succeeded">
+      <span class="stat-label">Succeeded</span>
+      <span class="stat-value" id="statSucceeded">—</span>
+    </div>
+    <div class="stat-card failed">
+      <span class="stat-label">Failed</span>
+      <span class="stat-value" id="statFailed">—</span>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <div class="filters" id="filters">
+      <button class="filter-btn active" data-filter="all">All <span class="count" id="filterAll">0</span></button>
+      <button class="filter-btn" data-filter="queued">Queued <span class="count" id="filterQueued">0</span></button>
+      <button class="filter-btn" data-filter="running">Running <span class="count" id="filterRunning">0</span></button>
+      <button class="filter-btn" data-filter="succeeded">Succeeded <span class="count" id="filterSucceeded">0</span></button>
+      <button class="filter-btn" data-filter="failed">Failed <span class="count" id="filterFailed">0</span></button>
+    </div>
+    <input type="text" class="search-box" id="searchBox" placeholder="Filter by job ID...">
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th data-sort="id">ID <span class="sort-arrow">↕</span></th>
+          <th data-sort="status">Status <span class="sort-arrow">↕</span></th>
+          <th data-sort="progress">Progress <span class="sort-arrow">↕</span></th>
+          <th class="hide-mobile">Details</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="jobsBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="detail-overlay" id="detailOverlay">
+  <div class="detail-panel" id="detailPanel">
+    <button class="detail-close" id="detailClose">&times;</button>
+    <div class="detail-title" id="detailTitle">Job Details</div>
+    <div id="detailContent"></div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+(function() {
+  const api = window.api;
+  let jobs = [];
+  let activeFilter = 'all';
+  let searchQuery = '';
+  let sortCol = 'status';
+  let sortDir = 1;
+  let polling = true;
+  let pollTimer = null;
+  let openJobId = null;
+  let pendingActions = new Set();
+  let initialLoad = true;
+
+  // Status sort order: failed first, running, queued, succeeded
+  const STATUS_ORDER = { failed: 0, running: 1, queued: 2, succeeded: 3 };
+
+  // Elements
+  const el = {
+    body: document.getElementById('jobsBody'),
+    errorBanner: document.getElementById('errorBanner'),
+    errorMsg: document.getElementById('errorMsg'),
+    errorDismiss: document.getElementById('errorDismiss'),
+    pollIndicator: document.getElementById('pollIndicator'),
+    pollLabel: document.getElementById('pollLabel'),
+    pollToggle: document.getElementById('pollToggle'),
+    searchBox: document.getElementById('searchBox'),
+    filters: document.getElementById('filters'),
+    overlay: document.getElementById('detailOverlay'),
+    panel: document.getElementById('detailPanel'),
+    detailClose: document.getElementById('detailClose'),
+    detailTitle: document.getElementById('detailTitle'),
+    detailContent: document.getElementById('detailContent'),
+    toasts: document.getElementById('toastContainer'),
+    statTotal: document.getElementById('statTotal'),
+    statQueued: document.getElementById('statQueued'),
+    statRunning: document.getElementById('statRunning'),
+    statSucceeded: document.getElementById('statSucceeded'),
+    statFailed: document.getElementById('statFailed'),
+    filterAll: document.getElementById('filterAll'),
+    filterQueued: document.getElementById('filterQueued'),
+    filterRunning: document.getElementById('filterRunning'),
+    filterSucceeded: document.getElementById('filterSucceeded'),
+    filterFailed: document.getElementById('filterFailed'),
+  };
+
+  // Render loading skeleton
+  function renderSkeleton() {
+    let rows = '';
+    for (let i = 0; i < 6; i++) {
+      rows += `<tr class="skeleton-row"><td><div class="skeleton" style="width:${70+i*8}px"></div></td><td><div class="skeleton" style="width:70px"></div></td><td><div class="skeleton" style="width:120px"></div></td><td class="hide-mobile"><div class="skeleton" style="width:${100+i*12}px"></div></td><td><div class="skeleton" style="width:60px"></div></td></tr>`;
+    }
+    el.body.innerHTML = rows;
+  }
+
+  // Show/hide error banner
+  function showError(msg) {
+    el.errorMsg.textContent = msg;
+    el.errorBanner.classList.add('visible');
+  }
+  function hideError() {
+    el.errorBanner.classList.remove('visible');
+  }
+
+  // Toast
+  function toast(message, type) {
+    const t = document.createElement('div');
+    t.className = 'toast ' + type;
+    t.innerHTML = `<span class="toast-dot"></span>${esc(message)}`;
+    el.toasts.appendChild(t);
+    setTimeout(() => { t.style.opacity = '0'; t.style.transition = 'opacity .3s'; setTimeout(() => t.remove(), 300); }, 3500);
+  }
+
+  // Escape HTML
+  function esc(s) { const d = document.createElement('span'); d.textContent = s; return d.innerHTML; }
+
+  // Update stats
+  function updateStats() {
+    const counts = { queued: 0, running: 0, succeeded: 0, failed: 0 };
+    jobs.forEach(j => counts[j.status]++);
+    el.statTotal.textContent = jobs.length;
+    el.statQueued.textContent = counts.queued;
+    el.statRunning.textContent = counts.running;
+    el.statSucceeded.textContent = counts.succeeded;
+    el.statFailed.textContent = counts.failed;
+    el.filterAll.textContent = jobs.length;
+    el.filterQueued.textContent = counts.queued;
+    el.filterRunning.textContent = counts.running;
+    el.filterSucceeded.textContent = counts.succeeded;
+    el.filterFailed.textContent = counts.failed;
+  }
+
+  // Filter + sort
+  function getVisible() {
+    let list = jobs;
+    if (activeFilter !== 'all') list = list.filter(j => j.status === activeFilter);
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      list = list.filter(j => j.id.toLowerCase().includes(q));
+    }
+    list = list.slice().sort((a, b) => {
+      let av, bv;
+      if (sortCol === 'id') { av = a.id; bv = b.id; }
+      else if (sortCol === 'status') { av = STATUS_ORDER[a.status]; bv = STATUS_ORDER[b.status]; }
+      else if (sortCol === 'progress') { av = a.progress; bv = b.progress; }
+      else { av = a.id; bv = b.id; }
+      if (av < bv) return -sortDir;
+      if (av > bv) return sortDir;
+      return 0;
+    });
+    return list;
+  }
+
+  function renderProgress(job) {
+    const pct = job.progress || 0;
+    if (job.status === 'queued') {
+      return `<div class="progress-wrap"><div class="progress-bar"><div class="progress-fill queued"></div></div><span class="progress-pct">—</span></div>`;
+    }
+    return `<div class="progress-wrap"><div class="progress-bar"><div class="progress-fill ${job.status}" style="width:${pct}%"></div></div><span class="progress-pct">${pct}%</span></div>`;
+  }
+
+  function renderDetails(job) {
+    if (job.status === 'failed' && job.error) {
+      return `<span class="error-text" title="${esc(job.error)}">${esc(job.error)}</span>`;
+    }
+    if (job.status === 'succeeded' && job.result) {
+      return `<span class="result-text">${job.result.rows.toLocaleString()} rows · <a href="${esc(job.result.downloadUrl)}" target="_blank">Download</a></span>`;
+    }
+    if (job.status === 'running') return `<span class="na-text">Processing…</span>`;
+    if (job.status === 'queued') return `<span class="na-text">Waiting</span>`;
+    return `<span class="na-text">—</span>`;
+  }
+
+  function renderActions(job) {
+    const busy = pendingActions.has(job.id);
+    const btns = [];
+    if (job.status === 'failed') {
+      btns.push(`<button class="action-btn retry" data-action="retry" data-id="${job.id}" ${busy ? 'disabled' : ''}>${busy ? 'Retrying…' : 'Retry'}</button>`);
+    }
+    if (job.status === 'queued' || job.status === 'running') {
+      btns.push(`<button class="action-btn cancel" data-action="cancel" data-id="${job.id}" ${busy ? 'disabled' : ''}>${busy ? 'Cancelling…' : 'Cancel'}</button>`);
+    }
+    return `<div class="actions">${btns.join('')}</div>`;
+  }
+
+  function renderTable() {
+    const visible = getVisible();
+    if (visible.length === 0 && !initialLoad) {
+      el.body.innerHTML = `<tr><td colspan="5"><div class="empty-state"><svg width="40" height="40" viewBox="0 0 40 40" fill="none"><rect x="6" y="10" width="28" height="20" rx="3" stroke="currentColor" stroke-width="2"/><path d="M6 16h28" stroke="currentColor" stroke-width="2"/><circle cx="11" cy="13" r="1" fill="currentColor"/><circle cx="15" cy="13" r="1" fill="currentColor"/><circle cx="19" cy="13" r="1" fill="currentColor"/></svg><div>${searchQuery ? 'No jobs match your search' : 'No ' + (activeFilter === 'all' ? '' : activeFilter + ' ') + 'jobs'}</div></div></td></tr>`;
+      return;
+    }
+    let html = '';
+    for (const job of visible) {
+      html += `<tr data-job-id="${job.id}" style="cursor:pointer">
+        <td class="id-cell">${esc(job.id)}</td>
+        <td><span class="status-badge ${job.status}"><span class="dot"></span>${job.status}</span></td>
+        <td>${renderProgress(job)}</td>
+        <td class="hide-mobile">${renderDetails(job)}</td>
+        <td>${renderActions(job)}</td>
+      </tr>`;
+    }
+    el.body.innerHTML = html;
+  }
+
+  // Detail panel
+  function openDetail(jobId) {
+    const job = jobs.find(j => j.id === jobId);
+    if (!job) return;
+    openJobId = jobId;
+    el.detailTitle.textContent = job.id;
+    const busy = pendingActions.has(job.id);
+    let html = `
+      <div class="detail-section">
+        <div class="detail-label">Status</div>
+        <div class="detail-value"><span class="status-badge ${job.status}"><span class="dot"></span>${job.status}</span></div>
+      </div>
+      <div class="detail-section">
+        <div class="detail-label">Progress</div>
+        <div class="detail-value">${renderProgress(job)}</div>
+      </div>`;
+    if (job.status === 'failed' && job.error) {
+      html += `<div class="detail-section"><div class="detail-label">Error</div><div class="detail-error-box">${esc(job.error)}</div></div>`;
+    }
+    if (job.status === 'succeeded' && job.result) {
+      html += `<div class="detail-section"><div class="detail-label">Result</div><div class="detail-result-box">${job.result.rows.toLocaleString()} rows processed<br><a href="${esc(job.result.downloadUrl)}" target="_blank" style="color:var(--green)">Download result</a></div></div>`;
+    }
+    let actions = '';
+    if (job.status === 'failed') {
+      actions += `<button class="action-btn retry" data-action="retry" data-id="${job.id}" ${busy ? 'disabled' : ''}>${busy ? 'Retrying…' : 'Retry'}</button>`;
+    }
+    if (job.status === 'queued' || job.status === 'running') {
+      actions += `<button class="action-btn cancel" data-action="cancel" data-id="${job.id}" ${busy ? 'disabled' : ''}>${busy ? 'Cancelling…' : 'Cancel'}</button>`;
+    }
+    if (actions) html += `<div class="detail-actions">${actions}</div>`;
+    el.detailContent.innerHTML = html;
+    el.overlay.classList.add('open');
+  }
+
+  function closeDetail() {
+    openJobId = null;
+    el.overlay.classList.remove('open');
+  }
+
+  // Fetch jobs
+  async function fetchJobs() {
+    try {
+      const result = await api.listJobs();
+      jobs = result;
+      initialLoad = false;
+      hideError();
+      updateStats();
+      renderTable();
+      if (openJobId) openDetail(openJobId);
+    } catch (err) {
+      if (initialLoad) {
+        initialLoad = false;
+        el.body.innerHTML = '';
+      }
+      showError(err.code === 'NETWORK' ? 'Connection lost — retrying automatically' : 'Failed to load jobs: ' + err.message);
+    }
+  }
+
+  // Actions
+  async function handleAction(action, jobId) {
+    if (pendingActions.has(jobId)) return;
+    pendingActions.add(jobId);
+    renderTable();
+    if (openJobId === jobId) openDetail(jobId);
+    try {
+      if (action === 'retry') {
+        await api.retryJob(jobId);
+        toast('Job ' + jobId + ' requeued', 'success');
+      } else if (action === 'cancel') {
+        await api.cancelJob(jobId);
+        toast('Job ' + jobId + ' cancelled', 'success');
+      }
+      await fetchJobs();
+    } catch (err) {
+      const msg = err.code === 'NETWORK' ? 'Network error — try again' : err.message;
+      toast('Failed to ' + action + ': ' + msg, 'error');
+    } finally {
+      pendingActions.delete(jobId);
+      renderTable();
+      if (openJobId === jobId) openDetail(jobId);
+    }
+  }
+
+  // Polling
+  function startPolling() {
+    stopPolling();
+    pollTimer = setInterval(fetchJobs, 2000);
+  }
+  function stopPolling() {
+    if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+  }
+  function togglePolling() {
+    polling = !polling;
+    if (polling) {
+      startPolling();
+      el.pollIndicator.classList.remove('paused');
+      el.pollLabel.textContent = 'Live';
+      el.pollToggle.textContent = 'Pause';
+    } else {
+      stopPolling();
+      el.pollIndicator.classList.add('paused');
+      el.pollLabel.textContent = 'Paused';
+      el.pollToggle.textContent = 'Resume';
+    }
+  }
+
+  // Sorting
+  function handleSort(col) {
+    if (sortCol === col) { sortDir = -sortDir; }
+    else { sortCol = col; sortDir = 1; }
+    document.querySelectorAll('thead th').forEach(th => th.classList.remove('sorted'));
+    document.querySelector(`thead th[data-sort="${col}"]`)?.classList.add('sorted');
+    renderTable();
+  }
+
+  // Event delegation
+  el.body.addEventListener('click', e => {
+    const actionBtn = e.target.closest('[data-action]');
+    if (actionBtn) {
+      e.stopPropagation();
+      handleAction(actionBtn.dataset.action, actionBtn.dataset.id);
+      return;
+    }
+    const row = e.target.closest('tr[data-job-id]');
+    if (row) openDetail(row.dataset.jobId);
+  });
+
+  document.querySelector('thead').addEventListener('click', e => {
+    const th = e.target.closest('th[data-sort]');
+    if (th) handleSort(th.dataset.sort);
+  });
+
+  el.filters.addEventListener('click', e => {
+    const btn = e.target.closest('.filter-btn');
+    if (!btn) return;
+    el.filters.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeFilter = btn.dataset.filter;
+    renderTable();
+  });
+
+  el.searchBox.addEventListener('input', e => {
+    searchQuery = e.target.value.trim();
+    renderTable();
+  });
+
+  el.pollToggle.addEventListener('click', togglePolling);
+  el.errorDismiss.addEventListener('click', hideError);
+  el.detailClose.addEventListener('click', closeDetail);
+  el.overlay.addEventListener('click', e => {
+    if (e.target === el.overlay) closeDetail();
+  });
+
+  // Detail panel action delegation
+  el.detailContent.addEventListener('click', e => {
+    const actionBtn = e.target.closest('[data-action]');
+    if (actionBtn) {
+      e.stopPropagation();
+      handleAction(actionBtn.dataset.action, actionBtn.dataset.id);
+    }
+  });
+
+  // Keyboard
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && openJobId) closeDetail();
+  });
+
+  // Init
+  renderSkeleton();
+  fetchJobs();
+  startPolling();
+})();
+</script>
+</body>
+</html>

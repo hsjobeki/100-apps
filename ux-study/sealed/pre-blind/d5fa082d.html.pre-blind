@@ -1,0 +1,780 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CSV Processor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f3ef; --surface:#ffffff; --surface-2:#faf9f6; --ink:#16181c; --muted:#6a7079;
+  --line:#e3e0d8; --line-2:#efedE7;
+  --accent:#0d6a5c; --accent-ink:#0a5348; --accent-tint:#e2f0ed;
+  --run:#2359d8; --run-tint:#e7edfd;
+  --queue:#94670f; --queue-tint:#fbf0da;
+  --ok:#136b46; --ok-tint:#e0f0e8;
+  --bad:#b23125; --bad-tint:#fbe7e4;
+  --r:10px;
+  --sh:0 1px 2px rgba(20,22,26,.05), 0 10px 26px -18px rgba(20,22,26,.45);
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#101214; --surface:#171a1d; --surface-2:#1c2023; --ink:#e9eaec; --muted:#98a0a8;
+    --line:#2a2f34; --line-2:#22262a;
+    --accent:#3fb39c; --accent-ink:#5fc7b1; --accent-tint:#12312c;
+    --run:#7aa5ff; --run-tint:#152239;
+    --queue:#e0aa4e; --queue-tint:#332711;
+    --ok:#56c295; --ok-tint:#102c21;
+    --bad:#f08a7c; --bad-tint:#361b18;
+    --sh:0 1px 2px rgba(0,0,0,.4), 0 10px 26px -18px rgba(0,0,0,.9);
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background:var(--bg); color:var(--ink);
+  font:15px/1.45 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+.mono{font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.86em;letter-spacing:-.01em}
+h1,h2,h3{margin:0;font-weight:600;letter-spacing:-.015em}
+button{font:inherit;color:inherit}
+svg{display:block}
+.i{width:16px;height:16px;flex:0 0 auto;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.i-sm{width:13px;height:13px}
+.i-fill{fill:currentColor;stroke:none}
+
+/* ---------- shell ---------- */
+.top{
+  position:sticky; top:0; z-index:20; background:color-mix(in srgb,var(--bg) 88%, transparent);
+  backdrop-filter:blur(8px); border-bottom:1px solid var(--line);
+}
+.top__in{max-width:1100px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:12px}
+.brand{display:flex;align-items:center;gap:9px;min-width:0}
+.brand__mark{width:26px;height:26px;border-radius:7px;background:var(--accent);color:#fff;display:grid;place-items:center;flex:0 0 auto}
+.brand__mark .i{width:15px;height:15px;stroke-width:2}
+.brand h1{font-size:15px}
+.spacer{flex:1}
+.live{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:12.5px}
+.live__dot{width:7px;height:7px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 0 color-mix(in srgb,var(--ok) 55%,transparent);animation:pulse 2s ease-out infinite}
+.live[data-state="stale"] .live__dot{background:var(--queue);animation:none}
+@keyframes pulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--ok) 50%,transparent)}70%{box-shadow:0 0 0 6px transparent}100%{box-shadow:0 0 0 0 transparent}}
+.wrap{max-width:1100px;margin:0 auto;padding:20px}
+.cols{display:grid;grid-template-columns:330px minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:880px){.cols{grid-template-columns:1fr}}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh)}
+.card__h{display:flex;align-items:center;gap:8px;padding:13px 15px;border-bottom:1px solid var(--line-2)}
+.card__h h2{font-size:13.5px;letter-spacing:.02em;text-transform:uppercase;color:var(--muted)}
+
+/* ---------- upload ---------- */
+.up{position:sticky;top:64px}
+.up__body{padding:15px}
+.drop{
+  border:1.5px dashed var(--line);border-radius:9px;background:var(--surface-2);
+  padding:20px 14px;text-align:center;display:grid;justify-items:center;gap:9px;
+  transition:border-color .15s,background .15s;
+}
+.drop.is-over{border-color:var(--accent);background:var(--accent-tint)}
+.drop__ico{color:var(--accent)}
+.drop__ico .i{width:26px;height:26px;stroke-width:1.5}
+.drop p{margin:0;color:var(--muted);font-size:13px}
+.file-in{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+
+.staged{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:9px;padding:10px 11px;background:var(--surface-2)}
+.staged__ico{width:30px;height:30px;border-radius:7px;background:var(--accent-tint);color:var(--accent-ink);display:grid;place-items:center;flex:0 0 auto}
+.staged__txt{min-width:0;flex:1}
+.staged__name{font-weight:500;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.staged__sub{color:var(--muted);display:flex;align-items:center;gap:6px;margin-top:1px}
+
+.uploading{display:flex;align-items:center;gap:14px}
+.ringbox{position:relative;width:64px;height:64px;flex:0 0 auto}
+.ring{width:64px;height:64px;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:6;stroke-linecap:round}
+.ring__t{stroke:var(--line)}
+.ring__v{stroke:var(--accent);transition:stroke-dashoffset .25s linear}
+.ringbox__n{position:absolute;inset:0;display:grid;place-items:center;font-weight:600;font-size:13px}
+.stage{font-weight:500;font-size:13.5px}
+.dots{display:flex;gap:10px;margin-top:7px}
+.dots span{display:flex;align-items:center;gap:5px;color:var(--muted);font-size:12px}
+.dots i{width:7px;height:7px;border-radius:50%;background:var(--line);display:block}
+.dots span.on i{background:var(--accent)}
+.dots span.on{color:var(--ink)}
+
+.note{display:flex;gap:8px;align-items:flex-start;border-radius:8px;padding:9px 10px;font-size:13px;margin-top:12px}
+.note--bad{background:var(--bad-tint);color:var(--bad)}
+.note--warn{background:var(--queue-tint);color:var(--queue)}
+.note .i{margin-top:1px}
+.note__b{display:flex;gap:8px;align-items:center;margin-top:6px}
+
+/* ---------- buttons ---------- */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  height:32px;padding:0 12px;border-radius:8px;border:1px solid var(--line);
+  background:var(--surface);cursor:pointer;font-size:13.5px;font-weight:500;
+  text-decoration:none;transition:background .12s,border-color .12s,transform .06s;
+}
+.btn:hover{background:var(--surface-2)}
+.btn:active{transform:translateY(.5px)}
+.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn[disabled],.btn[aria-disabled="true"]{opacity:.5;cursor:not-allowed;pointer-events:none}
+.btn--primary{background:var(--accent);border-color:var(--accent);color:#fff;width:100%;height:38px}
+.btn--primary:hover{background:var(--accent-ink);border-color:var(--accent-ink)}
+.btn--sm{height:28px;padding:0 9px;font-size:12.5px}
+.btn--danger{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 35%,var(--line))}
+.btn--danger:hover{background:var(--bad-tint)}
+.btn--ok{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 35%,var(--line))}
+.btn--ok:hover{background:var(--ok-tint)}
+.btn--ghost{border-color:transparent;background:transparent;color:var(--muted)}
+.btn--ghost:hover{background:var(--surface-2);color:var(--ink)}
+.btn[aria-busy="true"] .i-spin{animation:spin .9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.iconbtn{width:28px;height:28px;padding:0;border-radius:7px;border:1px solid transparent;background:transparent;display:grid;place-items:center;cursor:pointer;color:var(--muted)}
+.iconbtn:hover{background:var(--line-2);color:var(--ink)}
+
+/* ---------- queue ---------- */
+.qtools{display:flex;align-items:center;gap:8px;padding:11px 14px;border-bottom:1px solid var(--line-2);flex-wrap:wrap}
+.seg{display:flex;gap:2px;background:var(--surface-2);border:1px solid var(--line);border-radius:9px;padding:2px}
+.seg button{
+  border:0;background:transparent;border-radius:7px;height:26px;padding:0 9px;cursor:pointer;
+  display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;color:var(--muted);
+}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.07)}
+.seg .n{font-family:"JetBrains Mono",monospace;font-size:11px;padding:1px 5px;border-radius:99px;background:var(--line-2);color:var(--muted)}
+.seg button[aria-pressed="true"] .n{background:var(--accent-tint);color:var(--accent-ink)}
+.qbar{display:flex;height:5px;gap:2px;background:var(--line-2)}
+.qbar span{display:block;transition:flex-grow .5s ease}
+.qbar .s-running{background:var(--run)}
+.qbar .s-queued{background:var(--queue)}
+.qbar .s-failed{background:var(--bad)}
+.qbar .s-succeeded{background:var(--ok)}
+
+.jobs{list-style:none;margin:0;padding:0}
+.job{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:9px 14px;padding:13px 14px;border-bottom:1px solid var(--line-2)}
+.job:last-child{border-bottom:0}
+.job.is-new{animation:flash 2.4s ease-out}
+@keyframes flash{0%{background:var(--accent-tint)}100%{background:transparent}}
+.job__top{display:flex;align-items:center;gap:10px;min-width:0}
+.job__id{font-weight:500;color:var(--ink);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px}
+.job__id:hover{text-decoration-color:var(--accent)}
+.job__act{display:flex;gap:6px;align-items:center;justify-self:end}
+.job__prog{grid-column:1/-1;display:flex;align-items:center;gap:10px}
+.job__pct{color:var(--muted);min-width:34px;text-align:right}
+.job__meta{color:var(--muted);margin-left:auto}
+.job__err{grid-column:1/-1;display:flex;gap:8px;align-items:flex-start;background:var(--bad-tint);color:var(--bad);border-radius:8px;padding:8px 10px;font-size:13px}
+.job__err .i{margin-top:1px}
+.job__err.is-hidden,.job__prog.is-hidden{display:none}
+
+.badge{display:inline-flex;align-items:center;gap:5px;height:22px;padding:0 8px;border-radius:99px;font-size:12px;font-weight:500;flex:0 0 auto}
+.badge--queued{background:var(--queue-tint);color:var(--queue)}
+.badge--running{background:var(--run-tint);color:var(--run)}
+.badge--succeeded{background:var(--ok-tint);color:var(--ok)}
+.badge--failed{background:var(--bad-tint);color:var(--bad)}
+.badge--running .i{animation:spin 1.1s linear infinite}
+
+progress.bar{
+  -webkit-appearance:none;appearance:none;flex:1;height:6px;border:0;border-radius:99px;
+  background:var(--line-2);overflow:hidden;
+}
+progress.bar::-webkit-progress-bar{background:var(--line-2);border-radius:99px}
+progress.bar::-webkit-progress-value{background:var(--run);border-radius:99px;transition:inline-size .4s ease}
+progress.bar.s-queued::-webkit-progress-bar{
+  background-image:repeating-linear-gradient(115deg,var(--queue-tint) 0 8px,var(--line-2) 8px 16px);
+  background-size:16px 16px;animation:stripe 1.1s linear infinite;
+}
+progress.bar.s-queued::-webkit-progress-value{background:transparent}
+@keyframes stripe{to{background-position:16px 0}}
+progress.bar.s-succeeded::-webkit-progress-value{background:var(--ok)}
+progress.bar.s-failed::-webkit-progress-value{background:var(--bad)}
+
+.skel{padding:13px 14px;border-bottom:1px solid var(--line-2);display:grid;gap:9px}
+.skel div{height:10px;border-radius:99px;background:linear-gradient(90deg,var(--line-2),var(--line),var(--line-2));background-size:200% 100%;animation:sweep 1.3s linear infinite}
+.skel div:first-child{width:38%}
+@keyframes sweep{to{background-position:-200% 0}}
+
+.empty{padding:38px 20px;text-align:center;display:grid;justify-items:center;gap:10px}
+.empty__art{color:var(--line)}
+.empty__art .i{width:52px;height:52px;stroke-width:1.2}
+.empty h3{font-size:14.5px}
+.empty p{margin:0;color:var(--muted);font-size:13px;max-width:34ch}
+
+/* ---------- dialog ---------- */
+dialog{
+  border:1px solid var(--line);border-radius:12px;padding:0;background:var(--surface);color:var(--ink);
+  width:min(440px,calc(100vw - 32px));box-shadow:0 24px 60px -24px rgba(0,0,0,.5);
+}
+dialog::backdrop{background:rgba(16,18,20,.42)}
+.dlg__h{display:flex;align-items:center;gap:10px;padding:13px 14px;border-bottom:1px solid var(--line-2)}
+.dlg__b{padding:14px;display:grid;gap:12px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:13.5px}
+.kv dt{color:var(--muted)}
+.kv dd{margin:0;text-align:right}
+.dlg__f{display:flex;gap:8px;padding:12px 14px;border-top:1px solid var(--line-2);justify-content:flex-end;flex-wrap:wrap}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="ic-grid" viewBox="0 0 24 24"><path d="M3 5h18M3 12h18M3 19h18M9 5v14"/></symbol>
+  <symbol id="ic-upload" viewBox="0 0 24 24"><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></symbol>
+  <symbol id="ic-file" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M8.5 13h7M8.5 16.5h4"/></symbol>
+  <symbol id="ic-check" viewBox="0 0 24 24"><path d="M4.5 12.5 9.5 17.5 19.5 7"/></symbol>
+  <symbol id="ic-alert" viewBox="0 0 24 24"><path d="M12 4.5 2.8 20h18.4z"/><path d="M12 10v4.2M12 17.3v.2"/></symbol>
+  <symbol id="ic-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+  <symbol id="ic-spin" viewBox="0 0 24 24"><path d="M12 3.5a8.5 8.5 0 1 1-8.5 8.5" /></symbol>
+  <symbol id="ic-retry" viewBox="0 0 24 24"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1"/><path d="M3.5 4.5V10H9"/></symbol>
+  <symbol id="ic-down" viewBox="0 0 24 24"><path d="M12 4v11m0 0 4.5-4.5M12 15l-4.5-4.5M4.5 19.5h15"/></symbol>
+  <symbol id="ic-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="ic-inbox" viewBox="0 0 24 24"><path d="M3.5 13.5h4l1.5 3h6l1.5-3h4"/><path d="M5.6 5.2h12.8l2.1 8.3v4a2 2 0 0 1-2 2H5.5a2 2 0 0 1-2-2v-4z"/></symbol>
+</defs></svg>
+
+<header class="top">
+  <div class="top__in">
+    <div class="brand">
+      <span class="brand__mark"><svg class="i"><use href="#ic-grid"/></svg></span>
+      <h1>CSV Processor</h1>
+    </div>
+    <span class="spacer"></span>
+    <div class="live" id="live" data-state="ok" title="Queue polls every 1.5 s">
+      <span class="live__dot"></span><span id="liveTxt">Live</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="cols">
+
+    <!-- ============ upload ============ -->
+    <section class="card up" aria-labelledby="upH">
+      <div class="card__h"><h2 id="upH">New job</h2></div>
+      <div class="up__body">
+        <form id="upForm" novalidate>
+          <div id="upSlot"></div>
+          <button id="go" class="btn btn--primary" type="submit" style="margin-top:12px" disabled>
+            <svg class="i i-sm"><use href="#ic-upload"/></svg><span id="goTxt">Process file</span>
+          </button>
+        </form>
+        <div id="upNote"></div>
+      </div>
+    </section>
+
+    <!-- ============ queue ============ -->
+    <section class="card" aria-labelledby="qH">
+      <div class="card__h">
+        <h2 id="qH">Queue</h2>
+        <span class="spacer"></span>
+        <button class="btn btn--sm btn--ghost" type="button" id="retryAll" hidden>
+          <svg class="i i-sm"><use href="#ic-retry"/></svg>Retry failed
+        </button>
+      </div>
+      <div class="qtools">
+        <div class="seg" role="group" aria-label="Filter jobs">
+          <button type="button" data-f="all" aria-pressed="true">All <span class="n" data-c="all">0</span></button>
+          <button type="button" data-f="active" aria-pressed="false">Active <span class="n" data-c="active">0</span></button>
+          <button type="button" data-f="failed" aria-pressed="false">Failed <span class="n" data-c="failed">0</span></button>
+          <button type="button" data-f="done" aria-pressed="false">Done <span class="n" data-c="done">0</span></button>
+        </div>
+      </div>
+      <div class="qbar" id="qbar" role="img" aria-label="Queue composition">
+        <span class="s-running" style="flex:0"></span><span class="s-queued" style="flex:0"></span><span class="s-failed" style="flex:0"></span><span class="s-succeeded" style="flex:0"></span>
+      </div>
+      <div id="syncNote"></div>
+      <ul class="jobs" id="jobs"></ul>
+    </section>
+
+  </div>
+</main>
+
+<dialog id="dlg" aria-labelledby="dlgT">
+  <div class="dlg__h">
+    <svg class="i"><use href="#ic-file"/></svg>
+    <strong id="dlgT" class="mono">job</strong>
+    <span class="spacer"></span>
+    <button class="iconbtn" type="button" id="dlgX" aria-label="Close"><svg class="i"><use href="#ic-x"/></svg></button>
+  </div>
+  <div class="dlg__b" id="dlgB"></div>
+  <div class="dlg__f" id="dlgF"></div>
+</dialog>
+
+<script>
+(function () {
+  "use strict";
+  var api = window.api;
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]; }); };
+
+  var ST = {
+    file: null,          // staged File
+    warn: null,          // staged-file warning
+    phase: "idle",       // idle | uploading | queueing
+    pct: 0,
+    upErr: null,         // {msg, retryable}
+    jobs: [],
+    loaded: false,
+    syncErr: null,
+    filter: "all",
+    busy: new Set(),     // job ids with an action in flight
+    rowErr: new Map(),   // job id -> {msg, act}
+    openId: null
+  };
+  var ctrl = null, pollT = null, polling = false;
+
+  /* ---------------- helpers ---------------- */
+  var LABEL = { queued: "Queued", running: "Running", succeeded: "Done", failed: "Failed" };
+  var ICON = { queued: "#ic-clock", running: "#ic-spin", succeeded: "#ic-check", failed: "#ic-alert" };
+
+  function bytes(n) {
+    if (n < 1024) return n + " B";
+    if (n < 1048576) return (n / 1024).toFixed(n < 10240 ? 1 : 0) + " KB";
+    return (n / 1048576).toFixed(1) + " MB";
+  }
+  function num(n) { return Number(n).toLocaleString("en-US"); }
+  function describe(err, tail) {
+    if (!err) return "Unknown error." ;
+    if (err.name === "AbortError") return "Cancelled.";
+    if (err.code === "NETWORK") return "Network error — " + tail;
+    if (err.code === "NOT_FOUND") return "This job no longer exists on the server.";
+    return (err.message || String(err)) + " — " + tail;
+  }
+  function icon(id, cls) { return '<svg class="i ' + (cls || "i-sm") + '"><use href="' + id + '"/></svg>'; }
+
+  /* ---------------- upload card ---------------- */
+  var upSlot = $("#upSlot"), go = $("#go"), goTxt = $("#goTxt"), upNote = $("#upNote"), form = $("#upForm");
+
+  function renderUpload() {
+    var h;
+    if (ST.phase === "uploading" || ST.phase === "queueing") {
+      var C = 169.65, off = C * (1 - ST.pct / 100);
+      h =
+        '<div class="uploading">' +
+          '<div class="ringbox">' +
+            '<svg class="ring" viewBox="0 0 64 64" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + ST.pct + '" aria-label="Upload progress">' +
+              '<circle class="ring__t" cx="32" cy="32" r="27"/>' +
+              '<circle class="ring__v" cx="32" cy="32" r="27" stroke-dasharray="' + C + '" stroke-dashoffset="' + off + '"/>' +
+            '</svg>' +
+            '<span class="ringbox__n mono" id="pctN">' + ST.pct + '%</span>' +
+          '</div>' +
+          '<div style="min-width:0">' +
+            '<div class="stage" id="stageTxt" aria-live="polite">' + (ST.phase === "uploading" ? "Uploading" : "Starting job") + '</div>' +
+            '<div class="staged__sub mono" style="margin-top:2px">' + esc(ST.file ? ST.file.name : "") + '</div>' +
+            '<div class="dots" id="dots">' +
+              '<span class="on"><i></i>Upload</span>' +
+              '<span class="' + (ST.phase === "queueing" ? "on" : "") + '"><i></i>Queue</span>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+    } else if (ST.file) {
+      h =
+        '<div class="staged">' +
+          '<span class="staged__ico">' + icon("#ic-file", "i") + '</span>' +
+          '<span class="staged__txt">' +
+            '<span class="staged__name">' + esc(ST.file.name) + '</span>' +
+            '<span class="staged__sub mono">' + bytes(ST.file.size) + (ST.warn ? ' · <span style="color:var(--queue)">' + esc(ST.warn) + "</span>" : "") + "</span>" +
+          "</span>" +
+          '<button class="iconbtn" type="button" data-up="clear" aria-label="Remove file">' + icon("#ic-x", "i") + "</button>" +
+        "</div>";
+    } else {
+      h =
+        '<label class="drop" id="drop" for="fileIn">' +
+          '<span class="drop__ico">' + icon("#ic-upload", "i") + "</span>" +
+          "<p>Drop a CSV or browse</p>" +
+        "</label>";
+    }
+    upSlot.innerHTML = h;
+
+    var busy = ST.phase !== "idle";
+    go.disabled = !ST.file || busy;
+    go.setAttribute("aria-busy", busy ? "true" : "false");
+    if (busy) {
+      goTxt.textContent = "Cancel";
+      go.className = "btn btn--primary btn--danger";
+      go.style.background = "transparent"; go.style.color = "var(--bad)";
+      go.querySelector("use").setAttribute("href", "#ic-x");
+      go.disabled = false;
+      go.dataset.role = "cancel";
+    } else {
+      goTxt.textContent = "Process file";
+      go.className = "btn btn--primary";
+      go.style.background = ""; go.style.color = "";
+      go.querySelector("use").setAttribute("href", "#ic-upload");
+      go.dataset.role = "submit";
+    }
+    renderUpNote();
+  }
+
+  function renderUpNote() {
+    if (!ST.upErr) { upNote.innerHTML = ""; return; }
+    var e = ST.upErr;
+    upNote.innerHTML =
+      '<div class="note note--' + (e.soft ? "warn" : "bad") + '" role="status">' +
+        icon(e.soft ? "#ic-clock" : "#ic-alert", "i") +
+        "<div><div>" + esc(e.msg) + "</div>" +
+        (e.retry ? '<div class="note__b"><button class="btn btn--sm" type="button" data-up="again">' + icon("#ic-retry") + "Try again</button></div>" : "") +
+        "</div></div>";
+  }
+
+  function paintPct() {
+    var n = $("#pctN"), r = $(".ring");
+    if (!n || !r) return;
+    n.textContent = ST.pct + "%";
+    r.setAttribute("aria-valuenow", ST.pct);
+    r.querySelector(".ring__v").setAttribute("stroke-dashoffset", 169.65 * (1 - ST.pct / 100));
+  }
+
+  var fileIn = document.createElement("input");
+  fileIn.type = "file"; fileIn.id = "fileIn"; fileIn.accept = ".csv,text/csv"; fileIn.className = "file-in";
+  form.appendChild(fileIn);
+  fileIn.addEventListener("change", function () { if (fileIn.files && fileIn.files[0]) stage(fileIn.files[0]); });
+
+  function stage(f) {
+    if (ST.phase !== "idle") return;
+    ST.file = f;
+    ST.upErr = null;
+    ST.warn = /\.csv$/i.test(f.name) || /csv/i.test(f.type || "") ? null : "not .csv";
+    renderUpload();
+  }
+
+  upSlot.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-up]");
+    if (b && b.dataset.up === "clear") { e.preventDefault(); ST.file = null; ST.warn = null; fileIn.value = ""; renderUpload(); }
+  });
+  upNote.addEventListener("click", function (e) {
+    var b = e.target.closest('[data-up="again"]');
+    if (b) { ST.upErr = null; renderUpNote(); start(); }
+  });
+  ["dragenter", "dragover"].forEach(function (t) {
+    upSlot.addEventListener(t, function (e) { e.preventDefault(); var d = $("#drop"); if (d) d.classList.add("is-over"); });
+  });
+  ["dragleave", "drop"].forEach(function (t) {
+    upSlot.addEventListener(t, function (e) { e.preventDefault(); var d = $("#drop"); if (d) d.classList.remove("is-over"); });
+  });
+  upSlot.addEventListener("drop", function (e) {
+    var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+    if (f) stage(f);
+  });
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    if (go.dataset.role === "cancel") { if (ctrl) ctrl.abort(); return; }
+    start();
+  });
+
+  async function start() {
+    if (ST.phase !== "idle" || !ST.file) return;   // dedupe: ignores repeat clicks
+    var file = ST.file;
+    ctrl = new AbortController();
+    ST.phase = "uploading"; ST.pct = 0; ST.upErr = null;
+    renderUpload();                                 // painted before the first await
+    try {
+      var up = await api.uploadFile(file, {
+        signal: ctrl.signal,
+        onProgress: function (p) { if (ST.phase === "uploading") { ST.pct = Math.max(ST.pct, Math.round(p)); paintPct(); } }
+      });
+      ST.pct = 100; ST.phase = "queueing"; renderUpload();
+      var job = await api.processFile(up.fileId, { signal: ctrl.signal });
+      ST.file = null; ST.warn = null; ST.phase = "idle"; ST.pct = 0; fileIn.value = "";
+      renderUpload();
+      newIds.add(job.jobId);
+      if (ST.filter === "failed" || ST.filter === "done") setFilter("all");
+      await refresh();
+      var row = document.querySelector('[data-id="' + job.jobId + '"]');
+      if (row) row.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    } catch (err) {
+      ST.phase = "idle"; ST.pct = 0;
+      if (err && err.name === "AbortError") {
+        ST.upErr = { msg: "Upload cancelled — " + file.name + " was not sent.", retry: true, soft: true };
+      } else {
+        ST.upErr = { msg: describe(err, "“" + file.name + "” was not uploaded."), retry: true };
+      }
+      renderUpload();
+    } finally { ctrl = null; }
+  }
+
+  /* ---------------- queue ---------------- */
+  var jobsEl = $("#jobs"), qbar = $("#qbar"), syncNote = $("#syncNote"), retryAll = $("#retryAll");
+  var rows = new Map(), newIds = new Set();
+  var RANK = { running: 0, queued: 1, failed: 2, succeeded: 3 };
+
+  function visible() {
+    var f = ST.filter;
+    return ST.jobs.filter(function (j) {
+      if (f === "all") return true;
+      if (f === "active") return j.status === "running" || j.status === "queued";
+      if (f === "failed") return j.status === "failed";
+      return j.status === "succeeded";
+    }).sort(function (a, b) {
+      return (RANK[a.status] - RANK[b.status]) || (a.id < b.id ? -1 : 1);
+    });
+  }
+
+  function counts() {
+    var c = { all: ST.jobs.length, active: 0, failed: 0, done: 0, running: 0, queued: 0 };
+    ST.jobs.forEach(function (j) {
+      if (j.status === "running") { c.active++; c.running++; }
+      else if (j.status === "queued") { c.active++; c.queued++; }
+      else if (j.status === "failed") c.failed++;
+      else c.done++;
+    });
+    return c;
+  }
+
+  function makeRow(job) {
+    var li = document.createElement("li");
+    li.className = "job";
+    li.dataset.id = job.id;
+    li.innerHTML =
+      '<div class="job__top">' +
+        '<span class="badge" data-el="badge"><svg class="i i-sm"><use/></svg><span data-el="badgeTxt"></span></span>' +
+        '<button class="job__id mono" type="button" data-act="open">' + esc(job.id) + "</button>" +
+        '<span class="job__meta mono" data-el="meta"></span>' +
+      "</div>" +
+      '<div class="job__act" data-el="act"></div>' +
+      '<div class="job__prog"><progress class="bar" max="100" value="0" data-el="bar"></progress><span class="job__pct mono" data-el="pct"></span></div>' +
+      '<div class="job__err is-hidden" data-el="err"></div>';
+    return li;
+  }
+
+  function actionsHTML(job, busy) {
+    var sp = busy ? '<svg class="i i-sm i-spin"><use href="#ic-spin"/></svg>' : null;
+    if (job.status === "queued" || job.status === "running") {
+      return '<button class="btn btn--sm btn--danger" type="button" data-act="cancel"' + (busy ? ' aria-busy="true" disabled' : "") + ">" +
+        (sp || icon("#ic-x")) + "Cancel</button>";
+    }
+    if (job.status === "failed") {
+      return '<button class="btn btn--sm btn--ok" type="button" data-act="retry"' + (busy ? ' aria-busy="true" disabled' : "") + ">" +
+        (sp || icon("#ic-retry")) + "Retry</button>";
+    }
+    var url = job.result && job.result.downloadUrl;
+    return url
+      ? '<a class="btn btn--sm" href="' + esc(url) + '" download="' + esc(job.id) + '.csv" data-act="download">' + icon("#ic-down") + "Download</a>"
+      : "";
+  }
+
+  function updateRow(li, job) {
+    var busy = ST.busy.has(job.id);
+    var re = ST.rowErr.get(job.id);
+    var sig = [job.status, job.progress, busy, re && re.msg, job.error, job.result && job.result.rows].join("|");
+    if (li.__sig === sig) return;
+    li.__sig = sig;
+
+    var badge = li.querySelector('[data-el="badge"]');
+    badge.className = "badge badge--" + job.status;
+    badge.querySelector("use").setAttribute("href", ICON[job.status]);
+    li.querySelector('[data-el="badgeTxt"]').textContent = LABEL[job.status];
+
+    var meta = li.querySelector('[data-el="meta"]');
+    meta.textContent = job.result && job.result.rows != null ? num(job.result.rows) + " rows" : "";
+
+    var bar = li.querySelector('[data-el="bar"]'), pct = li.querySelector('[data-el="pct"]');
+    var prog = li.querySelector(".job__prog");
+    var p = Math.round(job.progress || 0);
+    bar.className = "bar s-" + job.status;
+    bar.value = job.status === "succeeded" || job.status === "failed" ? 100 : p;
+    bar.setAttribute("aria-label", LABEL[job.status] + " " + p + "%");
+    pct.textContent = job.status === "running" || job.status === "queued" ? p + "%" : "";
+    prog.classList.toggle("is-hidden", false);
+
+    li.querySelector('[data-el="act"]').innerHTML = actionsHTML(job, busy);
+
+    var err = li.querySelector('[data-el="err"]');
+    var msg = re ? re.msg : (job.status === "failed" && job.error ? job.error : null);
+    if (msg) {
+      err.classList.remove("is-hidden");
+      err.innerHTML = icon("#ic-alert", "i") + "<div style=\"min-width:0\"><div>" + esc(msg) + "</div>" +
+        (re ? '<div class="note__b"><button class="btn btn--sm" type="button" data-act="' + re.act + '">' + icon("#ic-retry") + "Try again</button></div>" : "") +
+        "</div>";
+    } else {
+      err.classList.add("is-hidden");
+      err.innerHTML = "";
+    }
+  }
+
+  function renderQueue() {
+    var list = visible(), c = counts();
+
+    document.querySelectorAll("[data-c]").forEach(function (n) { n.textContent = c[n.dataset.c]; });
+    var parts = qbar.children;
+    parts[0].style.flex = c.running; parts[1].style.flex = c.queued;
+    parts[2].style.flex = c.failed; parts[3].style.flex = c.done;
+    qbar.setAttribute("aria-label", c.running + " running, " + c.queued + " queued, " + c.failed + " failed, " + c.done + " done");
+    qbar.style.display = c.all ? "flex" : "none";
+    retryAll.hidden = c.failed === 0;
+    retryAll.disabled = ST.busy.size > 0;
+
+    if (!ST.loaded) {
+      if (!jobsEl.__skel) {
+        jobsEl.innerHTML = '<li class="skel"><div></div><div></div></li>'.repeat(3);
+        jobsEl.__skel = true;
+      }
+      return;
+    }
+    jobsEl.__skel = false;
+
+    var keep = new Set(list.map(function (j) { return j.id; }));
+    rows.forEach(function (el, id) { if (!keep.has(id)) { el.remove(); rows.delete(id); } });
+
+    if (!list.length) {
+      if (!jobsEl.__empty) {
+        jobsEl.innerHTML = ST.jobs.length
+          ? '<li class="empty"><span class="empty__art">' + icon("#ic-inbox", "i") + "</span><h3>Nothing in this view</h3>" +
+            '<button class="btn btn--sm" type="button" data-act="allfilter">Show all jobs</button></li>'
+          : '<li class="empty"><span class="empty__art">' + icon("#ic-inbox", "i") + "</span><h3>No jobs yet</h3><p>Upload a CSV to start one.</p></li>";
+        jobsEl.__empty = true;
+      }
+      return;
+    }
+    if (jobsEl.__empty) { jobsEl.innerHTML = ""; jobsEl.__empty = false; }
+
+    list.forEach(function (job, i) {
+      var el = rows.get(job.id);
+      if (!el) {
+        el = makeRow(job);
+        rows.set(job.id, el);
+        if (newIds.has(job.id)) {
+          el.classList.add("is-new");
+          newIds.delete(job.id);
+          setTimeout(function () { el.classList.remove("is-new"); }, 2500);
+        }
+      }
+      updateRow(el, job);
+      if (jobsEl.children[i] !== el) jobsEl.insertBefore(el, jobsEl.children[i] || null);
+    });
+  }
+
+  function setFilter(f) {
+    ST.filter = f;
+    document.querySelectorAll("[data-f]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.f === f)); });
+    rows.forEach(function (el) { el.remove(); });
+    rows.clear();
+    jobsEl.__empty = false; jobsEl.innerHTML = "";
+    renderQueue();
+  }
+  document.querySelector(".seg").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-f]");
+    if (b) setFilter(b.dataset.f);
+  });
+
+  jobsEl.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-act]");
+    if (!b || b.tagName === "A") return;
+    var act = b.dataset.act;
+    if (act === "allfilter") { setFilter("all"); return; }
+    var li = b.closest("[data-id]");
+    if (!li) return;
+    if (act === "open") openDlg(li.dataset.id);
+    else run(li.dataset.id, act);
+  });
+
+  retryAll.addEventListener("click", function () {
+    var ids = ST.jobs.filter(function (j) { return j.status === "failed"; }).map(function (j) { return j.id; });
+    ids.forEach(function (id) { run(id, "retry"); });
+  });
+
+  async function run(id, act) {
+    if (ST.busy.has(id)) return;                 // dedupe per job
+    ST.busy.add(id);
+    ST.rowErr.delete(id);
+    renderQueue(); renderDlg();
+    try {
+      var job = act === "retry" ? await api.retryJob(id) : await api.cancelJob(id);
+      merge(job);
+    } catch (err) {
+      ST.rowErr.set(id, { act: act, msg: describe(err, act === "retry" ? "job was not restarted." : "job was not cancelled.") });
+    } finally {
+      ST.busy.delete(id);
+      renderQueue(); renderDlg();
+      refresh();
+    }
+  }
+
+  function merge(job) {
+    if (!job || !job.id) return;
+    var i = ST.jobs.findIndex(function (j) { return j.id === job.id; });
+    if (i < 0) ST.jobs.push(job); else ST.jobs[i] = job;
+  }
+
+  /* ---------------- polling ---------------- */
+  function renderSync() {
+    var live = $("#live"), txt = $("#liveTxt");
+    if (ST.syncErr) {
+      live.dataset.state = "stale"; txt.textContent = "Stale";
+      if (!syncNote.__on) {
+        syncNote.innerHTML = '<div class="note note--warn" style="margin:10px 14px 0" role="status">' + icon("#ic-alert", "i") +
+          "<div><div>" + esc(ST.syncErr) + '</div><div class="note__b"><button class="btn btn--sm" type="button" id="syncAgain">' +
+          icon("#ic-retry") + "Sync now</button></div></div></div>";
+        syncNote.__on = true;
+      }
+    } else {
+      live.dataset.state = "ok"; txt.textContent = "Live";
+      if (syncNote.__on) { syncNote.innerHTML = ""; syncNote.__on = false; }
+    }
+  }
+  syncNote.addEventListener("click", function (e) { if (e.target.closest("#syncAgain")) refresh(); });
+
+  async function refresh() {
+    if (polling) return;
+    polling = true;
+    try {
+      ST.jobs = await api.listJobs();
+      ST.syncErr = null;
+    } catch (err) {
+      ST.syncErr = describe(err, "queue may be out of date.");
+    } finally {
+      ST.loaded = true;
+      polling = false;
+      renderSync(); renderQueue(); renderDlg();
+    }
+  }
+  function schedule() {
+    clearTimeout(pollT);
+    pollT = setTimeout(tick, document.hidden ? 4000 : 1500);
+  }
+  async function tick() { if (!document.hidden) await refresh(); schedule(); }
+  document.addEventListener("visibilitychange", function () { if (!document.hidden) { refresh(); schedule(); } });
+
+  /* ---------------- detail dialog ---------------- */
+  var dlg = $("#dlg"), dlgT = $("#dlgT"), dlgB = $("#dlgB"), dlgF = $("#dlgF");
+  $("#dlgX").addEventListener("click", function () { dlg.close(); });
+  dlg.addEventListener("close", function () { ST.openId = null; });
+  dlg.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-act]");
+    if (!b || b.tagName === "A") return;
+    run(ST.openId, b.dataset.act);
+  });
+
+  function openDlg(id) { ST.openId = id; renderDlg(); if (!dlg.open) dlg.showModal(); }
+
+  function renderDlg() {
+    if (!ST.openId || !dlg.open && ST.openId == null) return;
+    var job = ST.jobs.find(function (j) { return j.id === ST.openId; });
+    if (!job) {
+      if (dlg.open) { dlgB.innerHTML = '<div class="note note--warn">' + icon("#ic-alert", "i") + "<div>Job is no longer in the queue.</div></div>"; dlgF.innerHTML = ""; }
+      return;
+    }
+    var busy = ST.busy.has(job.id), re = ST.rowErr.get(job.id);
+    var p = Math.round(job.progress || 0);
+    dlgT.textContent = job.id;
+    dlgB.innerHTML =
+      '<div style="display:flex;align-items:center;gap:10px">' +
+        '<span class="badge badge--' + job.status + '">' + icon(ICON[job.status]) + LABEL[job.status] + "</span>" +
+        '<progress class="bar s-' + job.status + '" max="100" value="' + (job.status === "queued" || job.status === "running" ? p : 100) + '" aria-label="Job progress"></progress>' +
+        '<span class="mono" style="color:var(--muted)">' + (job.status === "queued" || job.status === "running" ? p + "%" : "") + "</span>" +
+      "</div>" +
+      '<dl class="kv"><dt>Status</dt><dd>' + LABEL[job.status] + "</dd>" +
+        (job.result && job.result.rows != null ? "<dt>Rows</dt><dd class=\"mono\">" + num(job.result.rows) + "</dd>" : "") +
+      "</dl>" +
+      (job.status === "failed" && job.error ? '<div class="job__err">' + icon("#ic-alert", "i") + "<div>" + esc(job.error) + "</div></div>" : "") +
+      (re ? '<div class="note note--bad">' + icon("#ic-alert", "i") + "<div>" + esc(re.msg) + "</div></div>" : "");
+    dlgF.innerHTML = actionsHTML(job, busy) || '<button class="btn btn--sm btn--ghost" type="button" onclick="this.closest(\'dialog\').close()">Close</button>';
+  }
+
+  /* ---------------- boot ---------------- */
+  renderUpload();
+  renderQueue();
+  refresh().then(schedule);
+})();
+</script>
+</body>
+</html>

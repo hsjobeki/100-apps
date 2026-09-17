@@ -1,0 +1,86 @@
+{
+  "id": "5c94302f",
+  "f1": {
+    "score": 5,
+    "observations": [
+      "Field validation state is graphical+text: each input's .state span renders a green check SVG (ICON_OK) when valid or a red circle-exclamation SVG (ICON_BAD) when invalid, borders shift amber/red/green, aria-invalid toggles, and a text message like 'Enter a street address' sits beneath — all visible in the error_desktop screenshot.",
+      "Form-level completion is graphical: a native <progress max=9> bar plus section step badges whose numeral swaps to a tick SVG when the section is done (Contact shows a filled green check circle in idle_desktop while Shipping/Payment still show '2'/'3').",
+      "Submission state is graphical+text: the Pay button carries a .spin SVG spinner alongside 'Placing order…', aria-busy=true, and the whole fieldset disables (async item 1 evidence).",
+      "Order success is graphical+text: the confirmation section leads with a 64x64 done-mark checkmark SVG above 'Order placed' and a receipt <dl>; failure is graphical+text: the .banner.bad pairs a warning-triangle SVG with 'Could not reach the shop. Your card was not charged.'",
+      "Metrics corroborate: desktop graphical total = 23 (20 svg, 1 progress, 2 badges) against only 80 page words.",
+      "Raw ratio: 3/3 inventory items graphical+text, 0 text-only, 0 missing."
+    ]
+  },
+  "f2": {
+    "score": 5,
+    "observations": [
+      "Measured desktop viewportWords = 78, pageWords = 80, helperWords = 32, longLeafWords = 0 — there is no paragraph-length prose anywhere on the page.",
+      "Button labels: count 4, meanWords 1.25, maxWords 2, longLabels empty; the primary action is 'Pay $104.00+' which encodes the total instead of adding words.",
+      "The only hints are load-bearing: 'From your account' (shown only after getUser prefills the email), 'Still waiting on the payment provider.' (shown only after 5 s of pending), '2 of 9 filled' (labels the progress bar).",
+      "Error and banner copy is one short sentence each ('Enter a city', 'Could not reach the shop. Your card was not charged.' — the second sentence is reassurance about the charge, not a restatement of the UI).",
+      "No sentence restates what the UI already shows; f2Redundant is genuinely empty."
+    ]
+  },
+  "f3": {
+    "score": 4,
+    "observations": [
+      "One terminology inconsistency: the summary card is headed 'Order' but the empty state says 'Your basket is empty.' and the guard banner says 'Add an item before paying.' — the same cart is called both 'Order' and 'basket'.",
+      "Otherwise terminology is consistent and copy matches verified behavior: 'Cancelled. Your card was not charged.' appears exactly on abort (async item 9), 'Try again' really resubmits without reload (async item 6), and 'Placing order…' only shows while submitOrder is pending (async item 10).",
+      "Copy is unusually precise: postal label adapts per country ('ZIP code'/'Postcode'/'Eircode'), CVC relabels to 'CID' with 'Enter the 4 digits on the front' for Amex, and card errors distinguish length ('Card numbers have 16 digits') from checksum ('This card number is not valid').",
+      "No marketing tone, no filler sentences, no placeholder/lorem text; input placeholders ('1234 5678 9012 3456', 'MM/YY', '123') are format examples, not leftovers."
+    ]
+  },
+  "f4": {
+    "score": 5,
+    "observations": [
+      "The page is branded as a concrete small shop: 'Salt & Thistle' wordmark in Fraunces (a warm display serif) over Instrument Sans, cream/deep-green palette, and a 3-product artisan catalog (sea salt flakes 250 g tin, cast-iron skillet 26 cm, linen tea towels) with tinted monogram tiles — choices that read 'small online shop', not dashboard chrome.",
+      "Checkout-specific engineering shows in the copy and logic: per-country shipping table drives a '$104.00+' total and 'Choose a country' shipping row until country is picked; the Pay button label carries the live total; 'Your card was not charged.' addresses the exact anxiety of a failed payment.",
+      "Card-brand detection renders inline VISA/Mastercard/Amex/Discover badges, regroups digits 4-6-5 for Amex, and swaps CVC→CID — depth only a payment form would have.",
+      "Template elements are limited to the canonical two-column form-left/summary-right checkout layout and numbered section cards (1 Contact, 2 Shipping, 3 Payment), which are the task's own conventions rather than a generic app shell."
+    ]
+  },
+  "hierarchy": {
+    "score": 5,
+    "observations": [
+      "From the idle desktop screenshot alone: purpose read instantly as a shop checkout — 'Salt & Thistle' wordmark, 'Checkout' H1, and an order summary card with 3 line items and 'Total $104.00+'.",
+      "Primary action read as completing the purchase: a numbered 1-2-3 flow (Contact done with a green tick, Shipping next, Payment last) plus a '2 of 9 filled' progress bar makes the path unambiguous even though the Pay button itself sits below the 900px fold.",
+      "What needs attention read correctly: the empty Street address/City/Postal code inputs are outlined amber against green-checked completed fields, and 'Choose a country' is echoed in the summary's Shipping row.",
+      "Checked against the brief ('checkout form for a small online shop'): all three answers were correct and obvious."
+    ]
+  },
+  "f1Inventory": [
+    {
+      "item": "field validation state",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "submission state",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "order success/failure",
+      "classification": "graphical+text"
+    }
+  ],
+  "f2Redundant": [],
+  "f3Issues": [
+    "Inconsistent naming for the cart: summary heading 'Order' vs empty-state 'Your basket is empty.' and guard banner 'Add an item before paying.' call the same thing 'Order' and 'basket'."
+  ],
+  "f4TaskDriven": [
+    "'Salt & Thistle' brand wordmark set in Fraunces serif with a cream/deep-green artisan palette matching a small kitchen-goods shop",
+    "Concrete 3-item catalog (Sea salt flakes 250 g tin, Cast-iron skillet 26 cm, Linen tea towel pair) with tinted monogram product tiles and editable quantities in the summary",
+    "Per-country shipping cost table; total shown as '$104.00+' and Shipping as 'Choose a country' until a country is selected, mirrored in the 'Pay $104.00+' button label",
+    "Country-aware postal label ('ZIP code', 'Postcode', 'Eircode') and country-aware postal validation ('Use 5 digits, like 94110' / 'Use a format like M5V 2T6')",
+    "Card brand detection with inline VISA/Mastercard/Amex/Discover badges, Amex 4-6-5 digit grouping, CVC→CID relabel and 4-digit CID handling",
+    "Payment-anxiety copy: 'Your card was not charged.' on both network failure and cancellation; 'Still waiting on the payment provider.' after 5 s",
+    "'2 of 9 filled' native progress bar tied to the exact field count, with per-section tick badges",
+    "Receipt-style confirmation (<dl> with Order id, Email, Items, Charged, Ships to) after server-confirmed success",
+    "'Secure checkout' padlock in the header, a checkout-specific trust marker",
+    "Mobile layout collapses the summary into a tap-to-expand 'Order $104.00+' disclosure pinned above the form"
+  ],
+  "f4Template": [
+    "Two-column form-left / order-summary-right layout is the standard checkout arrangement",
+    "Numbered section cards (1 Contact, 2 Shipping address, 3 Payment) follow the conventional checkout step pattern",
+    "Rounded white cards on a cream background is a common contemporary form treatment"
+  ]
+}

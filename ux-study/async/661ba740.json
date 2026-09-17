@@ -1,0 +1,66 @@
+{
+  "id": "661ba740",
+  "items": [
+    {
+      "n": 1,
+      "verdict": "PASS",
+      "reason": "Under slow latency the initial load shows skeleton rows and dashed stat cards at 250 ms, and clicking Retry flips the button to a disabled 'Retrying…' state within 260 ms.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/661ba740_1.png"
+    },
+    {
+      "n": 2,
+      "verdict": "PASS",
+      "reason": "Three clicks on a row's Retry within 200 ms under slow latency produced exactly one retryJob call in __apiLog; the button was disabled with text 'Retrying…' while pending.",
+      "evidence": "<button class=\"action-btn retry\" data-action=\"retry\" data-id=\"job_b86738\" disabled=\"\">Retrying…</button> — screenshot /home/johannes/git/failure/ux-study/async/evidence/661ba740_2.png"
+    },
+    {
+      "n": 3,
+      "verdict": "PASS",
+      "reason": "Every job row renders a colored progress bar plus a numeric percentage (e.g. 38%, 47%, 95%) driven by the API's job progress field, updating as jobs run.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/661ba740_3.png"
+    },
+    {
+      "n": 4,
+      "verdict": "PASS",
+      "reason": "Queued/running jobs expose a Cancel button; clicking it showed a disabled 'Cancelling…' state, issued one cancelJob call, and the job settled to failed with details 'Cancelled by admin'.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/661ba740_4.png"
+    },
+    {
+      "n": 5,
+      "verdict": "PASS",
+      "reason": "Each failed row shows its specific error ('Worker ran out of memory at 1.8 GB', 'Upstream timeout after 30s') in the Details cell directly beside its Retry button, and a failed retry action at fail=1 raised a specific toast 'Failed to retry: Network error — try again'.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/661ba740_5.png"
+    },
+    {
+      "n": 6,
+      "verdict": "PASS",
+      "reason": "After a retry failed on the network, the Retry button re-enabled and a second click issued another retryJob call without any page reload.",
+      "evidence": "__apiLog after re-click: [\"retryJob\",\"listJobs\"]; button state {text:'Retry', disabled:false} — screenshot /home/johannes/git/failure/ux-study/async/evidence/661ba740_6.png"
+    },
+    {
+      "n": 7,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief; the page has no form fields receiving API field-level validation.",
+      "evidence": "Page contains only a job table, filter tabs, and a job-ID filter input; no submitOrder-style form (see /home/johannes/git/failure/ux-study/async/evidence/661ba740_3.png)."
+    },
+    {
+      "n": 8,
+      "verdict": "PASS",
+      "reason": "The page polls listJobs continuously (15 calls logged over ~20 s) behind a 'Live' badge with a Pause toggle; job statuses advanced from running to succeeded/failed and counts updated without any reload.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/661ba740_8.png"
+    },
+    {
+      "n": 9,
+      "verdict": "PASS",
+      "reason": "Starting a slow retry and switching to the Succeeded filter mid-action rendered a clean filtered view (no undefined/NaN, no stuck spinners); back on All, the pending retry settled correctly to 'queued'.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/661ba740_9.png"
+    },
+    {
+      "n": 10,
+      "verdict": "PASS",
+      "reason": "During a pending retry the row's status badge stayed 'failed' at both 260 ms and 1.8 s after the click, and only changed to 'queued' once retryJob resolved with the server snapshot.",
+      "evidence": "Row during pending retry: <span class=\"status-badge failed\">failed</span> with button 'Retrying…'; post-confirm screenshot /home/johannes/git/failure/ux-study/async/evidence/661ba740_10.png"
+    }
+  ],
+  "failCount": 0
+}

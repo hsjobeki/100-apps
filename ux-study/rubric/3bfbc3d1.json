@@ -1,0 +1,92 @@
+{
+  "id": "3bfbc3d1",
+  "f1": {
+    "score": 5,
+    "observations": [
+      "Job status per row is a coloured chip badge (red 'Failed', blue 'Running', green 'Succeeded' pills with a dot) plus a status-tinted left border on the row and a status-coloured progress bar — graphical with text supporting.",
+      "Job progress is a role=progressbar bar with aria-valuenow plus a numeric percent per row (81%, 38%, 58%...); the drawer adds an SVG progress ring ('svg viewBox=\"0 0 80 80\"' with stroke-dashoffset) around the same percent. Metrics confirm 8 role=progressbar elements and 24 svg elements on the idle page.",
+      "Queue-level counts are stat tiles (Failed 3 / Running 3 / Queued 0 / Succeeded 2) each with a coloured dot and a mini share bar ('.share' fill width = c[s]/total), plus a stacked SVG composition bar (#seg-failed/#seg-running/#seg-queued/#seg-succeeded) labelled '8 jobs' — number plus two graphical encodings.",
+      "Failure reason ('Upstream timeout after 30s', 'Worker ran out of memory at 1.8 GB') is rendered with a red warning-triangle icon (#i-alert) and red note styling in the Detail column, and again in the drawer as a 'Failure reason' block with the alert icon.",
+      "Deterministic totals back this up: graphical.total = 72 (24 svg, 8 role=progressbar, 40 badges) against only 97 visible desktop words.",
+      "Raw ratio: 4/4 inventory items graphical+text, 0 text only, 0 missing."
+    ]
+  },
+  "f2": {
+    "score": 5,
+    "observations": [
+      "Desktop viewportWords is 97 for an 8-row job table with 4 stat tiles — almost every visible word is data (job ids, statuses, percents, error strings), not narration.",
+      "helperWords = 0 and longLeafWords = 0: there are no <p>/<small> explainer blocks and no leaf element over 12 words anywhere on the idle page.",
+      "Labels: 26 buttons, meanWords 1.42, maxWords 3, longLabels empty — 'Retry', 'Cancel', 'Pause', 'Refresh', 'Retry failed', 'Clear filters' all at or under 3 words.",
+      "The only explanatory sentence in the source is the confirm-dialog note 'The job stops and is marked failed. Retry puts it back in the queue.' — it states a non-obvious consequence of a destructive action rather than restating the UI, so it earns its place.",
+      "Status detail strings are one-glance short: 'Processing', 'Waiting for a worker', '2,713 rows Download'."
+    ]
+  },
+  "f3": {
+    "score": 5,
+    "observations": [
+      "Status terminology is consistent everywhere: Failed/Running/Queued/Succeeded appear identically in tiles, filter chips, row chips, and the drawer chip; the Detail column ('Processing', 'Waiting for a worker') describes rather than renames the status.",
+      "Copy matches observed behavior: the dialog's 'The job stops and is marked failed. Retry puts it back in the queue.' matched the async rater's observation (cancelled job became 'Failed ... Cancelled by admin' with Retry offered; retried job went Failed→Queued); 'Live · just now' matches the ~2.5 s polling and the Pause/Resume toggle.",
+      "Error copy is specific and honest: 'Network error — the retry never reached the server.', 'This job is no longer in the queue.', 'Queue service is unreachable from this page.' — no generic 'Something went wrong', no filler, no marketing tone, no placeholder text found in the full source.",
+      "The bulk toast verb 'requeued' ('2 jobs requeued.') differs from the button verb 'Retry', but the dialog copy itself defines retry as putting the job back in the queue, so the outcome wording is grounded rather than inconsistent; 0 countable issues remain."
+    ]
+  },
+  "f4": {
+    "score": 5,
+    "observations": [
+      "The header's only primary (highlighted) button is 'Retry failed 3' with a live count pill — the brief's core job ('deal with failed jobs') is literally the page's number-one action, disabled when c.failed === 0.",
+      "Failed is put first everywhere for this user: the Failed tile is first and gets a red 'hot' outline when failed > 0, and the table sort ORDER = { failed:0, running:1, queued:2, succeeded:3 } pins failed jobs to the top with their failure reasons inline.",
+      "Ops-console-specific choices: JetBrains Mono for job ids, a Live/Paused pulse with 'just now / Ns ago' staleness stamp, Pause/Resume polling control, stat tiles that double as status filters (aria-pressed), a stacked queue-composition bar, and bulk select with 'Retry N'/'Cancel N' — all serving an admin triaging a queue, not a generic dashboard.",
+      "Template-side elements (four stat cards, chip filters + search, toasts, dark slate palette) exist but are each wired to the task (tiles filter, chips carry live counts, search is 'Find job ID')."
+    ]
+  },
+  "hierarchy": {
+    "score": 5,
+    "observations": [
+      "From the idle screenshot alone: the page is unmistakably a background job queue monitor — 'Job queue' title, 'Live · just now', Failed/Running/Queued/Succeeded tiles over a job table with per-row status, progress, and error detail.",
+      "Primary action is obvious: 'Retry failed 3' is the only filled/highlighted header button, echoed by per-row Retry buttons on exactly the failed rows.",
+      "What needs attention is obvious: the Failed tile is the only red-outlined tile, failed rows carry red left borders, red badges, and warning-icon reasons ('Upstream timeout after 30s'), and they sit at the top of the table.",
+      "All three answers check out exactly against the brief ('see what's happening and deal with failed jobs')."
+    ]
+  },
+  "f1Inventory": [
+    {
+      "item": "job status per row",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "job progress",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "queue-level counts",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "failure reason",
+      "classification": "graphical+text"
+    }
+  ],
+  "f2Redundant": [],
+  "f3Issues": [],
+  "f4TaskDriven": [
+    "'Retry failed' with live count pill as the sole primary header action, auto-disabled when no jobs are failed",
+    "Failed-first table sort (ORDER failed:0) so broken jobs are always on top",
+    "Failed stat tile placed first and given a red 'hot' outline when count > 0",
+    "Stat tiles double as status filters (clickable, aria-pressed)",
+    "Stacked SVG queue-composition bar with '8 jobs' total",
+    "Live/Paused pulse indicator with staleness stamp ('just now', 'Ns ago') and Pause/Resume toggle",
+    "JetBrains Mono monospace for job ids",
+    "Per-row failure reason inline with warning icon in the Detail column",
+    "Bulk selection bar with count-aware 'Retry N' / 'Cancel N' actions and a bulk progress bar",
+    "Job-detail drawer with SVG progress ring and a dedicated 'Failure reason' block",
+    "Skeleton table rows plus 'loading jobs' stamp during first load",
+    "Differentiated empty states: 'No jobs match this view' (with Clear filters) vs 'Queue is empty'",
+    "Confirm dialog wording tuned to the ambiguity of 'Cancel' ('Keep job' vs 'Cancel job')"
+  ],
+  "f4Template": [
+    "Row of four stat cards across the top",
+    "Filter chips plus right-aligned search field",
+    "Toast notifications in the corner",
+    "Dark slate developer-tool palette with Inter type"
+  ]
+}

@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Service Health</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0b0e14;--surface:#141820;--surface2:#1a1f2b;--border:#252b3b;
+  --text:#e2e8f0;--text2:#94a3b8;--text3:#64748b;
+  --green:#22c55e;--green-bg:rgba(34,197,94,.1);
+  --yellow:#eab308;--yellow-bg:rgba(234,179,8,.1);
+  --red:#ef4444;--red-bg:rgba(239,68,68,.1);
+  --blue:#3b82f6;--blue-bg:rgba(59,130,246,.08);
+  --radius:8px;
+}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.5}
+.app{max-width:1320px;margin:0 auto;padding:20px 24px}
+
+/* Header */
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+.header h1{font-size:20px;font-weight:700;display:flex;align-items:center;gap:10px}
+.header-right{display:flex;align-items:center;gap:12px}
+.global-pulse{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.global-pulse.healthy{background:var(--green);box-shadow:0 0 8px var(--green)}
+.global-pulse.degraded{background:var(--yellow);box-shadow:0 0 8px var(--yellow);animation:pulse-warn 2s infinite}
+.global-pulse.down{background:var(--red);box-shadow:0 0 8px var(--red);animation:pulse-crit 1s infinite}
+@keyframes pulse-warn{0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes pulse-crit{0%,100%{opacity:1}50%{opacity:.3}}
+
+.range-group{display:flex;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.range-btn{padding:6px 14px;font-size:13px;font-weight:500;background:none;border:none;color:var(--text3);cursor:pointer;transition:all .15s}
+.range-btn:hover{color:var(--text2)}
+.range-btn.active{background:var(--blue-bg);color:var(--blue)}
+.refresh-btn{padding:6px 12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);color:var(--text2);cursor:pointer;font-size:13px;font-weight:500;display:flex;align-items:center;gap:6px;transition:all .15s}
+.refresh-btn:hover{border-color:var(--text3);color:var(--text)}
+.refresh-btn.spinning svg{animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Summary strip */
+.summary{display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap}
+.summary-card{flex:1;min-width:140px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px}
+.summary-card .label{font-size:12px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.summary-card .value{font-size:28px;font-weight:700}
+.summary-card .value.green{color:var(--green)}
+.summary-card .value.yellow{color:var(--yellow)}
+.summary-card .value.red{color:var(--red)}
+
+/* Service grid */
+.services{display:grid;grid-template-columns:repeat(auto-fill,minmax(400px,1fr));gap:16px}
+.svc-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:border-color .2s}
+.svc-card:hover{border-color:var(--text3)}
+.svc-card.status-down{border-left:3px solid var(--red)}
+.svc-card.status-degraded{border-left:3px solid var(--yellow)}
+.svc-card.status-healthy{border-left:3px solid var(--green)}
+
+.svc-head{padding:16px 18px 12px;display:flex;align-items:center;justify-content:space-between}
+.svc-name{font-size:15px;font-weight:600;display:flex;align-items:center;gap:8px}
+.status-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.status-dot.healthy{background:var(--green)}
+.status-dot.degraded{background:var(--yellow)}
+.status-dot.down{background:var(--red)}
+.status-badge{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;padding:3px 8px;border-radius:10px}
+.status-badge.healthy{background:var(--green-bg);color:var(--green)}
+.status-badge.degraded{background:var(--yellow-bg);color:var(--yellow)}
+.status-badge.down{background:var(--red-bg);color:var(--red)}
+
+.svc-stats{display:flex;gap:1px;background:var(--border);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.svc-stat{flex:1;padding:10px 14px;background:var(--surface);text-align:center}
+.svc-stat .stat-label{font-size:11px;color:var(--text3);margin-bottom:2px}
+.svc-stat .stat-value{font-size:14px;font-weight:600}
+
+.svc-charts{display:flex;gap:1px;background:var(--border)}
+.svc-chart{flex:1;background:var(--surface);padding:12px 14px}
+.chart-title{font-size:11px;color:var(--text3);margin-bottom:6px;display:flex;align-items:center;justify-content:space-between}
+.chart-title .chart-val{color:var(--text2);font-weight:500}
+
+canvas.sparkline{width:100%;height:48px;display:block}
+
+/* Loading */
+.loading-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:300px;gap:16px}
+.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite}
+.loading-text{font-size:14px;color:var(--text3)}
+
+/* Error banner */
+.error-banner{background:var(--red-bg);border:1px solid rgba(239,68,68,.3);border-radius:var(--radius);padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;gap:12px}
+.error-banner svg{flex-shrink:0;color:var(--red)}
+.error-banner .msg{font-size:14px;color:var(--text);flex:1}
+.error-banner button{padding:6px 14px;border-radius:var(--radius);border:1px solid rgba(239,68,68,.4);background:rgba(239,68,68,.15);color:var(--red);font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap}
+.error-banner button:hover{background:rgba(239,68,68,.25)}
+.hidden{display:none}
+
+/* Updated timestamp */
+.updated{font-size:12px;color:var(--text3);text-align:right;margin-top:16px}
+
+/* Responsive */
+@media(max-width:860px){
+  .services{grid-template-columns:1fr}
+  .header{flex-direction:column;align-items:flex-start}
+  .summary-card .value{font-size:22px}
+}
+@media(max-width:500px){
+  .app{padding:16px}
+  .svc-stats{flex-direction:column;gap:0}
+  .svc-stat{border-bottom:1px solid var(--border)}
+  .svc-stat:last-child{border-bottom:none}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <h1><span class="global-pulse" id="globalPulse"></span> Service Health</h1>
+    <div class="header-right">
+      <div class="range-group" id="rangeGroup">
+        <button class="range-btn" data-range="1h">1H</button>
+        <button class="range-btn active" data-range="24h">24H</button>
+        <button class="range-btn" data-range="7d">7D</button>
+      </div>
+      <button class="refresh-btn" id="refreshBtn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+        Refresh
+      </button>
+    </div>
+  </div>
+
+  <div class="error-banner hidden" id="errorBanner">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <span class="msg" id="errorMsg"></span>
+    <button id="errorRetry">Retry</button>
+  </div>
+
+  <div id="summarySection" class="summary hidden"></div>
+  <div id="loadingWrap" class="loading-wrap">
+    <div class="spinner"></div>
+    <div class="loading-text">Loading services…</div>
+  </div>
+  <div id="servicesGrid" class="services"></div>
+  <div class="updated hidden" id="updatedAt"></div>
+</div>
+
+<script>
+(function(){
+  const $ = s => document.querySelector(s);
+  const state = { range: '24h', services: null, loading: false, error: null, pollTimer: null };
+
+  /* Range buttons */
+  const rangeGroup = $('#rangeGroup');
+  rangeGroup.addEventListener('click', e => {
+    const btn = e.target.closest('.range-btn');
+    if (!btn || btn.classList.contains('active')) return;
+    rangeGroup.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    state.range = btn.dataset.range;
+    fetchData();
+  });
+
+  /* Refresh */
+  const refreshBtn = $('#refreshBtn');
+  refreshBtn.addEventListener('click', () => fetchData());
+
+  /* Error retry */
+  $('#errorRetry').addEventListener('click', () => fetchData());
+
+  async function fetchData() {
+    if (state.loading) return;
+    state.loading = true;
+    state.error = null;
+    refreshBtn.classList.add('spinning');
+    hideError();
+
+    if (!state.services) {
+      $('#loadingWrap').classList.remove('hidden');
+      $('#summarySection').classList.add('hidden');
+      $('#servicesGrid').innerHTML = '';
+      $('#updatedAt').classList.add('hidden');
+    }
+
+    try {
+      const res = await window.api.getMetrics(state.range);
+      state.services = res.services;
+      render();
+    } catch (err) {
+      state.error = err;
+      showError(err.code === 'NETWORK'
+        ? 'Unable to reach the server. Check your connection.'
+        : 'Failed to load metrics: ' + (err.message || 'Unknown error'));
+      if (!state.services) {
+        $('#loadingWrap').innerHTML = '';
+      }
+    } finally {
+      state.loading = false;
+      refreshBtn.classList.remove('spinning');
+    }
+  }
+
+  function showError(msg) {
+    const banner = $('#errorBanner');
+    $('#errorMsg').textContent = msg;
+    banner.classList.remove('hidden');
+  }
+  function hideError() {
+    $('#errorBanner').classList.add('hidden');
+  }
+
+  function render() {
+    const svcs = state.services;
+    if (!svcs) return;
+    $('#loadingWrap').classList.add('hidden');
+
+    /* Global pulse */
+    const worst = svcs.some(s => s.status === 'down') ? 'down'
+      : svcs.some(s => s.status === 'degraded') ? 'degraded' : 'healthy';
+    const pulse = $('#globalPulse');
+    pulse.className = 'global-pulse ' + worst;
+
+    /* Summary */
+    const healthy = svcs.filter(s => s.status === 'healthy').length;
+    const degraded = svcs.filter(s => s.status === 'degraded').length;
+    const down = svcs.filter(s => s.status === 'down').length;
+    const avgUptime = svcs.reduce((a, s) => a + s.uptimePct, 0) / svcs.length;
+
+    const sumSection = $('#summarySection');
+    sumSection.classList.remove('hidden');
+    sumSection.innerHTML = `
+      <div class="summary-card"><div class="label">Healthy</div><div class="value green">${healthy}</div></div>
+      <div class="summary-card"><div class="label">Degraded</div><div class="value ${degraded ? 'yellow' : 'green'}">${degraded}</div></div>
+      <div class="summary-card"><div class="label">Down</div><div class="value ${down ? 'red' : 'green'}">${down}</div></div>
+      <div class="summary-card"><div class="label">Avg Uptime</div><div class="value ${avgUptime < 99 ? 'yellow' : 'green'}">${avgUptime.toFixed(2)}%</div></div>
+    `;
+
+    /* Service cards — sort: down first, then degraded, then healthy */
+    const order = { down: 0, degraded: 1, healthy: 2 };
+    const sorted = [...svcs].sort((a, b) => order[a.status] - order[b.status]);
+
+    const grid = $('#servicesGrid');
+    grid.innerHTML = sorted.map(svc => {
+      const lat = svc.latencyMs;
+      const err = svc.errorRate;
+      const curLat = lat[lat.length - 1];
+      const avgLat = (lat.reduce((a, v) => a + v, 0) / lat.length).toFixed(0);
+      const maxLat = Math.max(...lat);
+      const curErr = (err[err.length - 1] * 100).toFixed(1);
+      const avgErr = ((err.reduce((a, v) => a + v, 0) / err.length) * 100).toFixed(1);
+
+      return `
+      <div class="svc-card status-${svc.status}">
+        <div class="svc-head">
+          <div class="svc-name"><span class="status-dot ${svc.status}"></span>${esc(svc.name)}</div>
+          <span class="status-badge ${svc.status}">${svc.status}</span>
+        </div>
+        <div class="svc-stats">
+          <div class="svc-stat"><div class="stat-label">Latency</div><div class="stat-value">${curLat}ms</div></div>
+          <div class="svc-stat"><div class="stat-label">Avg Latency</div><div class="stat-value">${avgLat}ms</div></div>
+          <div class="svc-stat"><div class="stat-label">Error Rate</div><div class="stat-value">${curErr}%</div></div>
+          <div class="svc-stat"><div class="stat-label">Uptime</div><div class="stat-value">${svc.uptimePct.toFixed(2)}%</div></div>
+        </div>
+        <div class="svc-charts">
+          <div class="svc-chart">
+            <div class="chart-title"><span>Latency</span><span class="chart-val">peak ${maxLat}ms</span></div>
+            <canvas class="sparkline" data-svc="${esc(svc.name)}" data-type="latency"></canvas>
+          </div>
+          <div class="svc-chart">
+            <div class="chart-title"><span>Error Rate</span><span class="chart-val">avg ${avgErr}%</span></div>
+            <canvas class="sparkline" data-svc="${esc(svc.name)}" data-type="error"></canvas>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+
+    drawAllCharts(sorted);
+
+    const ts = $('#updatedAt');
+    ts.classList.remove('hidden');
+    ts.textContent = 'Updated ' + new Date().toLocaleTimeString();
+  }
+
+  function drawAllCharts(svcs) {
+    document.querySelectorAll('canvas.sparkline').forEach(canvas => {
+      const svcName = canvas.dataset.svc;
+      const type = canvas.dataset.type;
+      const svc = svcs.find(s => s.name === svcName);
+      if (!svc) return;
+
+      const data = type === 'latency' ? svc.latencyMs : svc.errorRate.map(v => v * 100);
+      drawSparkline(canvas, data, type === 'latency' ? '#3b82f6' : svc.status === 'down' ? '#ef4444' : svc.status === 'degraded' ? '#eab308' : '#22c55e');
+    });
+  }
+
+  function drawSparkline(canvas, data, color) {
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    const w = rect.width * dpr;
+    const h = rect.height * dpr;
+    canvas.width = w;
+    canvas.height = h;
+
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, w, h);
+    if (!data.length) return;
+
+    const min = Math.min(...data);
+    const max = Math.max(...data);
+    const range = max - min || 1;
+    const pad = 4 * dpr;
+
+    const points = data.map((v, i) => ({
+      x: pad + (i / (data.length - 1)) * (w - 2 * pad),
+      y: pad + (1 - (v - min) / range) * (h - 2 * pad)
+    }));
+
+    /* Fill area */
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, h);
+    points.forEach(p => ctx.lineTo(p.x, p.y));
+    ctx.lineTo(points[points.length - 1].x, h);
+    ctx.closePath();
+    const grad = ctx.createLinearGradient(0, 0, 0, h);
+    grad.addColorStop(0, color + '30');
+    grad.addColorStop(1, color + '05');
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    /* Line */
+    ctx.beginPath();
+    points.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1.5 * dpr;
+    ctx.lineJoin = 'round';
+    ctx.stroke();
+
+    /* Last point dot */
+    const last = points[points.length - 1];
+    ctx.beginPath();
+    ctx.arc(last.x, last.y, 3 * dpr, 0, Math.PI * 2);
+    ctx.fillStyle = color;
+    ctx.fill();
+  }
+
+  function esc(s) {
+    const d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  /* Auto-poll every 30s */
+  function startPolling() {
+    clearInterval(state.pollTimer);
+    state.pollTimer = setInterval(() => fetchData(), 30000);
+  }
+
+  /* Visibility: pause when hidden */
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) clearInterval(state.pollTimer);
+    else { fetchData(); startPolling(); }
+  });
+
+  /* Init */
+  fetchData();
+  startPolling();
+})();
+</script>
+</body>
+</html>

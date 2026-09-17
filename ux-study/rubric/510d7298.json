@@ -1,0 +1,83 @@
+{
+  "id": "510d7298",
+  "f1": {
+    "score": 5,
+    "observations": [
+      "Upload progress is a circular SVG ring (role=progressbar, aria-valuenow) with the numeric percent inside it, plus a linear .bar fill and an 'Uploading 10%' badge — graphical with text support, confirmed in loading_desktop.png showing ring '10', green bar, and '10%' label.",
+      "Processing status is shown by a three-step Upload→Process→Ready stepper whose dots switch between spinner/check/x SVG icons, an indeterminate striped bar labelled 'Queueing', per-row role=progressbar bars with percent text (8 counted in metrics.graphical.roleProgressbar), and status badges combining an icon (clock/spinner/check/alert via SICON map) with the word Queued/Running/Succeeded/Failed.",
+      "Success/failure is graphical everywhere: green 'Succeeded' and red 'Failed' badges with check/alert icons, green/red progress-bar fills (bar s-succeeded / s-failed), red rowmsg banners with a triangle-alert SVG for per-job errors, and a colour-stacked queue summary bar (#stack) splitting queued/running/failed/succeeded by width.",
+      "Metrics corroborate: graphical.total = 62 (27 svg, 8 role=progressbar, 27 badges) against only 92 visible words on the whole desktop page.",
+      "Raw ratio: 3/3 inventory items graphical+text, 0 text-only, 0 missing."
+    ]
+  },
+  "f2": {
+    "score": 5,
+    "observations": [
+      "Whole desktop page is 92 visible words (viewportWords = pageWords = 92); helperWords = 0 and longLeafWords = 0 — there is not a single explanatory paragraph anywhere.",
+      "All 11 button labels average 1.55 words with a max of 3 ('Use sample CSV'); longLabels list is empty. Other labels are single words: Retry, Cancel, Download, Discard, Dismiss, Close.",
+      "The only guidance copy is the dropzone microcopy 'Drop CSV here / or pick a file' (7 words), which states an affordance the visual alone can't, so it earns its place.",
+      "No text restates what the UI shows: status appears once per row as a badge, percent once per bar; error banners carry only the failure reason ('Upstream timeout after 30s'), no preamble."
+    ]
+  },
+  "f3": {
+    "score": 3,
+    "observations": [
+      "Two copy issues found, which lands in the '2 to 4 issues' band despite otherwise disciplined writing.",
+      "The same entity is named two ways: the panel heading and empty state say 'Runs' / 'No runs yet', while the column header, dialog, and errors say 'Job', 'Job details', 'Job failed', with ids like job_b86738 — no distinct 'run' concept exists in the UI.",
+      "Spelling of the same verb is inconsistent: visible notices use American 'Upload canceled' / 'Processing canceled' (resetToIdle strings) while the busy button says 'Cancelling' and the live region says 'Job cancelled'.",
+      "Otherwise copy matches behavior exactly: 'Retry' re-issues the call (verified by the async rater, uploadFile 1→2), 'Download' links j.result.downloadUrl with a <jobid>.csv filename, and there is no filler, no marketing tone, and no placeholder text anywhere in the 92 words."
+    ]
+  },
+  "f4": {
+    "score": 4,
+    "observations": [
+      "Multiple choices are clearly built for a CSV-processing user: a table/grid glyph used as both logo and dropzone icon, a Rows column with real counts (2,713 / 5,644), JetBrains Mono reserved for machine data (job ids, percentages, row counts, byte sizes), and a 'Use sample CSV' button backed by an actual 9-line embedded orders CSV so the tool is try-able with zero setup.",
+      "The Upload→Process→Ready stepper mirrors the brief's exact pipeline, and the 'yours' tag on S.mine job ids distinguishes the user's uploads from other server jobs — a queue-specific decision, not a template one.",
+      "The shell, however, is standard dashboard vocabulary: Inter on white cards over a grey page, chip filters with count pills, avatar + plan pill in the header — competent but interchangeable styling, which keeps this off 5."
+    ]
+  },
+  "hierarchy": {
+    "score": 5,
+    "observations": [
+      "From the idle desktop screenshot alone: purpose reads instantly as a CSV upload-and-process tool ('CSV Pipeline' wordmark, UPLOAD card with 'Drop CSV here', RUNS table with per-job progress and Download buttons) — matches the brief exactly.",
+      "Primary action is unmistakable: the filled green 'Use sample CSV' button inside the dashed dropzone is the only saturated CTA on the page; everything else is outlined or neutral.",
+      "What needs attention is equally obvious: three Failed rows with red badges, red partial bars, pink full-width reason banners ('Worker ran out of memory at 1.8 GB', 'Upstream timeout after 30s'), Retry buttons, and a red segment in the queue summary bar.",
+      "All three answers verified correct against the brief after reading the source; nothing in the HTML contradicted the screenshot reading."
+    ]
+  },
+  "f1Inventory": [
+    {
+      "item": "upload progress",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "processing status",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "success/failure",
+      "classification": "graphical+text"
+    }
+  ],
+  "f2Redundant": [],
+  "f3Issues": [
+    "Inconsistent naming for the same entity: panel says 'Runs' / 'No runs yet' while the table column, dialog, and error copy say 'Job' / 'Job details' / 'Job failed' for the identical items (job_* ids).",
+    "Inconsistent spelling of the same verb across visible copy: 'Upload canceled' / 'Processing canceled' (info notices) vs 'Cancelling' (busy row button) and 'Job cancelled' (live-region announcement)."
+  ],
+  "f4TaskDriven": [
+    "CSV table/grid glyph reused as brand mark and dropzone illustration",
+    "JetBrains Mono applied only to machine data: job ids, percentages, row counts, file byte sizes",
+    "'Use sample CSV' primary action backed by a real embedded 9-row orders CSV for instant trial",
+    "Rows result column and download filename '<jobid>.csv' tied to the CSV output",
+    "Upload→Process→Ready stepper mapping the brief's exact pipeline stages",
+    "'yours' tag separating the user's own jobs from pre-existing server jobs",
+    "Colour-stacked queue composition bar under the status filter chips"
+  ],
+  "f4Template": [
+    "Inter typeface on white cards over a light-grey page background",
+    "Rounded chip filters with count pills (Running 3 / Queued 0 / Failed 3 / Succeeded 2)",
+    "Avatar-initials + name + 'Pro' plan pill in the top-right header",
+    "Two-panel card layout with uppercase letter-spaced panel headings (UPLOAD / RUNS)",
+    "Grey skeleton-row loading placeholders in the Runs panel"
+  ]
+}

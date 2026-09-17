@@ -1,0 +1,66 @@
+{
+  "id": "4ecba86c",
+  "items": [
+    {
+      "n": 1,
+      "verdict": "PASS",
+      "reason": "250 ms after clicking Pay under slow latency, the button already showed a spinner and a loading class and was disabled.",
+      "evidence": "<button type=\"button\" class=\"btn-submit loading\" id=\"submitBtn\" disabled=\"\"><span class=\"spinner\"></span><span class=\"btn-label\">Pay $147.43</span></button> (captured 250 ms post-click; also /home/johannes/git/failure/ux-study/async/evidence/4ecba86c_1.png)"
+    },
+    {
+      "n": 2,
+      "verdict": "PASS",
+      "reason": "The Pay button is disabled while the order is pending; three additional programmatic clicks during the pending window produced no second submitOrder call (window.__apiLog still showed exactly one).",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/4ecba86c_2.png — after 4 clicks, __apiLog methods were [getUser, submitOrder] with submitOrder count 1 and submitBtn.disabled === true"
+    },
+    {
+      "n": 3,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief (checkout form; no upload or job progress in the API surface used).",
+      "evidence": "N/A per task instructions for this page"
+    },
+    {
+      "n": 4,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief; no long-running upload/processing action where cancel applies.",
+      "evidence": "N/A per task instructions for this page"
+    },
+    {
+      "n": 5,
+      "verdict": "PASS",
+      "reason": "Network failure shows a specific sticky banner that stays in view even when scrolled to the Pay button (viewport top 0 at scrollY 242); the API validation message appears verbatim directly under the offending field, which is scrolled into view and focused.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/4ecba86c_5.png — banner text: 'Connection failed. Please check your network and try again.' with Retry; field error at emailError, in viewport, activeElement=email"
+    },
+    {
+      "n": 6,
+      "verdict": "PASS",
+      "reason": "After a network failure the visible Retry button re-issues submitOrder without a reload (submitOrder count went 1→2 and the button returned to its loading state); after a validation failure the form stays editable so the field can be fixed and resubmitted.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/4ecba86c_6.png — clicking #retryBtn raised __apiLog submitOrder count from 1 to 2, submitBtn class became 'btn-submit loading'"
+    },
+    {
+      "n": 7,
+      "verdict": "PASS",
+      "reason": "With seed=2 the API rejected with code VALIDATION and fields {email: 'Enter an email address in the form name@example.com'}; the page rendered exactly that message in #emailError under the #email input, gave the input a has-error class, scrolled to it, and focused it.",
+      "evidence": "<input type=\"email\" id=\"email\" ... class=\"has-error\"><div class=\"field-error visible\" id=\"emailError\">...<span>Enter an email address in the form name@example.com</span></div> (also /home/johannes/git/failure/ux-study/async/evidence/4ecba86c_7.png)"
+    },
+    {
+      "n": 8,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief; no server-side state the checkout page should poll.",
+      "evidence": "N/A per task instructions for this page"
+    },
+    {
+      "n": 9,
+      "verdict": "PASS",
+      "reason": "Editing fields, scrolling, and pressing Escape while a slow submit was pending left nothing broken: the submit resolved to the success view with no stuck spinner, exactly one submitOrder, and no stray error; Continue shopping then returned a clean reset form (empty fields, enabled Pay button, zero visible errors).",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/4ecba86c_9.png — post-resolution state {pending:false, confirm:true, spinnerStuck:false, submits:1}; after continueBtn: {formVisible:true, btnClass:'btn-submit', successVisible:false, emailValue:'', anyErrorVisible:0}"
+    },
+    {
+      "n": 10,
+      "verdict": "PASS",
+      "reason": "Sampling every 400 ms during a slow pending submit, 'Order confirmed' and the success card were never visible until the exact sample where the pending state cleared; the order id is shown only after submitOrder resolves.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/4ecba86c_10.png — 9 consecutive pending samples all {confirmVisible:false, successCard rects:0}, then {pending:false, confirmVisible:true}"
+    }
+  ],
+  "failCount": 0
+}

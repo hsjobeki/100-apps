@@ -1,0 +1,66 @@
+{
+  "id": "eb77693b",
+  "items": [
+    {
+      "n": 1,
+      "verdict": "PASS",
+      "reason": "At ~259 ms after clicking Continue under slow latency, the button was already disabled, showed a spinner element, and its label had changed to 'Saving'.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/eb77693b_1.png"
+    },
+    {
+      "n": 2,
+      "verdict": "PASS",
+      "reason": "The scripted triple-click produced exactly 1 updateSettings call, and while pending the button is disabled; hammering it three more times mid-flight added no calls (__apiLog stayed at getUser,updateSettings).",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/eb77693b_2.png"
+    },
+    {
+      "n": 3,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief by the assignment.",
+      "evidence": "N/A per instructions (brief B-class exclusion); page incidentally does show upload % and job progress, see eb77693b_9b.png."
+    },
+    {
+      "n": 4,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief by the assignment.",
+      "evidence": "N/A per instructions; page incidentally offers 'Cancel upload' / 'Cancel import' buttons during the import flow, visible in eb77693b_9.png."
+    },
+    {
+      "n": 5,
+      "verdict": "PASS",
+      "reason": "Under fail=1, a role=alert box directly beneath the form reads 'Not saved — The server did not respond while saving the workspace. Nothing was changed.'; the import failure similarly shows 'Import did not start — The server did not respond while uploading the file' next to the file card.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/eb77693b_5.png"
+    },
+    {
+      "n": 6,
+      "verdict": "PASS",
+      "reason": "The error alert has a 'Try again' button that re-invokes updateSettings without reload (log showed a second call), and once the call succeeds the wizard advances to Step 2; the failed import offers 'Retry' and 'Another file'.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/eb77693b_6.png"
+    },
+    {
+      "n": 7,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief by the assignment; the page has no order form and the API surface it uses (updateSettings, uploadFile, processFile) returns no field-level validation errors.",
+      "evidence": "N/A per instructions; page uses getUser/updateSettings/uploadFile/processFile/getJob only, per window.__apiLog."
+    },
+    {
+      "n": 8,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief by the assignment.",
+      "evidence": "N/A per instructions; page incidentally polls getJob and live-updates import status from 'Uploading 10%' to 'Imported / Finished / 100%', see eb77693b_9b.png."
+    },
+    {
+      "n": 9,
+      "verdict": "PASS",
+      "reason": "Navigating to the Profile step while an upload was in flight kept the upload running (only one uploadFile in __apiLog), showed a live mini-progress indicator in the step sidebar, and returning to Import showed a coherent in-progress then completed state with zero pageerror events.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/eb77693b_9.png"
+    },
+    {
+      "n": 10,
+      "verdict": "PASS",
+      "reason": "With updateSettings instrumented under slow latency, the wizard advanced to Step 2 only 32 ms after the promise resolved (5.27 s pending), and the final 'Open workspace' shows 'Opening / Saving to the server' and renders the workspace view only after updateSettings and the confirming getUser resolve.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/eb77693b_10.png"
+    }
+  ],
+  "failCount": 0
+}

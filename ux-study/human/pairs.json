@@ -1,0 +1,384 @@
+{
+  "seed": 1594999803,
+  "createdAt": "2026-09-17T14:21:09.418Z",
+  "pairs": [
+    {
+      "pairKey": "B5_c4b19032_5c94302f",
+      "brief": "B5",
+      "leftId": "5c94302f",
+      "rightId": "c4b19032",
+      "orientation": 2
+    },
+    {
+      "pairKey": "B1_7f0fe142_510d7298",
+      "brief": "B1",
+      "leftId": "510d7298",
+      "rightId": "7f0fe142",
+      "orientation": 2
+    },
+    {
+      "pairKey": "B6_f5e74cab_76d8fc74",
+      "brief": "B6",
+      "leftId": "76d8fc74",
+      "rightId": "f5e74cab",
+      "orientation": 2
+    },
+    {
+      "pairKey": "B2_a8143c63_3bfbc3d1",
+      "brief": "B2",
+      "leftId": "3bfbc3d1",
+      "rightId": "a8143c63",
+      "orientation": 2
+    },
+    {
+      "pairKey": "B3_bba65fe8_a0145723",
+      "brief": "B3",
+      "leftId": "bba65fe8",
+      "rightId": "a0145723",
+      "orientation": 1
+    },
+    {
+      "pairKey": "B4_15e2b809_fd799df2",
+      "brief": "B4",
+      "leftId": "15e2b809",
+      "rightId": "fd799df2",
+      "orientation": 1
+    },
+    {
+      "pairKey": "B4_d2b7b52b_eb77693b",
+      "brief": "B4",
+      "leftId": "d2b7b52b",
+      "rightId": "eb77693b",
+      "orientation": 1
+    },
+    {
+      "pairKey": "B6_37cf7e87_76d8fc74",
+      "brief": "B6",
+      "leftId": "76d8fc74",
+      "rightId": "37cf7e87",
+      "orientation": 2
+    },
+    {
+      "pairKey": "B5_77c750eb_5c94302f",
+      "brief": "B5",
+      "leftId": "77c750eb",
+      "rightId": "5c94302f",
+      "orientation": 1
+    },
+    {
+      "pairKey": "B2_b1629d56_c1221ec5",
+      "brief": "B2",
+      "leftId": "c1221ec5",
+      "rightId": "b1629d56",
+      "orientation": 2
+    },
+    {
+      "pairKey": "B5_4ecba86c_5c94302f",
+      "brief": "B5",
+      "leftId": "4ecba86c",
+      "rightId": "5c94302f",
+      "orientation": 1
+    },
+    {
+      "pairKey": "B5_c4b19032_3b6eac7c",
+      "brief": "B5",
+      "leftId": "c4b19032",
+      "rightId": "3b6eac7c",
+      "orientation": 1
+    },
+    {
+      "pairKey": "B4_9d4db2c7_2e20bdb0",
+      "brief": "B4",
+      "leftId": "9d4db2c7",
+      "rightId": "2e20bdb0",
+      "orientation": 1
+    },
+    {
+      "pairKey": "B3_19f8347f_a0145723",
+      "brief": "B3",
+      "leftId": "19f8347f",
+      "rightId": "a0145723",
+      "orientation": 1
+    },
+    {
+      "pairKey": "B4_15e2b809_eb77693b",
+      "brief": "B4",
+      "leftId": "15e2b809",
+      "rightId": "eb77693b",
+      "orientation": 1
+    },
+    {
+      "pairKey": "B1_b89a17df_510d7298",
+      "brief": "B1",
+      "leftId": "b89a17df",
+      "rightId": "510d7298",
+      "orientation": 1
+    },
+    {
+      "pairKey": "B2_b1629d56_d0847622",
+      "brief": "B2",
+      "leftId": "b1629d56",
+      "rightId": "d0847622",
+      "orientation": 1
+    },
+    {
+      "pairKey": "B2_661ba740_d0847622",
+      "brief": "B2",
+      "leftId": "d0847622",
+      "rightId": "661ba740",
+      "orientation": 2
+    },
+    {
+      "pairKey": "B4_d2b7b52b_fd799df2",
+      "brief": "B4",
+      "leftId": "fd799df2",
+      "rightId": "d2b7b52b",
+      "orientation": 2
+    },
+    {
+      "pairKey": "B4_15e2b809_2e20bdb0",
+      "brief": "B4",
+      "leftId": "2e20bdb0",
+      "rightId": "15e2b809",
+      "orientation": 2
+    },
+    {
+      "pairKey": "B5_4ecba86c_88f7e857",
+      "brief": "B5",
+      "leftId": "4ecba86c",
+      "rightId": "88f7e857",
+      "orientation": 1
+    },
+    {
+      "pairKey": "B6_f5e74cab_e4ba8894",
+      "brief": "B6",
+      "leftId": "e4ba8894",
+      "rightId": "f5e74cab",
+      "orientation": 2
+    },
+    {
+      "pairKey": "B5_4ecba86c_3b6eac7c",
+      "brief": "B5",
+      "leftId": "4ecba86c",
+      "rightId": "3b6eac7c",
+      "orientation": 1
+    },
+    {
+      "pairKey": "B5_c4b19032_88f7e857",
+      "brief": "B5",
+      "leftId": "88f7e857",
+      "rightId": "c4b19032",
+      "orientation": 2
+    },
+    {
+      "pairKey": "B1_f6ff77aa_718d720b",
+      "brief": "B1",
+      "leftId": "718d720b",
+      "rightId": "f6ff77aa",
+      "orientation": 2
+    },
+    {
+      "pairKey": "B6_b1b613d1_76d8fc74",
+      "brief": "B6",
+      "leftId": "b1b613d1",
+      "rightId": "76d8fc74",
+      "orientation": 1
+    },
+    {
+      "pairKey": "B5_77c750eb_88f7e857",
+      "brief": "B5",
+      "leftId": "88f7e857",
+      "rightId": "77c750eb",
+      "orientation": 2
+    },
+    {
+      "pairKey": "B2_a8143c63_d0847622",
+      "brief": "B2",
+      "leftId": "d0847622",
+      "rightId": "a8143c63",
+      "orientation": 2
+    },
+    {
+      "pairKey": "B3_19f8347f_0373bf32",
+      "brief": "B3",
+      "leftId": "0373bf32",
+      "rightId": "19f8347f",
+      "orientation": 2
+    },
+    {
+      "pairKey": "B1_7f0fe142_d5fa082d",
+      "brief": "B1",
+      "leftId": "d5fa082d",
+      "rightId": "7f0fe142",
+      "orientation": 2
+    },
+    {
+      "pairKey": "B5_77c750eb_3b6eac7c",
+      "brief": "B5",
+      "leftId": "77c750eb",
+      "rightId": "3b6eac7c",
+      "orientation": 1
+    },
+    {
+      "pairKey": "B6_37cf7e87_90dfbb8c",
+      "brief": "B6",
+      "leftId": "90dfbb8c",
+      "rightId": "37cf7e87",
+      "orientation": 2
+    },
+    {
+      "pairKey": "B6_b1b613d1_e4ba8894",
+      "brief": "B6",
+      "leftId": "e4ba8894",
+      "rightId": "b1b613d1",
+      "orientation": 2
+    },
+    {
+      "pairKey": "B3_d3baa7c9_66b0875a",
+      "brief": "B3",
+      "leftId": "d3baa7c9",
+      "rightId": "66b0875a",
+      "orientation": 1
+    },
+    {
+      "pairKey": "B1_7f0fe142_718d720b",
+      "brief": "B1",
+      "leftId": "718d720b",
+      "rightId": "7f0fe142",
+      "orientation": 2
+    },
+    {
+      "pairKey": "B3_bba65fe8_0373bf32",
+      "brief": "B3",
+      "leftId": "0373bf32",
+      "rightId": "bba65fe8",
+      "orientation": 2
+    },
+    {
+      "pairKey": "B2_b1629d56_3bfbc3d1",
+      "brief": "B2",
+      "leftId": "b1629d56",
+      "rightId": "3bfbc3d1",
+      "orientation": 1
+    },
+    {
+      "pairKey": "B2_661ba740_3bfbc3d1",
+      "brief": "B2",
+      "leftId": "3bfbc3d1",
+      "rightId": "661ba740",
+      "orientation": 2
+    },
+    {
+      "pairKey": "B4_9d4db2c7_fd799df2",
+      "brief": "B4",
+      "leftId": "fd799df2",
+      "rightId": "9d4db2c7",
+      "orientation": 2
+    },
+    {
+      "pairKey": "B6_b1b613d1_90dfbb8c",
+      "brief": "B6",
+      "leftId": "b1b613d1",
+      "rightId": "90dfbb8c",
+      "orientation": 1
+    },
+    {
+      "pairKey": "B3_d3baa7c9_0373bf32",
+      "brief": "B3",
+      "leftId": "d3baa7c9",
+      "rightId": "0373bf32",
+      "orientation": 1
+    },
+    {
+      "pairKey": "B6_37cf7e87_e4ba8894",
+      "brief": "B6",
+      "leftId": "37cf7e87",
+      "rightId": "e4ba8894",
+      "orientation": 1
+    },
+    {
+      "pairKey": "B3_19f8347f_66b0875a",
+      "brief": "B3",
+      "leftId": "19f8347f",
+      "rightId": "66b0875a",
+      "orientation": 1
+    },
+    {
+      "pairKey": "B1_b89a17df_718d720b",
+      "brief": "B1",
+      "leftId": "b89a17df",
+      "rightId": "718d720b",
+      "orientation": 1
+    },
+    {
+      "pairKey": "B1_f6ff77aa_d5fa082d",
+      "brief": "B1",
+      "leftId": "d5fa082d",
+      "rightId": "f6ff77aa",
+      "orientation": 2
+    },
+    {
+      "pairKey": "B4_d2b7b52b_2e20bdb0",
+      "brief": "B4",
+      "leftId": "2e20bdb0",
+      "rightId": "d2b7b52b",
+      "orientation": 2
+    },
+    {
+      "pairKey": "B4_9d4db2c7_eb77693b",
+      "brief": "B4",
+      "leftId": "eb77693b",
+      "rightId": "9d4db2c7",
+      "orientation": 2
+    },
+    {
+      "pairKey": "B2_661ba740_c1221ec5",
+      "brief": "B2",
+      "leftId": "661ba740",
+      "rightId": "c1221ec5",
+      "orientation": 1
+    },
+    {
+      "pairKey": "B6_f5e74cab_90dfbb8c",
+      "brief": "B6",
+      "leftId": "f5e74cab",
+      "rightId": "90dfbb8c",
+      "orientation": 1
+    },
+    {
+      "pairKey": "B3_bba65fe8_66b0875a",
+      "brief": "B3",
+      "leftId": "bba65fe8",
+      "rightId": "66b0875a",
+      "orientation": 1
+    },
+    {
+      "pairKey": "B1_f6ff77aa_510d7298",
+      "brief": "B1",
+      "leftId": "f6ff77aa",
+      "rightId": "510d7298",
+      "orientation": 1
+    },
+    {
+      "pairKey": "B2_a8143c63_c1221ec5",
+      "brief": "B2",
+      "leftId": "c1221ec5",
+      "rightId": "a8143c63",
+      "orientation": 2
+    },
+    {
+      "pairKey": "B3_d3baa7c9_a0145723",
+      "brief": "B3",
+      "leftId": "d3baa7c9",
+      "rightId": "a0145723",
+      "orientation": 1
+    },
+    {
+      "pairKey": "B1_b89a17df_d5fa082d",
+      "brief": "B1",
+      "leftId": "d5fa082d",
+      "rightId": "b89a17df",
+      "orientation": 2
+    }
+  ]
+}

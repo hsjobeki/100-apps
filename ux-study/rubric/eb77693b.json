@@ -1,0 +1,88 @@
+{
+  "id": "eb77693b",
+  "f1": {
+    "score": 5,
+    "observations": [
+      "Onboarding progress is rendered graphically three ways: an SVG progress ring (`.ring` with animated `stroke-dashoffset` on #ringArc) captioned 'Step 1 of 3 / Setup', numbered step beads that swap to #i-check checkmarks and turn green (`li.done .snav>.bead`) as steps complete, and an accent-highlighted active bead with halo (`box-shadow: 0 0 0 4px`).",
+      "A secondary progress surface (#railJob) shows a live mini progress bar with role=progressbar plus a pulsing status chip in the sidebar while an import runs on another step — confirmed live in async evidence eb77693b_9.png.",
+      "The empty state pairs the 'No projects yet' heading with a bespoke 240x132 SVG illustration of three dashed kanban columns and a dashed plus-card drawn in the accent color — graphical, with one supporting sentence.",
+      "Metrics corroborate a graphics-forward page: 29 svg elements, 2 role=progressbar, 10 badge-like chips (graphical.total 41) against only 45 visible words on desktop.",
+      "Raw ratio: 2/2 inventory items are graphical+text; 0 text-only, 0 missing."
+    ]
+  },
+  "f2": {
+    "score": 4,
+    "observations": [
+      "Desktop viewport shows only 45 visible words (mobile 32), helperWords is 7, and longLeafWords is 0 — no explanatory paragraphs anywhere.",
+      "Action labels are all <=3 words: 'Continue', 'Choose file', 'Use sample', 'Try again', 'Cancel import', 'Keep importing', 'Open workspace', 'Download result'. The measured maxWords=5 labels are the stepper nav buttons whose innerText concatenates bead number + title + subtitle ('1\\nProfile\\nName the workspace'), not verbose action labels.",
+      "Two strings restate what the UI already shows, which blocks the 5 anchor: the lede opens with 'Three steps.' while the rail already shows 'Step 1 of 3' and three enumerated steps, and the 'Saving to the server' hint sits beside a button that already shows a spinner and the label 'Saving'.",
+      "Remaining copy earns its place: 'Cancel is available until the upload finishes.' states a non-obvious affordance window, and the dialog's 'The file stays on your machine. You can import it again later.' states consequences of cancelling."
+    ]
+  },
+  "f3": {
+    "score": 3,
+    "observations": [
+      "Terminology is otherwise disciplined: 'upload' vs 'import' are distinguished deliberately ('Cancel upload' during upload, 'Cancel import' during processing, error titles 'Upload cancelled' vs 'Import cancelled'), and copy was verified against behavior by the async rater (retry, cancel, and gating on server confirmation all work as the copy says).",
+      "Issue 1: after the user cancels a processing import, the error body prints the backend string 'Cancelled by admin' verbatim (renderStep2 sets impErrMsg to S.job.error) — the named actor is wrong; the user, not an admin, cancelled it.",
+      "Issue 2: Step 3's lede claims 'The workspace is created on the server when you open it.' while Step 1's pending hint says 'Saving to the server' and its error alert says 'The server did not respond while saving the workspace.' — two conflicting accounts of when the workspace reaches the server.",
+      "No filler, no marketing tone, no placeholder text found; the sample CSV contains realistic rows ('Onboarding revamp,Alex,2026-10-02,active'), and error strings are specific ('The server no longer has a record of this import.').",
+      "Per the anchor, 2 issues lands in the '2 to 4 issues' band: score 3."
+    ]
+  },
+  "f4": {
+    "score": 5,
+    "observations": [
+      "Layout is built around the brief's exact scenario: a 3-step first-run wizard (Profile / Import / Finish) with an escape hatch 'Skip import', a 'Setup is already finished' banner keyed to user.hasCompletedOnboarding, and a dedicated post-setup empty-state view for the zero-project user.",
+      "The empty-state illustration is hand-drawn SVG of three dashed board columns with a dashed plus-card — it visually echoes the 'Board' default view the user just picked, not a stock spinner or clipart.",
+      "Personalization is wired to live data: the workspace name is prefilled from the fetched user's first name ('Alex's workspace' via loadUser), and 'Use sample' fabricates a plausible sample-projects.csv so a user with no data can still exercise the import path.",
+      "Type and color are a distinct identity: Fraunces serif display over Inter, a warm paper background (#F3EFE7) with terracotta accent (#C0502F), a custom Meridian meridian-circle logo mark, and a full prefers-color-scheme dark palette — not a framework default.",
+      "Template elements remain (left stepper rail + card panel wizard, pill chips, skeleton shimmer, dashed dropzone), but each is adapted to the task rather than pasted in, so the page clears the 'clearly driven by this task and user' bar."
+    ]
+  },
+  "hierarchy": {
+    "score": 5,
+    "observations": [
+      "Answered from the idle desktop screenshot before any source was read: the page is for setting up a new workspace in a project management app ('Set up your workspace' in large serif, Meridian brand, stepper Profile → Import → Finish) — matches the first-run brief exactly.",
+      "Primary action is unambiguous: the single filled terracotta 'Continue →' button; every other control (view cards, name field) is outlined or neutral.",
+      "What needs attention reads correctly at a glance: Step 1 'Profile — Name the workspace' is the only accent-colored stepper item with a haloed '1' bead, and the form's two inputs (workspace name, default view) sit directly under the heading.",
+      "All three answers verified correct against the brief after reading the source; nothing competes with the intended focus (the account card and Pro badge are visually recessed in the sunk panel)."
+    ]
+  },
+  "f1Inventory": [
+    {
+      "item": "onboarding progress",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "empty state",
+      "classification": "graphical+text"
+    }
+  ],
+  "f2Redundant": [
+    "'Three steps.' (lede sentence restating the rail's 'Step 1 of 3' and its three enumerated steps)",
+    "'Saving to the server' (Step 1 hint #c1Note, shown beside a button already displaying a spinner and the label 'Saving')",
+    "'Saving to the server' (Step 3 hint #finNote, shown beside the finish button already displaying a spinner and 'Opening')"
+  ],
+  "f3Issues": [
+    "Backend string 'Cancelled by admin' is shown verbatim as the import error body after the user cancels their own import — wrong actor in user-facing copy.",
+    "Step 3 lede 'The workspace is created on the server when you open it.' contradicts Step 1's copy ('Saving to the server'; error: 'The server did not respond while saving the workspace.'), which says the workspace was already being saved server-side in Step 1."
+  ],
+  "f4TaskDriven": [
+    "Three-step first-run wizard structure (Profile / Import / Finish) with 'Skip import' escape hatch, matching a new user who may have nothing to import",
+    "Empty-state SVG illustration of three dashed kanban columns with a dashed plus-card, echoing the Board default view",
+    "Workspace name prefilled from the fetched user's first name ('Alex's workspace')",
+    "'Use sample' button that fabricates a realistic sample-projects.csv for a user with no data",
+    "Default-view picker (Board / List / Timeline) with bespoke per-view icons",
+    "Sidebar mini import progress (#railJob) so a running import stays visible while the user is on another step",
+    "'Setup is already finished' banner gated on user.hasCompletedOnboarding",
+    "Post-import reconciliation notes ('The server still lists no projects in this workspace.') addressing the zero-project condition head-on",
+    "Brand identity: Meridian wordmark with custom meridian-circle logo, Fraunces+Inter pairing, warm paper/terracotta palette with a full dark-mode variant"
+  ],
+  "f4Template": [
+    "Left stepper rail + right card panel wizard layout",
+    "Pill status chips with colored dot (Queued/Uploading/Processing/Imported/Failed)",
+    "Skeleton shimmer placeholders for the account card",
+    "Dashed-border drag-and-drop file zone",
+    "Segmented radio-card selector pattern"
+  ]
+}

@@ -1,0 +1,1047 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Account settings</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f4f5f8;
+    --card:#ffffff;
+    --ink:#0f172a;
+    --ink-2:#334155;
+    --muted:#6b7280;
+    --line:#e4e7ec;
+    --line-2:#d5dae2;
+    --accent:#4338ca;
+    --accent-soft:#eef0ff;
+    --ok:#15803d;
+    --ok-soft:#e8f6ed;
+    --warn:#b45309;
+    --danger:#c2261b;
+    --danger-2:#8f1a12;
+    --danger-soft:#fdf0ee;
+    --radius:12px;
+    --shadow:0 1px 2px rgba(15,23,42,.05), 0 8px 24px -16px rgba(15,23,42,.22);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font:15px/1.45 "Inter",system-ui,-apple-system,Segoe UI,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{margin:0;font-weight:600;letter-spacing:-.01em}
+  button{font:inherit;color:inherit}
+  input{font:inherit}
+  .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+  /* ---------- chrome ---------- */
+  .topbar{
+    display:flex;align-items:center;gap:12px;
+    height:56px;padding:0 20px;
+    background:var(--card);border-bottom:1px solid var(--line);
+    position:sticky;top:0;z-index:20;
+  }
+  .mark{
+    width:28px;height:28px;border-radius:8px;flex:none;
+    background:linear-gradient(145deg,#4f46e5,#7c3aed);
+    color:#fff;display:grid;place-items:center;
+  }
+  .mark svg{width:16px;height:16px}
+  .topbar h1{font-size:15px}
+  .who{margin-left:auto;display:flex;align-items:center;gap:9px}
+  .avatar{
+    width:28px;height:28px;border-radius:50%;flex:none;
+    display:grid;place-items:center;
+    background:var(--accent-soft);color:var(--accent);
+    font-size:11px;font-weight:700;letter-spacing:.02em;
+  }
+  .who .nm{font-size:13px;font-weight:500;color:var(--ink-2)}
+
+  .layout{display:grid;grid-template-columns:212px minmax(0,1fr);gap:28px;max-width:1080px;margin:0 auto;padding:28px 20px 72px}
+  nav.side{position:sticky;top:84px;align-self:start;display:flex;flex-direction:column;gap:2px}
+  nav.side a{
+    display:flex;align-items:center;gap:9px;
+    padding:8px 10px;border-radius:9px;
+    color:var(--ink-2);text-decoration:none;font-size:14px;font-weight:500;
+  }
+  nav.side a:hover{background:#eceef3}
+  nav.side a.hot{color:var(--danger)}
+  nav.side a.hot:hover{background:var(--danger-soft)}
+  nav.side svg{width:16px;height:16px;flex:none;opacity:.8}
+  nav.side .n{
+    margin-left:auto;min-width:20px;height:19px;padding:0 6px;border-radius:99px;
+    background:#e9ebf1;color:var(--muted);font-size:11px;font-weight:600;
+    display:grid;place-items:center;
+  }
+  main{display:flex;flex-direction:column;gap:20px;min-width:0}
+
+  /* ---------- cards ---------- */
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+  .card > header{display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--line)}
+  .card > header h2{font-size:14px}
+  .card .body{padding:18px}
+  .card > form > footer{
+    display:flex;align-items:center;gap:10px;
+    padding:12px 18px;border-top:1px solid var(--line);background:#fafbfc;
+  }
+  .ic{display:inline-grid;place-items:center}
+  .ic svg{width:16px;height:16px;display:block}
+
+  /* ---------- fields ---------- */
+  .field{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+  .field:last-child{margin-bottom:0}
+  .field > label{font-size:12.5px;font-weight:600;color:var(--ink-2);display:flex;align-items:center;gap:6px}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);flex:none}
+  .inp{
+    width:100%;max-width:420px;padding:9px 11px;
+    border:1px solid var(--line-2);border-radius:9px;background:#fff;color:var(--ink);
+    transition:border-color .12s, box-shadow .12s;
+  }
+  .inp:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+  .inp[aria-invalid="true"]{border-color:var(--danger);box-shadow:0 0 0 3px var(--danger-soft)}
+  .inp:disabled{background:#f6f7f9;color:var(--muted)}
+  .ferr{display:none;align-items:center;gap:6px;color:var(--danger);font-size:12.5px;font-weight:500}
+  .ferr.on{display:flex}
+  .ferr svg{width:14px;height:14px;flex:none}
+
+  .planrow{display:flex;align-items:center;gap:10px;padding-top:2px}
+  .badge{
+    display:inline-flex;align-items:center;gap:5px;
+    height:22px;padding:0 9px;border-radius:99px;
+    font-size:11.5px;font-weight:600;letter-spacing:.01em;
+  }
+  .badge.plan{background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff}
+  .badge.plan svg{width:12px;height:12px}
+  .badge.soft{background:#eef1f6;color:var(--muted)}
+
+  /* ---------- buttons ---------- */
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:7px;
+    height:34px;padding:0 14px;border-radius:9px;
+    border:1px solid var(--line-2);background:#fff;color:var(--ink);
+    font-size:13.5px;font-weight:600;cursor:pointer;
+    transition:background .12s,border-color .12s,opacity .12s;
+  }
+  .btn:hover:not(:disabled){background:#f3f4f7}
+  .btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  .btn svg{width:15px;height:15px}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+  .btn.primary:hover:not(:disabled){background:#372fb0}
+  .btn.danger{background:var(--danger);border-color:var(--danger);color:#fff}
+  .btn.danger:hover:not(:disabled){background:var(--danger-2)}
+  .btn.ghostdanger{color:var(--danger);border-color:#f0c9c4;background:#fff}
+  .btn.ghostdanger:hover:not(:disabled){background:var(--danger-soft)}
+  .btn.sm{height:30px;padding:0 10px;font-size:13px}
+  .iconbtn{
+    width:30px;height:30px;padding:0;border-radius:8px;flex:none;
+    display:grid;place-items:center;border:1px solid transparent;background:transparent;
+    color:var(--muted);cursor:pointer;
+  }
+  .iconbtn:hover:not(:disabled){background:var(--danger-soft);color:var(--danger);border-color:#f0c9c4}
+  .iconbtn:disabled{opacity:.55;cursor:not-allowed}
+  .iconbtn:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+  .iconbtn svg{width:16px;height:16px}
+
+  /* ---------- spinner ---------- */
+  .spin{width:15px;height:15px;flex:none;animation:rot .7s linear infinite}
+  .spin circle{stroke:currentColor;stroke-width:2.6;fill:none;opacity:.22}
+  .spin path{stroke:currentColor;stroke-width:2.6;stroke-linecap:round;fill:none}
+  @keyframes rot{to{transform:rotate(360deg)}}
+
+  /* ---------- save status ---------- */
+  .status{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:500;color:var(--muted)}
+  .status.ok{color:var(--ok)}
+  .status .chk{
+    width:18px;height:18px;border-radius:50%;background:var(--ok-soft);color:var(--ok);
+    display:grid;place-items:center;
+  }
+  .status .chk svg{width:11px;height:11px;stroke-width:3}
+
+  /* ---------- inline alert ---------- */
+  .alert{
+    display:none;gap:10px;align-items:flex-start;
+    margin-top:14px;padding:11px 12px;border-radius:10px;
+    background:var(--danger-soft);border:1px solid #f3cec9;color:var(--danger-2);
+    font-size:13px;line-height:1.4;
+  }
+  .alert.on{display:flex}
+  .alert > .ic{color:var(--danger);margin-top:1px}
+  .alert .txt{flex:1;min-width:0;font-weight:500}
+  .alert .btn{height:28px;padding:0 10px;font-size:12.5px;background:#fff;border-color:#eec3bd;color:var(--danger-2)}
+
+  /* ---------- projects ---------- */
+  ul.projects{list-style:none;margin:0;padding:0}
+  ul.projects li{
+    display:flex;align-items:center;gap:12px;
+    padding:11px 18px;border-bottom:1px solid var(--line);
+  }
+  ul.projects li:last-child{border-bottom:none}
+  ul.projects li.busy{background:#fafbfc}
+  .pico{width:32px;height:32px;border-radius:9px;flex:none;display:grid;place-items:center;color:#fff}
+  .pico svg{width:16px;height:16px}
+  .pmeta{min-width:0;flex:1}
+  .pname{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pdate{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:5px;margin-top:1px}
+  .pdate svg{width:12px;height:12px;opacity:.75}
+  .rowerr{
+    display:flex;align-items:center;gap:8px;
+    padding:2px 18px 12px 62px;
+    color:var(--danger);font-size:12.5px;font-weight:500;
+  }
+  .rowerr svg{width:14px;height:14px;flex:none}
+
+  .empty{display:flex;flex-direction:column;align-items:center;gap:8px;padding:34px 18px;text-align:center}
+  .empty .ring{width:46px;height:46px;border-radius:50%;background:#f1f3f7;color:var(--muted);display:grid;place-items:center}
+  .empty .ring svg{width:22px;height:22px}
+  .empty b{font-size:14px}
+  .empty span{font-size:13px;color:var(--muted)}
+
+  /* ---------- skeleton ---------- */
+  .sk{background:linear-gradient(90deg,#edeff3 25%,#f6f7fa 37%,#edeff3 63%);background-size:400% 100%;animation:sh 1.3s ease-in-out infinite;border-radius:6px}
+  @keyframes sh{0%{background-position:100% 50%}100%{background-position:0 50%}}
+
+  /* ---------- danger zone ---------- */
+  .card.danger{border-color:#f0cdc8}
+  .card.danger > header{
+    background:var(--danger-soft);border-bottom-color:#f3cec9;color:var(--danger-2);
+  }
+  .card.danger > header .ic{color:var(--danger)}
+  .stripe{height:4px;background:repeating-linear-gradient(-45deg,#e8b4ad 0 8px,#f7ded9 8px 16px)}
+  .risk{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+  .risk .lbl{font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--danger)}
+  meter{-webkit-appearance:none;appearance:none;width:96px;height:8px;border:none;background:none}
+  meter::-webkit-meter-bar{background:#eceef3;border:none;border-radius:99px;height:8px}
+  meter::-webkit-meter-optimum-value{background:var(--ok);border-radius:99px}
+  meter::-webkit-meter-suboptimum-value{background:var(--warn);border-radius:99px}
+  meter::-webkit-meter-even-less-good-value{background:var(--danger);border-radius:99px}
+  .loss{list-style:none;display:flex;flex-wrap:wrap;gap:8px;margin:0 0 16px;padding:0}
+  .loss li{
+    display:flex;align-items:center;gap:6px;
+    padding:5px 10px;border-radius:8px;background:#f6f7f9;border:1px solid var(--line);
+    font-size:12.5px;font-weight:500;color:var(--ink-2);
+  }
+  .loss svg{width:13px;height:13px;color:var(--muted)}
+  .hint{font-size:13px;color:var(--muted);margin:0 0 16px}
+
+  /* ---------- dialog ---------- */
+  .scrim{
+    position:fixed;inset:0;z-index:50;display:none;
+    align-items:center;justify-content:center;padding:18px;
+    background:rgba(15,23,42,.45);backdrop-filter:blur(2px);
+  }
+  .scrim.on{display:flex}
+  .modal{
+    width:min(440px,100%);background:#fff;border-radius:14px;overflow:hidden;
+    box-shadow:0 24px 60px -12px rgba(15,23,42,.45);
+    animation:pop .14s ease-out;
+  }
+  @keyframes pop{from{opacity:0;transform:translateY(6px) scale(.985)}}
+  .modal > header{display:flex;align-items:center;gap:10px;padding:16px 18px 0}
+  .modal > header h3{font-size:15px;flex:1}
+  .modal .hero{
+    width:32px;height:32px;border-radius:9px;flex:none;display:grid;place-items:center;
+    background:var(--danger-soft);color:var(--danger);
+  }
+  .modal .hero svg{width:17px;height:17px}
+  .modal .mbody{padding:14px 18px 4px}
+  .modal .mbody p{margin:0 0 12px;font-size:13.5px;color:var(--ink-2)}
+  .chip{
+    display:inline-flex;align-items:center;gap:7px;max-width:100%;
+    padding:7px 11px;border-radius:9px;background:#f6f7f9;border:1px solid var(--line);
+    font-size:13px;font-weight:600;
+  }
+  .chip svg{width:14px;height:14px;flex:none;color:var(--muted)}
+  .chip span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .modal > footer{display:flex;align-items:center;gap:8px;padding:14px 18px 16px}
+  .modal > footer .grow{flex:1;display:flex;align-items:center}
+  .confirm{margin:14px 0 4px}
+  .confirm .cap{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted);margin-bottom:6px;flex-wrap:wrap}
+  .confirm code{
+    font-family:"JetBrains Mono",ui-monospace,monospace;font-size:12px;
+    background:#f1f2f6;border:1px solid var(--line);border-radius:6px;padding:1px 5px;color:var(--ink)
+  }
+  .confirm input{
+    width:100%;padding:9px 11px;border-radius:9px;border:1px solid var(--line-2);
+    font-family:"JetBrains Mono",ui-monospace,monospace;font-size:13px;
+  }
+  .confirm input:focus{outline:none;border-color:var(--danger);box-shadow:0 0 0 3px var(--danger-soft)}
+  .confirm input:disabled{background:#f6f7f9;color:var(--muted)}
+  .matchbar{display:flex;align-items:center;gap:8px;margin-top:8px;height:18px}
+  progress{-webkit-appearance:none;appearance:none;flex:1;height:6px;border:none;background:none}
+  progress::-webkit-progress-bar{background:#eceef3;border-radius:99px}
+  progress::-webkit-progress-value{background:var(--danger);border-radius:99px;transition:width .12s linear}
+  progress.done::-webkit-progress-value{background:var(--ok)}
+  .matchbar .mk{width:18px;height:18px;border-radius:50%;flex:none;display:grid;place-items:center;background:#eceef3;color:#aab1bd}
+  .matchbar .mk.done{background:var(--ok-soft);color:var(--ok)}
+  .matchbar .mk svg{width:11px;height:11px;stroke-width:3}
+  .ack{display:flex;align-items:flex-start;gap:8px;margin-top:14px;font-size:13px;color:var(--ink-2);cursor:pointer}
+  .ack input{width:15px;height:15px;margin:2px 0 0;accent-color:var(--danger);flex:none}
+  .modal .alert{margin:12px 0 0}
+
+  @media (max-width:860px){
+    .layout{grid-template-columns:1fr;gap:16px;padding:18px 14px 56px}
+    nav.side{position:static;flex-direction:row;overflow-x:auto;gap:6px;padding-bottom:2px}
+    nav.side a{background:#fff;border:1px solid var(--line);white-space:nowrap}
+    .who .nm{display:none}
+    .card .body{padding:16px}
+    ul.projects li{padding:11px 14px}
+    .rowerr{padding-left:14px}
+  }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div>
+  <h1>Account settings</h1>
+  <div class="who" id="who"></div>
+</div>
+
+<div class="layout">
+  <nav class="side" aria-label="Settings sections">
+    <a href="#profile"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>Profile</a>
+    <a href="#projects"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></span>Projects<span class="n" id="navCount">—</span></a>
+    <a href="#danger" class="hot"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></span>Danger zone</a>
+  </nav>
+  <main id="main"></main>
+</div>
+
+<div class="scrim" id="scrim" role="presentation"></div>
+<p class="vh" id="live" role="status" aria-live="polite"></p>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ---------------- helpers ---------------- */
+
+  var SVG = {
+    user:'<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+    mail:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7.5 9 5.5 9-5.5"/>',
+    folder:'<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+    trash:'<path d="M3.5 6h17M9 6V4.2A1.2 1.2 0 0 1 10.2 3h3.6A1.2 1.2 0 0 1 15 4.2V6M6.5 6l.9 13.1A1.9 1.9 0 0 0 9.3 21h5.4a1.9 1.9 0 0 0 1.9-1.9L17.5 6"/>',
+    alert:'<path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/>',
+    check:'<path d="M20 6 9 17l-5-5"/>',
+    close:'<path d="M18 6 6 18M6 6l12 12"/>',
+    clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+    bolt:'<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>',
+    db:'<ellipse cx="12" cy="5.5" rx="8" ry="3"/><path d="M4 5.5v13c0 1.7 3.6 3 8 3s8-1.3 8-3v-13"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/>',
+    undo:'<path d="M3 10h11a5 5 0 0 1 0 10H9"/><path d="M3 10l4-4M3 10l4 4"/>',
+    logout:'<path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3"/><path d="M10 16l-4-4 4-4M6 12h10"/>'
+  };
+
+  function ic(name) {
+    var s = document.createElement("span");
+    s.className = "ic";
+    s.setAttribute("aria-hidden", "true");
+    s.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' + SVG[name] + "</svg>";
+    return s;
+  }
+  var SPINNER = '<svg class="spin" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M21 12a9 9 0 0 0-9-9"/></svg>';
+
+  function h(tag, attrs, kids) {
+    var e = document.createElement(tag);
+    if (attrs) {
+      for (var k in attrs) {
+        var v = attrs[k];
+        if (v == null || v === false) continue;
+        if (k === "class") e.className = v;
+        else if (k === "text") e.textContent = v;
+        else if (k.slice(0, 2) === "on") e.addEventListener(k.slice(2), v);
+        else e.setAttribute(k, v === true ? "" : v);
+      }
+    }
+    (kids || []).forEach(function (c) {
+      if (c == null || c === false) return;
+      e.appendChild(typeof c === "string" ? document.createTextNode(c) : c);
+    });
+    return e;
+  }
+  function clear(node) { while (node.firstChild) node.removeChild(node.firstChild); }
+  function say(msg) { document.getElementById("live").textContent = msg; }
+
+  function errText(e, tail) {
+    var base;
+    if (e && e.code === "NETWORK") base = "Network request failed.";
+    else if (e && e.name === "AbortError") base = "Request stopped.";
+    else if (e && e.message) base = e.message.replace(/\.$/, "") + ".";
+    else base = "Something went wrong.";
+    return base + " " + tail;
+  }
+  var FMT = new Intl.DateTimeFormat(undefined, { day: "numeric", month: "short", year: "numeric" });
+  function fmtDate(iso) {
+    var d = new Date(iso);
+    return isNaN(d.getTime()) ? String(iso) : FMT.format(d);
+  }
+  function initials(name) {
+    var p = String(name || "").trim().split(/\s+/).filter(Boolean);
+    if (!p.length) return "?";
+    return (p[0][0] + (p.length > 1 ? p[p.length - 1][0] : "")).toUpperCase();
+  }
+  var HUES = [252, 190, 158, 24, 330, 210];
+  function hueFor(id) {
+    var n = 0, s = String(id);
+    for (var i = 0; i < s.length; i++) n = (n * 31 + s.charCodeAt(i)) >>> 0;
+    return HUES[n % HUES.length];
+  }
+  function countLabel(n) { return n === 1 ? "1 project" : n + " projects"; }
+
+  /* ---------------- state ---------------- */
+
+  var S = {
+    user: null,
+    projects: [],
+    loadError: null,
+    loadBusy: false,
+    form: { name: "", email: "" },
+    clean: { name: "", email: "" },
+    fieldErr: {},
+    saving: false,
+    savedAt: 0,
+    rowBusy: Object.create(null),
+    rowErr: Object.create(null)
+  };
+  var savedTimer = 0;
+  var R = {};
+  var main = document.getElementById("main");
+  var scrim = document.getElementById("scrim");
+
+  function dirty() {
+    return S.form.name !== S.clean.name || S.form.email !== S.clean.email;
+  }
+
+  /* ---------------- load ---------------- */
+
+  function skeleton() {
+    function bar(w, hgt, mt) {
+      return h("div", { class: "sk", style: "width:" + w + ";height:" + hgt + "px;margin-top:" + (mt || 0) + "px" });
+    }
+    function card(rows) {
+      var body = h("div", { class: "body" });
+      for (var i = 0; i < rows; i++) {
+        body.appendChild(bar("110px", 10, i ? 20 : 0));
+        body.appendChild(bar(i % 2 ? "58%" : "44%", 34, 8));
+      }
+      return h("section", { class: "card", "aria-busy": "true" }, [
+        h("header", null, [bar("140px", 12)]),
+        body
+      ]);
+    }
+    clear(main);
+    main.appendChild(card(2));
+    main.appendChild(card(2));
+    say("Loading account settings.");
+  }
+
+  function loadFailed() {
+    clear(main);
+    main.appendChild(h("section", { class: "card" }, [
+      h("div", { class: "body" }, [
+        h("div", { class: "empty" }, [
+          h("div", { class: "ring", style: "background:var(--danger-soft);color:var(--danger)" }, [ic("alert")]),
+          h("b", { text: "Couldn't load settings" }),
+          h("span", { text: S.loadError }),
+          h("button", {
+            class: "btn primary", type: "button", style: "margin-top:6px",
+            onclick: function (ev) {
+              if (S.loadBusy) return;
+              var b = ev.currentTarget;
+              b.disabled = true;
+              b.innerHTML = SPINNER + "Retrying";
+              load();
+            }
+          }, [ic("undo"), "Retry"])
+        ])
+      ])
+    ]));
+  }
+
+  function load() {
+    S.loadBusy = true;
+    api.getUser().then(function (u) {
+      S.user = u;
+      S.projects = (u.projects || []).slice();
+      S.form = { name: u.name || "", email: u.email || "" };
+      S.clean = { name: S.form.name, email: S.form.email };
+      S.loadError = null;
+      S.loadBusy = false;
+      build();
+      say("Settings loaded.");
+    }).catch(function (e) {
+      S.loadBusy = false;
+      S.loadError = errText(e, "Settings were not loaded.");
+      loadFailed();
+    });
+  }
+
+  function build() {
+    var who = document.getElementById("who");
+    clear(who);
+    R.avatar = h("div", { class: "avatar", text: initials(S.user.name) });
+    R.whoName = h("span", { class: "nm", text: S.user.name });
+    who.appendChild(R.avatar);
+    who.appendChild(R.whoName);
+
+    clear(main);
+    main.appendChild(profileCard());
+    main.appendChild(projectsCard());
+    main.appendChild(dangerCard());
+    syncProfile();
+    syncProjects();
+  }
+
+  /* ---------------- inline alert ---------------- */
+
+  function alertBox(onRetry) {
+    var txt = h("div", { class: "txt" });
+    var btn = h("button", { class: "btn", type: "button" }, [ic("undo"), "Retry"]);
+    var root = h("div", { class: "alert", role: "alert" }, [ic("alert"), txt, btn]);
+    btn.addEventListener("click", function () { onRetry(); });
+    return {
+      root: root,
+      show: function (message, retryable) {
+        txt.textContent = message;
+        btn.style.display = retryable === false ? "none" : "";
+        btn.disabled = false;
+        root.classList.add("on");
+      },
+      hide: function () { root.classList.remove("on"); },
+      busy: function (on) { btn.disabled = !!on; }
+    };
+  }
+
+  /* ---------------- profile ---------------- */
+
+  function profileCard() {
+    R.name = h("input", {
+      class: "inp", id: "f-name", type: "text", autocomplete: "name", value: S.form.name,
+      oninput: function (ev) { S.form.name = ev.target.value; S.fieldErr.name = null; syncProfile(); }
+    });
+    R.email = h("input", {
+      class: "inp", id: "f-email", type: "email", autocomplete: "email", value: S.form.email,
+      oninput: function (ev) { S.form.email = ev.target.value; S.fieldErr.email = null; syncProfile(); }
+    });
+    R.nameErr = h("div", { class: "ferr" }, [ic("alert"), h("span")]);
+    R.emailErr = h("div", { class: "ferr" }, [ic("alert"), h("span")]);
+    R.nameDot = h("span", { class: "dot", title: "Unsaved change", style: "display:none" });
+    R.emailDot = h("span", { class: "dot", title: "Unsaved change", style: "display:none" });
+
+    R.saveBtn = h("button", { class: "btn primary", type: "submit" }, []);
+    R.discard = h("button", {
+      class: "btn", type: "button",
+      onclick: function () {
+        S.form = { name: S.clean.name, email: S.clean.email };
+        S.fieldErr = {};
+        R.name.value = S.form.name;
+        R.email.value = S.form.email;
+        R.saveAlert.hide();
+        syncProfile();
+        say("Changes discarded.");
+      }
+    }, [ic("undo"), "Discard"]);
+    R.status = h("div", { class: "status" });
+    R.saveAlert = alertBox(function () { save(); });
+
+    var form = h("form", {
+      novalidate: true,
+      onsubmit: function (ev) { ev.preventDefault(); save(); }
+    }, [
+      h("div", { class: "body" }, [
+        h("div", { class: "field" }, [
+          h("label", { for: "f-name" }, [ic("user"), "Name", R.nameDot]),
+          R.name, R.nameErr
+        ]),
+        h("div", { class: "field" }, [
+          h("label", { for: "f-email" }, [ic("mail"), "Email", R.emailDot]),
+          R.email, R.emailErr
+        ]),
+        h("div", { class: "field" }, [
+          h("label", null, [ic("bolt"), "Plan"]),
+          h("div", { class: "planrow" }, [
+            h("span", { class: "badge plan" }, [ic("bolt"), S.user.plan || "Free"]),
+            h("span", { class: "badge soft", text: S.user.hasCompletedOnboarding ? "Onboarded" : "Setup pending" })
+          ])
+        ]),
+        R.saveAlert.root
+      ]),
+      h("footer", null, [R.saveBtn, R.discard, R.status])
+    ]);
+
+    return h("section", { class: "card", id: "profile" }, [
+      h("header", null, [ic("user"), h("h2", { text: "Profile" })]),
+      form
+    ]);
+  }
+
+  function validate() {
+    var e = {};
+    if (!S.form.name.trim()) e.name = "Name can't be empty.";
+    var em = S.form.email.trim();
+    if (!em) e.email = "Email can't be empty.";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) e.email = "That's not a valid email address.";
+    return e;
+  }
+
+  function setFieldErr(input, slot, msg) {
+    if (msg) {
+      input.setAttribute("aria-invalid", "true");
+      slot.lastChild.textContent = msg;
+      slot.classList.add("on");
+    } else {
+      input.removeAttribute("aria-invalid");
+      slot.classList.remove("on");
+    }
+  }
+
+  function syncProfile() {
+    if (!R.saveBtn) return;
+    var d = dirty();
+    R.nameDot.style.display = S.form.name !== S.clean.name ? "" : "none";
+    R.emailDot.style.display = S.form.email !== S.clean.email ? "" : "none";
+    setFieldErr(R.name, R.nameErr, S.fieldErr.name);
+    setFieldErr(R.email, R.emailErr, S.fieldErr.email);
+
+    R.name.disabled = S.saving;
+    R.email.disabled = S.saving;
+    R.discard.disabled = S.saving || !d;
+    R.saveBtn.disabled = S.saving || !d;
+
+    clear(R.saveBtn);
+    if (S.saving) {
+      R.saveBtn.insertAdjacentHTML("beforeend", SPINNER);
+      R.saveBtn.appendChild(document.createTextNode("Saving"));
+      R.saveBtn.setAttribute("aria-busy", "true");
+    } else {
+      R.saveBtn.appendChild(ic("check"));
+      R.saveBtn.appendChild(document.createTextNode("Save changes"));
+      R.saveBtn.removeAttribute("aria-busy");
+    }
+
+    clear(R.status);
+    R.status.className = "status";
+    if (!S.saving && S.savedAt) {
+      R.status.classList.add("ok");
+      R.status.appendChild(h("span", { class: "chk" }, [ic("check")]));
+      R.status.appendChild(document.createTextNode("Saved"));
+    } else if (!S.saving && d) {
+      R.status.appendChild(h("span", { class: "dot" }));
+      R.status.appendChild(document.createTextNode("Unsaved"));
+    }
+  }
+
+  function save() {
+    if (S.saving || !dirty()) return;           // in-flight save blocks repeat clicks
+    var bad = validate();
+    if (Object.keys(bad).length) {
+      S.fieldErr = bad;
+      R.saveAlert.hide();
+      syncProfile();
+      (bad.name ? R.name : R.email).focus();
+      return;
+    }
+    S.saving = true;
+    S.fieldErr = {};
+    S.savedAt = 0;
+    R.saveAlert.hide();
+    syncProfile();                               // pending state paints before the request
+
+    var patch = { name: S.form.name.trim(), email: S.form.email.trim() };
+    api.updateSettings(patch).then(function () {
+      // clean state is adopted only after the server confirms
+      S.clean = { name: patch.name, email: patch.email };
+      S.form = { name: patch.name, email: patch.email };
+      R.name.value = patch.name;
+      R.email.value = patch.email;
+      S.user.name = patch.name;
+      S.user.email = patch.email;
+      R.avatar.textContent = initials(patch.name);
+      R.whoName.textContent = patch.name;
+      S.savedAt = Date.now();
+      clearTimeout(savedTimer);
+      savedTimer = setTimeout(function () { S.savedAt = 0; syncProfile(); }, 4000);
+      say("Profile saved.");
+    }).catch(function (e) {
+      if (e && e.code === "VALIDATION" && e.fields) {
+        var mapped = {}, other = [];
+        Object.keys(e.fields).forEach(function (k) {
+          if (k === "name" || k === "email") mapped[k] = e.fields[k];
+          else other.push(k + ": " + e.fields[k]);
+        });
+        S.fieldErr = mapped;
+        if (other.length) R.saveAlert.show(other.join(" "), false);
+        say("Not saved. Check the highlighted fields.");
+      } else {
+        R.saveAlert.show(errText(e, "Your edits are still here."), true);
+        say("Profile not saved.");
+      }
+    }).then(function () {
+      S.saving = false;
+      syncProfile();
+    });
+  }
+
+  /* ---------------- projects ---------------- */
+
+  function projectsCard() {
+    R.count = h("span", { class: "badge soft" });
+    R.list = h("ul", { class: "projects" });
+    return h("section", { class: "card", id: "projects" }, [
+      h("header", null, [
+        ic("folder"),
+        h("h2", { text: "Projects" }),
+        h("span", { style: "margin-left:auto" }, [R.count])
+      ]),
+      R.list
+    ]);
+  }
+
+  function syncProjects() {
+    var n = S.projects.length;
+    R.count.textContent = countLabel(n);
+    document.getElementById("navCount").textContent = String(n);
+    if (R.lossCount) R.lossCount.textContent = countLabel(n);
+
+    clear(R.list);
+    if (!n) {
+      R.list.appendChild(h("li", { style: "padding:0;display:block" }, [
+        h("div", { class: "empty" }, [
+          h("div", { class: "ring" }, [ic("folder")]),
+          h("b", { text: "No projects" }),
+          h("span", { text: "Nothing to delete here." })
+        ])
+      ]));
+      return;
+    }
+    S.projects.forEach(function (p) {
+      var busy = !!S.rowBusy[p.id];
+      var btn = h("button", {
+        class: "iconbtn", type: "button",
+        title: busy ? "Deleting" : "Delete project",
+        "aria-label": "Delete project " + p.name,
+        disabled: busy,
+        onclick: function () { openProjectDialog(p); }
+      }, []);
+      if (busy) btn.insertAdjacentHTML("beforeend", SPINNER);
+      else btn.appendChild(ic("trash"));
+
+      R.list.appendChild(h("li", { class: busy ? "busy" : "", "aria-busy": busy ? "true" : null }, [
+        h("div", { class: "pico", style: "background:hsl(" + hueFor(p.id) + " 62% 52%)" }, [ic("folder")]),
+        h("div", { class: "pmeta" }, [
+          h("div", { class: "pname", text: p.name }),
+          h("div", { class: "pdate" }, [ic("clock"), h("span", { text: fmtDate(p.createdAt) })])
+        ]),
+        btn
+      ]));
+
+      var msg = S.rowErr[p.id];
+      if (msg) {
+        R.list.appendChild(h("li", { style: "padding:0;display:block" }, [
+          h("div", { class: "rowerr", role: "alert" }, [
+            ic("alert"),
+            h("span", { text: msg }),
+            h("button", {
+              class: "btn sm ghostdanger", type: "button",
+              onclick: function () { deleteProject(p, null); }
+            }, [ic("undo"), "Retry"])
+          ])
+        ]));
+      }
+    });
+  }
+
+  function deleteProject(p, dlg) {
+    if (S.rowBusy[p.id]) return;                 // one delete per project in flight
+    S.rowBusy[p.id] = true;
+    S.rowErr[p.id] = null;
+    if (dlg) dlg.setBusy(true);
+    syncProjects();
+
+    api.deleteProject(p.id).then(function () {
+      // the row disappears only after the server confirms
+      S.projects = S.projects.filter(function (x) { return x.id !== p.id; });
+      if (S.user.projects) {
+        S.user.projects = S.user.projects.filter(function (x) { return x.id !== p.id; });
+      }
+      delete S.rowBusy[p.id];
+      if (dlg) { dlg.busy = false; dlg.close(); }
+      syncProjects();
+      say("Project " + p.name + " deleted.");
+    }).catch(function (e) {
+      delete S.rowBusy[p.id];
+      var msg = errText(e, '"' + p.name + '" was not deleted.');
+      if (dlg) {
+        dlg.setBusy(false);
+        dlg.showError(msg);
+      } else {
+        S.rowErr[p.id] = msg;
+      }
+      syncProjects();
+      say(msg);
+    });
+  }
+
+  /* ---------------- danger zone ---------------- */
+
+  function dangerCard() {
+    R.lossCount = h("span", { text: countLabel(S.projects.length) });
+    return h("section", { class: "card danger", id: "danger" }, [
+      h("div", { class: "stripe", "aria-hidden": "true" }),
+      h("header", null, [ic("alert"), h("h2", { text: "Danger zone" })]),
+      h("div", { class: "body" }, [
+        h("div", { class: "risk" }, [
+          h("span", { class: "lbl", text: "Risk" }),
+          h("meter", {
+            value: "3", min: "0", max: "3", low: "1", high: "2", optimum: "0",
+            "aria-label": "Deleting the account is high risk"
+          }),
+          h("span", {
+            class: "badge", style: "background:var(--danger-soft);color:var(--danger-2)",
+            text: "Permanent"
+          })
+        ]),
+        h("ul", { class: "loss" }, [
+          h("li", null, [ic("folder"), R.lossCount]),
+          h("li", null, [ic("db"), "Account data"]),
+          h("li", null, [ic("bolt"), (S.user.plan || "Free") + " plan"]),
+          h("li", null, [ic("logout"), "This session"])
+        ]),
+        h("p", { class: "hint", text: "Deleting your account can't be undone." }),
+        h("button", {
+          class: "btn danger", type: "button",
+          onclick: function () { openAccountDialog(); }
+        }, [ic("trash"), "Delete account"])
+      ])
+    ]);
+  }
+
+  /* ---------------- dialogs ---------------- */
+
+  var lastFocus = null;
+
+  function baseDialog(opts) {
+    var alertB = alertBox(function () { if (D.retry) D.retry(); });
+
+    var cancel = h("button", {
+      class: "btn", type: "button",
+      onclick: function () { D.close(); }
+    }, ["Cancel"]);
+
+    var confirmBtn = h("button", {
+      class: "btn danger", type: "button", disabled: !!opts.confirmDisabled,
+      onclick: function () { if (!D.busy && !confirmBtn.disabled) opts.onConfirm(D); }
+    }, []);
+
+    var closeX = h("button", { class: "iconbtn", type: "button", "aria-label": "Close", title: "Close",
+      onclick: function () { D.close(); } }, [ic("close")]);
+
+    var modal = h("div", {
+      class: "modal", role: "dialog", "aria-modal": "true", "aria-labelledby": "dlg-title"
+    }, [
+      h("header", null, [
+        h("div", { class: "hero" }, [ic("alert")]),
+        h("h3", { id: "dlg-title", text: opts.title }),
+        closeX
+      ]),
+      h("div", { class: "mbody" }, opts.bodyNodes.concat([alertB.root])),
+      h("footer", null, [
+        h("span", { class: "grow" }, [
+          h("meter", {
+            value: String(opts.riskValue), min: "0", max: "3", low: "1", high: "2", optimum: "0",
+            style: "width:64px", "aria-label": "Risk level " + opts.riskValue + " of 3"
+          })
+        ]),
+        cancel,
+        confirmBtn
+      ])
+    ]);
+
+    var D = {
+      busy: false,
+      modal: modal,
+      confirmBtn: confirmBtn,
+      retry: null,
+      canConfirm: null,
+      onBusy: null,
+      setBusy: function (on) {
+        D.busy = !!on;
+        confirmBtn.disabled = on ? true : !!(D.canConfirm && !D.canConfirm());
+        cancel.disabled = !!on;
+        closeX.disabled = !!on;
+        closeX.title = on ? "Finishing delete" : "Close";
+        modal.setAttribute("aria-busy", on ? "true" : "false");
+        if (D.onBusy) D.onBusy(!!on);
+        paintConfirm();
+        alertB.busy(!!on);
+      },
+      showError: function (msg) { alertB.show(msg, true); },
+      hideError: function () { alertB.hide(); },
+      close: function () {
+        if (D.busy) return;                      // never abandon a request mid-flight
+        scrim.classList.remove("on");
+        scrim.onmousedown = null;
+        clear(scrim);
+        document.removeEventListener("keydown", onKey, true);
+        if (lastFocus && document.contains(lastFocus)) lastFocus.focus();
+      }
+    };
+
+    function paintConfirm() {
+      clear(confirmBtn);
+      if (D.busy) {
+        confirmBtn.insertAdjacentHTML("beforeend", SPINNER);
+        confirmBtn.appendChild(document.createTextNode(opts.busyLabel));
+      } else {
+        confirmBtn.appendChild(ic("trash"));
+        confirmBtn.appendChild(document.createTextNode(opts.confirmLabel));
+      }
+    }
+    paintConfirm();
+
+    function onKey(ev) {
+      if (ev.key === "Escape") {
+        ev.preventDefault();
+        D.close();
+        return;
+      }
+      if (ev.key !== "Tab") return;
+      var f = modal.querySelectorAll("button:not(:disabled), input:not(:disabled)");
+      if (!f.length) return;
+      var first = f[0], last = f[f.length - 1];
+      if (ev.shiftKey && document.activeElement === first) { ev.preventDefault(); last.focus(); }
+      else if (!ev.shiftKey && document.activeElement === last) { ev.preventDefault(); first.focus(); }
+    }
+
+    lastFocus = document.activeElement;
+    clear(scrim);
+    scrim.appendChild(modal);
+    scrim.classList.add("on");
+    scrim.onmousedown = function (ev) { if (ev.target === scrim) D.close(); };
+    document.addEventListener("keydown", onKey, true);
+    return D;
+  }
+
+  function openProjectDialog(p) {
+    if (S.rowBusy[p.id]) return;
+    var D = baseDialog({
+      title: "Delete project",
+      riskValue: 2,
+      confirmLabel: "Delete project",
+      busyLabel: "Deleting",
+      bodyNodes: [
+        h("p", { text: "This can't be undone." }),
+        h("div", { class: "chip" }, [ic("folder"), h("span", { text: p.name })])
+      ],
+      onConfirm: function (d) { deleteProject(p, d); }
+    });
+    D.retry = function () { D.hideError(); deleteProject(p, D); };
+    setTimeout(function () { D.confirmBtn.focus(); }, 0);
+  }
+
+  function openAccountDialog() {
+    var target = String(S.user.email || "").trim();
+    var input = h("input", {
+      type: "text", id: "confirm-text", spellcheck: "false",
+      autocapitalize: "off", autocomplete: "off", placeholder: target,
+      "aria-label": "Type " + target + " to confirm"
+    });
+    var bar = h("progress", { value: "0", max: "100", "aria-label": "Confirmation match" });
+    var mark = h("span", { class: "mk" }, [ic("check")]);
+    var ack = h("input", { type: "checkbox", id: "ack" });
+
+    var D = baseDialog({
+      title: "Delete account",
+      riskValue: 3,
+      confirmLabel: "Delete account",
+      busyLabel: "Deleting",
+      confirmDisabled: true,
+      bodyNodes: [
+        h("p", { text: "Everything below goes with it." }),
+        h("ul", { class: "loss" }, [
+          h("li", null, [ic("folder"), countLabel(S.projects.length)]),
+          h("li", null, [ic("db"), "Account data"]),
+          h("li", null, [ic("bolt"), (S.user.plan || "Free") + " plan"])
+        ]),
+        h("div", { class: "confirm" }, [
+          h("div", { class: "cap" }, ["Type ", h("code", { text: target }), " to confirm"]),
+          input,
+          h("div", { class: "matchbar" }, [bar, mark])
+        ]),
+        h("label", { class: "ack", for: "ack" }, [ack, "I understand this is permanent."])
+      ],
+      onConfirm: function (d) { deleteAccount(d); }
+    });
+
+    function matched() { return input.value === target; }
+    D.canConfirm = function () { return matched() && ack.checked; };
+    D.onBusy = function (on) { input.disabled = on; ack.disabled = on; };
+
+    function refresh() {
+      var v = input.value, i = 0;
+      while (i < v.length && i < target.length && v[i] === target[i]) i++;
+      var pct = target.length ? Math.round((i / target.length) * 100) : 0;
+      if (i < v.length) pct = Math.min(pct, 99);   // typed something wrong: never show complete
+      var done = matched();
+      bar.value = done ? 100 : pct;
+      bar.classList.toggle("done", done);
+      mark.classList.toggle("done", done);
+      if (!D.busy) D.confirmBtn.disabled = !D.canConfirm();
+    }
+    input.addEventListener("input", refresh);
+    input.addEventListener("keydown", function (ev) {
+      if (ev.key === "Enter" && !D.busy && D.canConfirm()) { ev.preventDefault(); deleteAccount(D); }
+    });
+    ack.addEventListener("change", refresh);
+    refresh();
+
+    D.retry = function () { D.hideError(); if (D.canConfirm()) deleteAccount(D); };
+    setTimeout(function () { input.focus(); }, 0);
+  }
+
+  function deleteAccount(D) {
+    if (D.busy) return;                          // confirm is single-flight
+    D.hideError();
+    D.setBusy(true);
+    say("Deleting account.");
+    api.deleteAccount().then(function () {
+      D.busy = false;
+      D.close();
+      goodbye();
+    }).catch(function (e) {
+      D.setBusy(false);
+      D.showError(errText(e, "Your account is still active."));
+      say("Account not deleted.");
+    });
+  }
+
+  function goodbye() {
+    clear(document.getElementById("who"));
+    document.querySelector("nav.side").style.display = "none";
+    document.querySelector(".layout").style.gridTemplateColumns = "minmax(0,1fr)";
+    clear(main);
+    main.appendChild(h("section", { class: "card" }, [
+      h("div", { class: "body" }, [
+        h("div", { class: "empty" }, [
+          h("div", { class: "ring", style: "background:var(--ok-soft);color:var(--ok)" }, [ic("check")]),
+          h("b", { text: "Account deleted" }),
+          h("span", { text: "Nothing is left to manage here." })
+        ])
+      ])
+    ]));
+    say("Account deleted.");
+  }
+
+  /* ---------------- go ---------------- */
+
+  skeleton();
+  load();
+})();
+</script>
+</body>
+</html>

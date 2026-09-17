@@ -1,0 +1,221 @@
+{
+  "shuffleSeed": 1062442852,
+  "assignment": [
+    {
+      "id": "a8143c63",
+      "brief": "B2",
+      "agent": "gen-a",
+      "sample": 2
+    },
+    {
+      "id": "9d4db2c7",
+      "brief": "B4",
+      "agent": "gen-a",
+      "sample": 2
+    },
+    {
+      "id": "5c94302f",
+      "brief": "B5",
+      "agent": "gen-b",
+      "sample": 2
+    },
+    {
+      "id": "c1221ec5",
+      "brief": "B2",
+      "agent": "gen-b",
+      "sample": 1
+    },
+    {
+      "id": "77c750eb",
+      "brief": "B5",
+      "agent": "gen-a",
+      "sample": 3
+    },
+    {
+      "id": "d5fa082d",
+      "brief": "B1",
+      "agent": "gen-b",
+      "sample": 3
+    },
+    {
+      "id": "b1b613d1",
+      "brief": "B6",
+      "agent": "gen-a",
+      "sample": 3
+    },
+    {
+      "id": "7f0fe142",
+      "brief": "B1",
+      "agent": "gen-a",
+      "sample": 2
+    },
+    {
+      "id": "19f8347f",
+      "brief": "B3",
+      "agent": "gen-a",
+      "sample": 2
+    },
+    {
+      "id": "76d8fc74",
+      "brief": "B6",
+      "agent": "gen-b",
+      "sample": 2
+    },
+    {
+      "id": "bba65fe8",
+      "brief": "B3",
+      "agent": "gen-a",
+      "sample": 3
+    },
+    {
+      "id": "b1629d56",
+      "brief": "B2",
+      "agent": "gen-a",
+      "sample": 3
+    },
+    {
+      "id": "d3baa7c9",
+      "brief": "B3",
+      "agent": "gen-a",
+      "sample": 1
+    },
+    {
+      "id": "3b6eac7c",
+      "brief": "B5",
+      "agent": "gen-b",
+      "sample": 3
+    },
+    {
+      "id": "15e2b809",
+      "brief": "B4",
+      "agent": "gen-a",
+      "sample": 3
+    },
+    {
+      "id": "66b0875a",
+      "brief": "B3",
+      "agent": "gen-b",
+      "sample": 2
+    },
+    {
+      "id": "90dfbb8c",
+      "brief": "B6",
+      "agent": "gen-b",
+      "sample": 1
+    },
+    {
+      "id": "f5e74cab",
+      "brief": "B6",
+      "agent": "gen-a",
+      "sample": 1
+    },
+    {
+      "id": "e4ba8894",
+      "brief": "B6",
+      "agent": "gen-b",
+      "sample": 3
+    },
+    {
+      "id": "d2b7b52b",
+      "brief": "B4",
+      "agent": "gen-a",
+      "sample": 1
+    },
+    {
+      "id": "3bfbc3d1",
+      "brief": "B2",
+      "agent": "gen-b",
+      "sample": 3
+    },
+    {
+      "id": "d0847622",
+      "brief": "B2",
+      "agent": "gen-b",
+      "sample": 2
+    },
+    {
+      "id": "4ecba86c",
+      "brief": "B5",
+      "agent": "gen-a",
+      "sample": 1
+    },
+    {
+      "id": "fd799df2",
+      "brief": "B4",
+      "agent": "gen-b",
+      "sample": 3
+    },
+    {
+      "id": "661ba740",
+      "brief": "B2",
+      "agent": "gen-a",
+      "sample": 1
+    },
+    {
+      "id": "718d720b",
+      "brief": "B1",
+      "agent": "gen-b",
+      "sample": 2
+    },
+    {
+      "id": "0373bf32",
+      "brief": "B3",
+      "agent": "gen-b",
+      "sample": 3
+    },
+    {
+      "id": "eb77693b",
+      "brief": "B4",
+      "agent": "gen-b",
+      "sample": 1
+    },
+    {
+      "id": "88f7e857",
+      "brief": "B5",
+      "agent": "gen-b",
+      "sample": 1
+    },
+    {
+      "id": "a0145723",
+      "brief": "B3",
+      "agent": "gen-b",
+      "sample": 1
+    },
+    {
+      "id": "c4b19032",
+      "brief": "B5",
+      "agent": "gen-a",
+      "sample": 2
+    },
+    {
+      "id": "37cf7e87",
+      "brief": "B6",
+      "agent": "gen-a",
+      "sample": 2
+    },
+    {
+      "id": "b89a17df",
+      "brief": "B1",
+      "agent": "gen-a",
+      "sample": 1
+    },
+    {
+      "id": "510d7298",
+      "brief": "B1",
+      "agent": "gen-b",
+      "sample": 1
+    },
+    {
+      "id": "f6ff77aa",
+      "brief": "B1",
+      "agent": "gen-a",
+      "sample": 3
+    },
+    {
+      "id": "2e20bdb0",
+      "brief": "B4",
+      "agent": "gen-b",
+      "sample": 2
+    }
+  ]
+}

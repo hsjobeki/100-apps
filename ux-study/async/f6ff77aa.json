@@ -1,0 +1,66 @@
+{
+  "id": "f6ff77aa",
+  "items": [
+    {
+      "n": 1,
+      "verdict": "PASS",
+      "reason": "Under latency=slow, an upload card with filename, size, Cancel and 'Uploading… 0%' was visible ~280 ms after the file was set; the pending state persists through 'Processing…' until completion.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/f6ff77aa_1.png"
+    },
+    {
+      "n": 2,
+      "verdict": "FAIL",
+      "reason": "The dropzone/file input stays fully active while an upload is pending: selecting a file again during 'Uploading…' fired a second backend uploadFile (log t=952 and t=2194) instead of being blocked or deduplicated, and it killed the visible pending card.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/f6ff77aa_2.png"
+    },
+    {
+      "n": 3,
+      "verdict": "PASS",
+      "reason": "Upload progress ticks 10%→90% in the card's progress bar during upload, then 'Processing…' shows the job's server-reported progress (0→48→92→100%), and every running job in the list shows its own percentage.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/f6ff77aa_3.png"
+    },
+    {
+      "n": 4,
+      "verdict": "PASS",
+      "reason": "The upload card's Cancel button works in both phases: clicked during 'Uploading…' and during 'Processing…' it cleanly resets to idle and no processFile/job follows (aborted, no zombie state). Note the per-row Cancel buttons in the jobs list are inert (disabled=\"false\" attribute renders them disabled).",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/f6ff77aa_4.png"
+    },
+    {
+      "n": 5,
+      "verdict": "PASS",
+      "reason": "Under fail=1 the upload card itself shows 'Failed — Network error. Check your connection and try again.' next to the file, and when the user's own processing job failed (seed=2) the card showed the server's specific reason 'Upstream timeout after 30s'; failed list jobs also show specific errors in their rows.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/f6ff77aa_5.png"
+    },
+    {
+      "n": 6,
+      "verdict": "PASS",
+      "reason": "The 'Try again' link on the failed card works without reload for both failure kinds: after a network failure it re-fired uploadFile (log t=870 then t=21627), and after a processing failure it re-ran the full upload→process flow back to 'Processing…'. Caveat: the jobs-list Retry buttons are dead (`<button class=\"retry-btn\" disabled=\"false\">` is actually disabled), but the user's own flow always recovers.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/f6ff77aa_6.png"
+    },
+    {
+      "n": 7,
+      "verdict": "N/A",
+      "reason": "Marked not applicable for this brief; the page has no API-validated form fields, only a file picker.",
+      "evidence": "<input type=\"file\" id=\"fileInput\" accept=\".csv,text/csv\"> — no order/form fields exist on the page"
+    },
+    {
+      "n": 8,
+      "verdict": "PASS",
+      "reason": "The page polls listJobs every ~5-8 s (log t=53, 8080, 16136, 20362, …) and getJob for the active job; jobs visibly advanced Running→Succeeded/Failed and the newly created job appeared and progressed in the list without any manual refresh.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/f6ff77aa_8.png"
+    },
+    {
+      "n": 9,
+      "verdict": "FAIL",
+      "reason": "The page has no other views or dialogs, so mid-action interaction is the applicable test: re-entering the upload flow while one is pending silently orphans both — the pending card disappears, neither upload is ever processed (no processFile, no job, no error over 20 s), and the page looks idle while two uploads sit in-flight, a dead-end inconsistent state.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/f6ff77aa_9.png"
+    },
+    {
+      "n": 10,
+      "verdict": "PASS",
+      "reason": "The card stays in 'Processing…' with polled progress until getJob returns succeeded, and only then shows 'Complete — 2,830 rows processed — ↓ Download' using the server's result; retrying shows 'Processing…', never a premature success, and no optimistic completion was observed anywhere.",
+      "evidence": "/home/johannes/git/failure/ux-study/async/evidence/f6ff77aa_10.png"
+    }
+  ],
+  "failCount": 2
+}

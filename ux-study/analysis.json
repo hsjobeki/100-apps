@@ -1,0 +1,1310 @@
+{
+  "generatedAt": "2026-09-17T17:58:26.385Z",
+  "constants": {
+    "bootstrapN": 10000,
+    "bootstrapSeed": 20260917,
+    "modelA": "claude-opus-4-6",
+    "modelB": "claude-opus-5"
+  },
+  "verdict": "FALSIFIED",
+  "pairwise": {
+    "overall": {
+      "bWins": 54,
+      "aWins": 0,
+      "ties": 0,
+      "decided": 54,
+      "rate": 1,
+      "ci": [
+        1,
+        1
+      ]
+    },
+    "byBrief": {
+      "B1": {
+        "bWins": 9,
+        "aWins": 0,
+        "ties": 0,
+        "decided": 9,
+        "rate": 1,
+        "ci": [
+          1,
+          1
+        ]
+      },
+      "B2": {
+        "bWins": 9,
+        "aWins": 0,
+        "ties": 0,
+        "decided": 9,
+        "rate": 1,
+        "ci": [
+          1,
+          1
+        ]
+      },
+      "B3": {
+        "bWins": 9,
+        "aWins": 0,
+        "ties": 0,
+        "decided": 9,
+        "rate": 1,
+        "ci": [
+          1,
+          1
+        ]
+      },
+      "B4": {
+        "bWins": 9,
+        "aWins": 0,
+        "ties": 0,
+        "decided": 9,
+        "rate": 1,
+        "ci": [
+          1,
+          1
+        ]
+      },
+      "B5": {
+        "bWins": 9,
+        "aWins": 0,
+        "ties": 0,
+        "decided": 9,
+        "rate": 1,
+        "ci": [
+          1,
+          1
+        ]
+      },
+      "B6": {
+        "bWins": 9,
+        "aWins": 0,
+        "ties": 0,
+        "decided": 9,
+        "rate": 1,
+        "ci": [
+          1,
+          1
+        ]
+      }
+    },
+    "inconsistencyRate": 0,
+    "resolved": [
+      {
+        "pairKey": "B1_7f0fe142_510d7298",
+        "brief": "B1",
+        "aId": "7f0fe142",
+        "bId": "510d7298",
+        "o1Verdict": "Right",
+        "o2Verdict": "Left",
+        "o1Favours": "510d7298",
+        "o2Favours": "510d7298",
+        "winner": "510d7298",
+        "winnerModel": "claude-opus-5",
+        "inconsistent": false
+      },
+      {
+        "pairKey": "B1_7f0fe142_718d720b",
+        "brief": "B1",
+        "aId": "7f0fe142",
+        "bId": "718d720b",
+        "o1Verdict": "Right",
+        "o2Verdict": "Left",
+        "o1Favours": "718d720b",
+        "o2Favours": "718d720b",
+        "winner": "718d720b",
+        "winnerModel": "claude-opus-5",
+        "inconsistent": false
+      },
+      {
+        "pairKey": "B1_7f0fe142_d5fa082d",
+        "brief": "B1",
+        "aId": "7f0fe142",
+        "bId": "d5fa082d",
+        "o1Verdict": "Right",
+        "o2Verdict": "Left",
+        "o1Favours": "d5fa082d",
+        "o2Favours": "d5fa082d",
+        "winner": "d5fa082d",
+        "winnerModel": "claude-opus-5",
+        "inconsistent": false
+      },
+      {
+        "pairKey": "B1_b89a17df_510d7298",
+        "brief": "B1",
+        "aId": "b89a17df",
+        "bId": "510d7298",
+        "o1Verdict": "Right",
+        "o2Verdict": "Left",
+        "o1Favours": "510d7298",
+        "o2Favours": "510d7298",
+        "winner": "510d7298",
+        "winnerModel": "claude-opus-5",
+        "inconsistent": false
+      },
+      {
+        "pairKey": "B1_b89a17df_718d720b",
+        "brief": "B1",
+        "aId": "b89a17df",
+        "bId": "718d720b",
+        "o1Verdict": "Right",
+        "o2Verdict": "Left",
+        "o1Favours": "718d720b",
+        "o2Favours": "718d720b",
+        "winner": "718d720b",
+        "winnerModel": "claude-opus-5",
+        "inconsistent": false
+      },
+      {
+        "pairKey": "B1_b89a17df_d5fa082d",
+        "brief": "B1",
+        "aId": "b89a17df",
+        "bId": "d5fa082d",
+        "o1Verdict": "Right",
+        "o2Verdict": "Left",
+        "o1Favours": "d5fa082d",
+        "o2Favours": "d5fa082d",
+        "winner": "d5fa082d",
+        "winnerModel": "claude-opus-5",
+        "inconsistent": false
+      },
+      {
+        "pairKey": "B1_f6ff77aa_510d7298",
+        "brief": "B1",
+        "aId": "f6ff77aa",
+        "bId": "510d7298",
+        "o1Verdict": "Right",
+        "o2Verdict": "Left",
+        "o1Favours": "510d7298",
+        "o2Favours": "510d7298",
+        "winner": "510d7298",
+        "winnerModel": "claude-opus-5",
+        "inconsistent": false
+      },
+      {
+        "pairKey": "B1_f6ff77aa_718d720b",
+        "brief": "B1",
+        "aId": "f6ff77aa",
+        "bId": "718d720b",
+        "o1Verdict": "Right",
+        "o2Verdict": "Left",
+        "o1Favours": "718d720b",
+        "o2Favours": "718d720b",
+        "winner": "718d720b",
+        "winnerModel": "claude-opus-5",
+        "inconsistent": false
+      },
+      {
+        "pairKey": "B1_f6ff77aa_d5fa082d",
+        "brief": "B1",
+        "aId": "f6ff77aa",
+        "bId": "d5fa082d",
+        "o1Verdict": "Right",
+        "o2Verdict": "Left",
+        "o1Favours": "d5fa082d",
+        "o2Favours": "d5fa082d",
+        "winner": "d5fa082d",
+        "winnerModel": "claude-opus-5",
+        "inconsistent": false
+      },
+      {
+        "pairKey": "B2_661ba740_3bfbc3d1",
+        "brief": "B2",
+        "aId": "661ba740",
+        "bId": "3bfbc3d1",
+        "o1Verdict": "Right",
+        "o2Verdict": "Left",
+        "o1Favours": "3bfbc3d1",
+        "o2Favours": "3bfbc3d1",
+        "winner": "3bfbc3d1",
+        "winnerModel": "claude-opus-5",
+        "inconsistent": false
+      },
+      {
+        "pairKey": "B2_661ba740_c1221ec5",
+        "brief": "B2",
+        "aId": "661ba740",
+        "bId": "c1221ec5",
+        "o1Verdict": "Right",
+        "o2Verdict": "Left",
+        "o1Favours": "c1221ec5",
+        "o2Favours": "c1221ec5",
+        "winner": "c1221ec5",
+        "winnerModel": "claude-opus-5",
+        "inconsistent": false
+      },
+      {
+        "pairKey": "B2_661ba740_d0847622",
+        "brief": "B2",
+        "aId": "661ba740",
+        "bId": "d0847622",
+        "o1Verdict": "Right",
+        "o2Verdict": "Left",
+        "o1Favours": "d0847622",
+        "o2Favours": "d0847622",
+        "winner": "d0847622",
+        "winnerModel": "claude-opus-5",
+        "inconsistent": false
+      },
+      {
+        "pairKey": "B2_a8143c63_3bfbc3d1",
+        "brief": "B2",
+        "aId": "a8143c63",
+        "bId": "3bfbc3d1",
+        "o1Verdict": "Right",
+        "o2Verdict": "Left",
+        "o1Favours": "3bfbc3d1",
+        "o2Favours": "3bfbc3d1",
+        "winner": "3bfbc3d1",
+        "winnerModel": "claude-opus-5",
+        "inconsistent": false
+      },
+      {
+        "pairKey": "B2_a8143c63_c1221ec5",
+        "brief": "B2",
+        "aId": "a8143c63",
+        "bId": "c1221ec5",
+        "o1Verdict": "Right",
+        "o2Verdict": "Left",
+        "o1Favours": "c1221ec5",
+        "o2Favours": "c1221ec5",
+        "winner": "c1221ec5",
+        "winnerModel": "claude-opus-5",
+        "inconsistent": false
+      },
+      {
+        "pairKey": "B2_a8143c63_d0847622",
+        "brief": "B2",
+        "aId": "a8143c63",
+        "bId": "d0847622",
+        "o1Verdict": "Right",
+        "o2Verdict": "Left",
+        "o1Favours": "d0847622",
+        "o2Favours": "d0847622",
+        "winner": "d0847622",
+        "winnerModel": "claude-opus-5",
+        "inconsistent": false
+      },
+      {
+        "pairKey": "B2_b1629d56_3bfbc3d1",
+        "brief": "B2",
+        "aId": "b1629d56",
+        "bId": "3bfbc3d1",
+        "o1Verdict": "Right",
+        "o2Verdict": "Left",
+        "o1Favours": "3bfbc3d1",
+        "o2Favours": "3bfbc3d1",
+        "winner": "3bfbc3d1",
+        "winnerModel": "claude-opus-5",
+        "inconsistent": false
+      },
+      {
+        "pairKey": "B2_b1629d56_c1221ec5",
+        "brief": "B2",
+        "aId": "b1629d56",
+        "bId": "c1221ec5",
+        "o1Verdict": "Right",
+        "o2Verdict": "Left",
+        "o1Favours": "c1221ec5",
+        "o2Favours": "c1221ec5",
+        "winner": "c1221ec5",
+        "winnerModel": "claude-opus-5",
+        "inconsistent": false
+      },
+      {
+        "pairKey": "B2_b1629d56_d0847622",
+        "brief": "B2",
+        "aId": "b1629d56",
+        "bId": "d0847622",
+        "o1Verdict": "Right",
+        "o2Verdict": "Left",
+        "o1Favours": "d0847622",
+        "o2Favours": "d0847622",
+        "winner": "d0847622",
+        "winnerModel": "claude-opus-5",
+        "inconsistent": false
+      },
+      {
+        "pairKey": "B3_19f8347f_0373bf32",
+        "brief": "B3",
+        "aId": "19f8347f",
+        "bId": "0373bf32",
+        "o1Verdict": "Right",
+        "o2Verdict": "Left",
+        "o1Favours": "0373bf32",
+        "o2Favours": "0373bf32",
+        "winner": "0373bf32",
+        "winnerModel": "claude-opus-5",
+        "inconsistent": false
+      },
+      {
+        "pairKey": "B3_19f8347f_66b0875a",
+        "brief": "B3",
+        "aId": "19f8347f",
+        "bId": "66b0875a",
+        "o1Verdict": "Right",
+        "o2Verdict": "Left",
+        "o1Favours": "66b0875a",
+        "o2Favours": "66b0875a",
+        "winner": "66b0875a",
+        "winnerModel": "claude-opus-5",
+        "inconsistent": false
+      },
+      {
+        "pairKey": "B3_19f8347f_a0145723",
+        "brief": "B3",
+        "aId": "19f8347f",
+        "bId": "a0145723",
+        "o1Verdict": "Right",
+        "o2Verdict": "Left",
+        "o1Favours": "a0145723",
+        "o2Favours": "a0145723",
+        "winner": "a0145723",
+        "winnerModel": "claude-opus-5",
+        "inconsistent": false
+      },
+      {
+        "pairKey": "B3_bba65fe8_0373bf32",
+        "brief": "B3",
+        "aId": "bba65fe8",
+        "bId": "0373bf32",
+        "o1Verdict": "Right",
+        "o2Verdict": "Left",
+        "o1Favours": "0373bf32",
+        "o2Favours": "0373bf32",
+        "winner": "0373bf32",
+        "winnerModel": "claude-opus-5",
+        "inconsistent": false
+      },
+      {
+        "pairKey": "B3_bba65fe8_66b0875a",
+        "brief": "B3",
+        "aId": "bba65fe8",
+        "bId": "66b0875a",
+        "o1Verdict": "Right",
+        "o2Verdict": "Left",
+        "o1Favours": "66b0875a",
+        "o2Favours": "66b0875a",
+        "winner": "66b0875a",
+        "winnerModel": "claude-opus-5",
+        "inconsistent": false
+      },
+      {
+        "pairKey": "B3_bba65fe8_a0145723",
+        "brief": "B3",
+        "aId": "bba65fe8",
+        "bId": "a0145723",
+        "o1Verdict": "Right",
+        "o2Verdict": "Left",
+        "o1Favours": "a0145723",
+        "o2Favours": "a0145723",
+        "winner": "a0145723",
+        "winnerModel": "claude-opus-5",
+        "inconsistent": false
+      },
+      {
+        "pairKey": "B3_d3baa7c9_0373bf32",
+        "brief": "B3",
+        "aId": "d3baa7c9",
+        "bId": "0373bf32",
+        "o1Verdict": "Right",
+        "o2Verdict": "Left",
+        "o1Favours": "0373bf32",
+        "o2Favours": "0373bf32",
+        "winner": "0373bf32",
+        "winnerModel": "claude-opus-5",
+        "inconsistent": false
+      },
+      {
+        "pairKey": "B3_d3baa7c9_66b0875a",
+        "brief": "B3",
+        "aId": "d3baa7c9",
+        "bId": "66b0875a",
+        "o1Verdict": "Right",
+        "o2Verdict": "Left",
+        "o1Favours": "66b0875a",
+        "o2Favours": "66b0875a",
+        "winner": "66b0875a",
+        "winnerModel": "claude-opus-5",
+        "inconsistent": false
+      },
+      {
+        "pairKey": "B3_d3baa7c9_a0145723",
+        "brief": "B3",
+        "aId": "d3baa7c9",
+        "bId": "a0145723",
+        "o1Verdict": "Right",
+        "o2Verdict": "Left",
+        "o1Favours": "a0145723",
+        "o2Favours": "a0145723",
+        "winner": "a0145723",
+        "winnerModel": "claude-opus-5",
+        "inconsistent": false
+      },
+      {
+        "pairKey": "B4_15e2b809_2e20bdb0",
+        "brief": "B4",
+        "aId": "15e2b809",
+        "bId": "2e20bdb0",
+        "o1Verdict": "Right",
+        "o2Verdict": "Left",
+        "o1Favours": "2e20bdb0",
+        "o2Favours": "2e20bdb0",
+        "winner": "2e20bdb0",
+        "winnerModel": "claude-opus-5",
+        "inconsistent": false
+      },
+      {
+        "pairKey": "B4_15e2b809_eb77693b",
+        "brief": "B4",
+        "aId": "15e2b809",
+        "bId": "eb77693b",
+        "o1Verdict": "Right",
+        "o2Verdict": "Left",
+        "o1Favours": "eb77693b",
+        "o2Favours": "eb77693b",
+        "winner": "eb77693b",
+        "winnerModel": "claude-opus-5",
+        "inconsistent": false
+      },
+      {
+        "pairKey": "B4_15e2b809_fd799df2",
+        "brief": "B4",
+        "aId": "15e2b809",
+        "bId": "fd799df2",
+        "o1Verdict": "Right",
+        "o2Verdict": "Left",
+        "o1Favours": "fd799df2",
+        "o2Favours": "fd799df2",
+        "winner": "fd799df2",
+        "winnerModel": "claude-opus-5",
+        "inconsistent": false
+      },
+      {
+        "pairKey": "B4_9d4db2c7_2e20bdb0",
+        "brief": "B4",
+        "aId": "9d4db2c7",
+        "bId": "2e20bdb0",
+        "o1Verdict": "Right",
+        "o2Verdict": "Left",
+        "o1Favours": "2e20bdb0",
+        "o2Favours": "2e20bdb0",
+        "winner": "2e20bdb0",
+        "winnerModel": "claude-opus-5",
+        "inconsistent": false
+      },
+      {
+        "pairKey": "B4_9d4db2c7_eb77693b",
+        "brief": "B4",
+        "aId": "9d4db2c7",
+        "bId": "eb77693b",
+        "o1Verdict": "Right",
+        "o2Verdict": "Left",
+        "o1Favours": "eb77693b",
+        "o2Favours": "eb77693b",
+        "winner": "eb77693b",
+        "winnerModel": "claude-opus-5",
+        "inconsistent": false
+      },
+      {
+        "pairKey": "B4_9d4db2c7_fd799df2",
+        "brief": "B4",
+        "aId": "9d4db2c7",
+        "bId": "fd799df2",
+        "o1Verdict": "Right",
+        "o2Verdict": "Left",
+        "o1Favours": "fd799df2",
+        "o2Favours": "fd799df2",
+        "winner": "fd799df2",
+        "winnerModel": "claude-opus-5",
+        "inconsistent": false
+      },
+      {
+        "pairKey": "B4_d2b7b52b_2e20bdb0",
+        "brief": "B4",
+        "aId": "d2b7b52b",
+        "bId": "2e20bdb0",
+        "o1Verdict": "Right",
+        "o2Verdict": "Left",
+        "o1Favours": "2e20bdb0",
+        "o2Favours": "2e20bdb0",
+        "winner": "2e20bdb0",
+        "winnerModel": "claude-opus-5",
+        "inconsistent": false
+      },
+      {
+        "pairKey": "B4_d2b7b52b_eb77693b",
+        "brief": "B4",
+        "aId": "d2b7b52b",
+        "bId": "eb77693b",
+        "o1Verdict": "Right",
+        "o2Verdict": "Left",
+        "o1Favours": "eb77693b",
+        "o2Favours": "eb77693b",
+        "winner": "eb77693b",
+        "winnerModel": "claude-opus-5",
+        "inconsistent": false
+      },
+      {
+        "pairKey": "B4_d2b7b52b_fd799df2",
+        "brief": "B4",
+        "aId": "d2b7b52b",
+        "bId": "fd799df2",
+        "o1Verdict": "Right",
+        "o2Verdict": "Left",
+        "o1Favours": "fd799df2",
+        "o2Favours": "fd799df2",
+        "winner": "fd799df2",
+        "winnerModel": "claude-opus-5",
+        "inconsistent": false
+      },
+      {
+        "pairKey": "B5_4ecba86c_3b6eac7c",
+        "brief": "B5",
+        "aId": "4ecba86c",
+        "bId": "3b6eac7c",
+        "o1Verdict": "Right",
+        "o2Verdict": "Left",
+        "o1Favours": "3b6eac7c",
+        "o2Favours": "3b6eac7c",
+        "winner": "3b6eac7c",
+        "winnerModel": "claude-opus-5",
+        "inconsistent": false
+      },
+      {
+        "pairKey": "B5_4ecba86c_5c94302f",
+        "brief": "B5",
+        "aId": "4ecba86c",
+        "bId": "5c94302f",
+        "o1Verdict": "Right",
+        "o2Verdict": "Left",
+        "o1Favours": "5c94302f",
+        "o2Favours": "5c94302f",
+        "winner": "5c94302f",
+        "winnerModel": "claude-opus-5",
+        "inconsistent": false
+      },
+      {
+        "pairKey": "B5_4ecba86c_88f7e857",
+        "brief": "B5",
+        "aId": "4ecba86c",
+        "bId": "88f7e857",
+        "o1Verdict": "Right",
+        "o2Verdict": "Left",
+        "o1Favours": "88f7e857",
+        "o2Favours": "88f7e857",
+        "winner": "88f7e857",
+        "winnerModel": "claude-opus-5",
+        "inconsistent": false
+      },
+      {
+        "pairKey": "B5_77c750eb_3b6eac7c",
+        "brief": "B5",
+        "aId": "77c750eb",
+        "bId": "3b6eac7c",
+        "o1Verdict": "Right",
+        "o2Verdict": "Left",
+        "o1Favours": "3b6eac7c",
+        "o2Favours": "3b6eac7c",
+        "winner": "3b6eac7c",
+        "winnerModel": "claude-opus-5",
+        "inconsistent": false
+      },
+      {
+        "pairKey": "B5_77c750eb_5c94302f",
+        "brief": "B5",
+        "aId": "77c750eb",
+        "bId": "5c94302f",
+        "o1Verdict": "Right",
+        "o2Verdict": "Left",
+        "o1Favours": "5c94302f",
+        "o2Favours": "5c94302f",
+        "winner": "5c94302f",
+        "winnerModel": "claude-opus-5",
+        "inconsistent": false
+      },
+      {
+        "pairKey": "B5_77c750eb_88f7e857",
+        "brief": "B5",
+        "aId": "77c750eb",
+        "bId": "88f7e857",
+        "o1Verdict": "Right",
+        "o2Verdict": "Left",
+        "o1Favours": "88f7e857",
+        "o2Favours": "88f7e857",
+        "winner": "88f7e857",
+        "winnerModel": "claude-opus-5",
+        "inconsistent": false
+      },
+      {
+        "pairKey": "B5_c4b19032_3b6eac7c",
+        "brief": "B5",
+        "aId": "c4b19032",
+        "bId": "3b6eac7c",
+        "o1Verdict": "Right",
+        "o2Verdict": "Left",
+        "o1Favours": "3b6eac7c",
+        "o2Favours": "3b6eac7c",
+        "winner": "3b6eac7c",
+        "winnerModel": "claude-opus-5",
+        "inconsistent": false
+      },
+      {
+        "pairKey": "B5_c4b19032_5c94302f",
+        "brief": "B5",
+        "aId": "c4b19032",
+        "bId": "5c94302f",
+        "o1Verdict": "Right",
+        "o2Verdict": "Left",
+        "o1Favours": "5c94302f",
+        "o2Favours": "5c94302f",
+        "winner": "5c94302f",
+        "winnerModel": "claude-opus-5",
+        "inconsistent": false
+      },
+      {
+        "pairKey": "B5_c4b19032_88f7e857",
+        "brief": "B5",
+        "aId": "c4b19032",
+        "bId": "88f7e857",
+        "o1Verdict": "Right",
+        "o2Verdict": "Left",
+        "o1Favours": "88f7e857",
+        "o2Favours": "88f7e857",
+        "winner": "88f7e857",
+        "winnerModel": "claude-opus-5",
+        "inconsistent": false
+      },
+      {
+        "pairKey": "B6_37cf7e87_76d8fc74",
+        "brief": "B6",
+        "aId": "37cf7e87",
+        "bId": "76d8fc74",
+        "o1Verdict": "Right",
+        "o2Verdict": "Left",
+        "o1Favours": "76d8fc74",
+        "o2Favours": "76d8fc74",
+        "winner": "76d8fc74",
+        "winnerModel": "claude-opus-5",
+        "inconsistent": false
+      },
+      {
+        "pairKey": "B6_37cf7e87_90dfbb8c",
+        "brief": "B6",
+        "aId": "37cf7e87",
+        "bId": "90dfbb8c",
+        "o1Verdict": "Right",
+        "o2Verdict": "Left",
+        "o1Favours": "90dfbb8c",
+        "o2Favours": "90dfbb8c",
+        "winner": "90dfbb8c",
+        "winnerModel": "claude-opus-5",
+        "inconsistent": false
+      },
+      {
+        "pairKey": "B6_37cf7e87_e4ba8894",
+        "brief": "B6",
+        "aId": "37cf7e87",
+        "bId": "e4ba8894",
+        "o1Verdict": "Right",
+        "o2Verdict": "Left",
+        "o1Favours": "e4ba8894",
+        "o2Favours": "e4ba8894",
+        "winner": "e4ba8894",
+        "winnerModel": "claude-opus-5",
+        "inconsistent": false
+      },
+      {
+        "pairKey": "B6_b1b613d1_76d8fc74",
+        "brief": "B6",
+        "aId": "b1b613d1",
+        "bId": "76d8fc74",
+        "o1Verdict": "Right",
+        "o2Verdict": "Left",
+        "o1Favours": "76d8fc74",
+        "o2Favours": "76d8fc74",
+        "winner": "76d8fc74",
+        "winnerModel": "claude-opus-5",
+        "inconsistent": false
+      },
+      {
+        "pairKey": "B6_b1b613d1_90dfbb8c",
+        "brief": "B6",
+        "aId": "b1b613d1",
+        "bId": "90dfbb8c",
+        "o1Verdict": "Right",
+        "o2Verdict": "Left",
+        "o1Favours": "90dfbb8c",
+        "o2Favours": "90dfbb8c",
+        "winner": "90dfbb8c",
+        "winnerModel": "claude-opus-5",
+        "inconsistent": false
+      },
+      {
+        "pairKey": "B6_b1b613d1_e4ba8894",
+        "brief": "B6",
+        "aId": "b1b613d1",
+        "bId": "e4ba8894",
+        "o1Verdict": "Right",
+        "o2Verdict": "Left",
+        "o1Favours": "e4ba8894",
+        "o2Favours": "e4ba8894",
+        "winner": "e4ba8894",
+        "winnerModel": "claude-opus-5",
+        "inconsistent": false
+      },
+      {
+        "pairKey": "B6_f5e74cab_76d8fc74",
+        "brief": "B6",
+        "aId": "f5e74cab",
+        "bId": "76d8fc74",
+        "o1Verdict": "Right",
+        "o2Verdict": "Left",
+        "o1Favours": "76d8fc74",
+        "o2Favours": "76d8fc74",
+        "winner": "76d8fc74",
+        "winnerModel": "claude-opus-5",
+        "inconsistent": false
+      },
+      {
+        "pairKey": "B6_f5e74cab_90dfbb8c",
+        "brief": "B6",
+        "aId": "f5e74cab",
+        "bId": "90dfbb8c",
+        "o1Verdict": "Right",
+        "o2Verdict": "Left",
+        "o1Favours": "90dfbb8c",
+        "o2Favours": "90dfbb8c",
+        "winner": "90dfbb8c",
+        "winnerModel": "claude-opus-5",
+        "inconsistent": false
+      },
+      {
+        "pairKey": "B6_f5e74cab_e4ba8894",
+        "brief": "B6",
+        "aId": "f5e74cab",
+        "bId": "e4ba8894",
+        "o1Verdict": "Right",
+        "o2Verdict": "Left",
+        "o1Favours": "e4ba8894",
+        "o2Favours": "e4ba8894",
+        "winner": "e4ba8894",
+        "winnerModel": "claude-opus-5",
+        "inconsistent": false
+      }
+    ]
+  },
+  "rubric": {
+    "f1": {
+      "a": {
+        "mean": 4.78,
+        "ci": [
+          4.56,
+          4.94
+        ],
+        "n": 18
+      },
+      "b": {
+        "mean": 4.94,
+        "ci": [
+          4.83,
+          5
+        ],
+        "n": 18
+      },
+      "delta": 0.17
+    },
+    "f2": {
+      "a": {
+        "mean": 4.5,
+        "ci": [
+          4.28,
+          4.72
+        ],
+        "n": 18
+      },
+      "b": {
+        "mean": 4.78,
+        "ci": [
+          4.56,
+          4.94
+        ],
+        "n": 18
+      },
+      "delta": 0.28
+    },
+    "f3": {
+      "a": {
+        "mean": 3.78,
+        "ci": [
+          3.5,
+          4.06
+        ],
+        "n": 18
+      },
+      "b": {
+        "mean": 4.22,
+        "ci": [
+          3.94,
+          4.5
+        ],
+        "n": 18
+      },
+      "delta": 0.44
+    },
+    "f4": {
+      "a": {
+        "mean": 4.06,
+        "ci": [
+          4,
+          4.17
+        ],
+        "n": 18
+      },
+      "b": {
+        "mean": 4.72,
+        "ci": [
+          4.5,
+          4.89
+        ],
+        "n": 18
+      },
+      "delta": 0.67
+    },
+    "f5": {
+      "a": {
+        "mean": 4.28,
+        "ci": [
+          3.83,
+          4.67
+        ],
+        "n": 18
+      },
+      "b": {
+        "mean": 4.94,
+        "ci": [
+          4.83,
+          5
+        ],
+        "n": 18
+      },
+      "delta": 0.67
+    },
+    "hierarchy": {
+      "a": {
+        "mean": 4.83,
+        "ci": [
+          4.67,
+          5
+        ],
+        "n": 18
+      },
+      "b": {
+        "mean": 4.94,
+        "ci": [
+          4.83,
+          5
+        ],
+        "n": 18
+      },
+      "delta": 0.11
+    }
+  },
+  "metrics": {
+    "viewportWords": {
+      "a": {
+        "mean": 70.72,
+        "ci": [
+          53.89,
+          88.28
+        ]
+      },
+      "b": {
+        "mean": 80.44,
+        "ci": [
+          69.83,
+          91.94
+        ]
+      },
+      "delta": 9.72
+    },
+    "pageWords": {
+      "a": {
+        "mean": 72.78,
+        "ci": [
+          55.72,
+          90
+        ]
+      },
+      "b": {
+        "mean": 83.28,
+        "ci": [
+          72.61,
+          94.44
+        ]
+      },
+      "delta": 10.5
+    },
+    "labelMeanWords": {
+      "a": {
+        "mean": 1.37,
+        "ci": [
+          1.19,
+          1.57
+        ]
+      },
+      "b": {
+        "mean": 2.48,
+        "ci": [
+          1.66,
+          3.57
+        ]
+      },
+      "delta": 1.1
+    },
+    "labelMaxWords": {
+      "a": {
+        "mean": 1.72,
+        "ci": [
+          1.44,
+          2
+        ]
+      },
+      "b": {
+        "mean": 4.56,
+        "ci": [
+          3,
+          6.5
+        ]
+      },
+      "delta": 2.83
+    },
+    "helperWords": {
+      "a": {
+        "mean": 6.78,
+        "ci": [
+          3.06,
+          11.5
+        ]
+      },
+      "b": {
+        "mean": 6.78,
+        "ci": [
+          3.39,
+          10.89
+        ]
+      },
+      "delta": 0
+    },
+    "longLeafWords": {
+      "a": {
+        "mean": 0.89,
+        "ci": [
+          0,
+          2.67
+        ]
+      },
+      "b": {
+        "mean": 0,
+        "ci": [
+          0,
+          0
+        ]
+      },
+      "delta": -0.89
+    },
+    "graphicalTotal": {
+      "a": {
+        "mean": 28.33,
+        "ci": [
+          19,
+          39.22
+        ]
+      },
+      "b": {
+        "mean": 49.17,
+        "ci": [
+          40.94,
+          57.39
+        ]
+      },
+      "delta": 20.83
+    },
+    "consoleErrors": {
+      "a": {
+        "mean": 0,
+        "ci": [
+          0,
+          0
+        ]
+      },
+      "b": {
+        "mean": 0,
+        "ci": [
+          0,
+          0
+        ]
+      },
+      "delta": 0
+    },
+    "uncaughtExceptions": {
+      "a": {
+        "mean": 0,
+        "ci": [
+          0,
+          0
+        ]
+      },
+      "b": {
+        "mean": 0,
+        "ci": [
+          0,
+          0
+        ]
+      },
+      "delta": 0
+    },
+    "mobileViewportWords": {
+      "a": {
+        "mean": 42.28,
+        "ci": [
+          34.61,
+          50.39
+        ]
+      },
+      "b": {
+        "mean": 48.44,
+        "ci": [
+          42.61,
+          54.28
+        ]
+      },
+      "delta": 6.17
+    }
+  },
+  "duplicateSubmission": {
+    "a": {
+      "applicable": 1,
+      "of": 18,
+      "allowedDuplicate": 0,
+      "rate": 0
+    },
+    "b": {
+      "applicable": 3,
+      "of": 18,
+      "allowedDuplicate": 0,
+      "rate": 0
+    }
+  },
+  "async": {
+    "stats": {
+      "a": {
+        "mean": 0.83,
+        "ci": [
+          0.39,
+          1.39
+        ],
+        "total": 15,
+        "n": 18
+      },
+      "b": {
+        "mean": 0.06,
+        "ci": [
+          0,
+          0.17
+        ],
+        "total": 1,
+        "n": 18
+      }
+    },
+    "ratioBoverA": 0.07,
+    "byItem": [
+      {
+        "n": 1,
+        "a": {
+          "fails": 3,
+          "rated": 18
+        },
+        "b": {
+          "fails": 0,
+          "rated": 18
+        }
+      },
+      {
+        "n": 2,
+        "a": {
+          "fails": 2,
+          "rated": 18
+        },
+        "b": {
+          "fails": 0,
+          "rated": 18
+        }
+      },
+      {
+        "n": 3,
+        "a": {
+          "fails": 0,
+          "rated": 6
+        },
+        "b": {
+          "fails": 0,
+          "rated": 6
+        }
+      },
+      {
+        "n": 4,
+        "a": {
+          "fails": 0,
+          "rated": 6
+        },
+        "b": {
+          "fails": 0,
+          "rated": 6
+        }
+      },
+      {
+        "n": 5,
+        "a": {
+          "fails": 4,
+          "rated": 18
+        },
+        "b": {
+          "fails": 0,
+          "rated": 18
+        }
+      },
+      {
+        "n": 6,
+        "a": {
+          "fails": 1,
+          "rated": 18
+        },
+        "b": {
+          "fails": 0,
+          "rated": 18
+        }
+      },
+      {
+        "n": 7,
+        "a": {
+          "fails": 0,
+          "rated": 3
+        },
+        "b": {
+          "fails": 0,
+          "rated": 3
+        }
+      },
+      {
+        "n": 8,
+        "a": {
+          "fails": 0,
+          "rated": 9
+        },
+        "b": {
+          "fails": 0,
+          "rated": 9
+        }
+      },
+      {
+        "n": 9,
+        "a": {
+          "fails": 4,
+          "rated": 18
+        },
+        "b": {
+          "fails": 1,
+          "rated": 18
+        }
+      },
+      {
+        "n": 10,
+        "a": {
+          "fails": 1,
+          "rated": 18
+        },
+        "b": {
+          "fails": 0,
+          "rated": 18
+        }
+      }
+    ]
+  },
+  "genericness": {
+    "a": {
+      "mean": 0.9759,
+      "pairs": 135,
+      "ci": [
+        0.9713,
+        0.9804
+      ]
+    },
+    "b": {
+      "mean": 0.936,
+      "pairs": 135,
+      "ci": [
+        0.9261,
+        0.9459
+      ]
+    },
+    "delta": -0.0399
+  },
+  "generation": {
+    "a": {
+      "bytes": 25207,
+      "tokensOut": 9429,
+      "latencySec": 114,
+      "costUsd": 7.58
+    },
+    "b": {
+      "bytes": 45053,
+      "tokensOut": 77761,
+      "latencySec": 790,
+      "costUsd": 57.24
+    }
+  },
+  "illustrative": [
+    {
+      "pairKey": "B1_f6ff77aa_d5fa082d",
+      "brief": "B1",
+      "aId": "f6ff77aa",
+      "bId": "d5fa082d",
+      "gap": 1,
+      "winnerModel": "claude-opus-5"
+    },
+    {
+      "pairKey": "B4_d2b7b52b_2e20bdb0",
+      "brief": "B4",
+      "aId": "d2b7b52b",
+      "bId": "2e20bdb0",
+      "gap": 0.83,
+      "winnerModel": "claude-opus-5"
+    },
+    {
+      "pairKey": "B5_c4b19032_3b6eac7c",
+      "brief": "B5",
+      "aId": "c4b19032",
+      "bId": "3b6eac7c",
+      "gap": -0.17,
+      "winnerModel": "claude-opus-5"
+    },
+    {
+      "pairKey": "B1_7f0fe142_510d7298",
+      "brief": "B1",
+      "aId": "7f0fe142",
+      "bId": "510d7298",
+      "gap": -0.17,
+      "winnerModel": "claude-opus-5"
+    },
+    {
+      "pairKey": "B1_7f0fe142_d5fa082d",
+      "brief": "B1",
+      "aId": "7f0fe142",
+      "bId": "d5fa082d",
+      "gap": 0.33,
+      "winnerModel": "claude-opus-5"
+    }
+  ],
+  "failures": [],
+  "strippedCount": 45
+}

@@ -1,0 +1,89 @@
+{
+  "id": "b1629d56",
+  "f1": {
+    "score": 4,
+    "observations": [
+      "Job status per row is a colored pill badge (`.badge failed/running/succeeded` with a status dot) plus the capitalized word — visible on all 8 rows in idle_desktop; metrics count 29 badge-heuristic elements and 14 inline SVGs.",
+      "Job progress is a div-based fill bar (`.progress-fill` colored by status) plus a numeric percent ('38%', '81%', '100%') in every row, and the upload panel has its own `.upload-progress-fill` bar with live % — though metrics show progress=0, meter=0, roleProgressbar=0, so no native/ARIA progressbar semantics back the visuals.",
+      "Queue-level counts are five cards whose values are color-coded to the status system (purple QUEUED 0, blue RUNNING 3, green SUCCEEDED 2, red FAILED 3) and show colored skeleton dashes while loading (loading_desktop shot); color is the only graphical channel — no bar or trend glyph.",
+      "Failure reason is red text only ('Worker ran out of memory at 1.8 GB', 'Upstream timeout after 30s' in the DETAILS column, `.error-text` with a title tooltip); severity is signaled graphically by the adjacent red Failed badge, but the reason itself has no icon in the row.",
+      "Raw ratio: 3/4 inventory items graphical+text, 1/4 text only."
+    ]
+  },
+  "f2": {
+    "score": 5,
+    "observations": [
+      "Measured desktop viewportWords is 95 for a full dashboard (header, 5 cards, 5 filters, 8-row table) — nearly every word is data, not prose.",
+      "helperWords = 0 and longLeafWords = 0: there is not a single explanatory paragraph or >12-word leaf string on the page.",
+      "12 button labels, meanWords 1.17, maxWords 3, longLabels empty — 'Retry', 'Cancel', 'All', 'Upload & Process' are the longest labels.",
+      "The only instructional sentence is 'Drop a file or browse' in the dropzone, which carries real instruction; toasts ('Job requeued', 'Job cancelled') are 2 words and state results, not narration.",
+      "Nothing restates what the UI shows: the counts, badges, and bars stand alone with single-word labels (TOTAL, QUEUED, RUNNING, SUCCEEDED, FAILED)."
+    ]
+  },
+  "f3": {
+    "score": 4,
+    "observations": [
+      "Status vocabulary is perfectly consistent across four surfaces: summary cards, filter tabs, row badges, and the upload panel's final 'Queued' step all use Queued/Running/Succeeded/Failed.",
+      "Copy matches observed behavior: 'Upload & Process' does exactly uploadFile→processFile; 'Live' is backed by observed 3 s listJobs polling (async item 8 PASS); 'Connection issue — retrying automatically' is literally true since the poll interval keeps running.",
+      "Failure reasons and errors are specific, not filler: 'Worker ran out of memory at 1.8 GB', 'Network error — check connection', 'Retry failed: ' + e.message.",
+      "One micro-issue found (redundancy in a toast), which keeps this just under the no-issues anchor; no marketing tone, no placeholder text, no false promises anywhere."
+    ]
+  },
+  "f4": {
+    "score": 4,
+    "observations": [
+      "The interaction design is unmistakably shaped by 'deal with failed jobs': renderTable sorts failed→running→queued→succeeded so all three failed rows with reasons and Retry buttons sit at the top of the table, and FAILED has its own filter tab and red count card.",
+      "Actions are status-contingent per row — Retry only on failed, Cancel only on running/queued, 'Download (2,713 rows)' only on succeeded — which is job-queue-admin logic, not a generic CRUD table.",
+      "Admin/on-call affordances: 'Live' poll indicator, a network banner with 'Retry now', monospace `code` styling for job ids, and the upload panel collapsed behind the header button so monitoring dominates the screen.",
+      "The visual skin is stock light-SaaS (Inter from Google Fonts, white cards on #f6f7f9, blue pill primary button, bottom-right toasts), so it stops short of the 'clearly driven type and color' bar — though the status-color system (red/blue/green/purple reused across cards, badges, and progress fills) is semantic rather than decorative."
+    ]
+  },
+  "hierarchy": {
+    "score": 5,
+    "observations": [
+      "Answered from idle_desktop before reading source — purpose: monitoring a background job queue ('Job Queue' h1, TOTAL/QUEUED/RUNNING/SUCCEEDED/FAILED count cards, jobs table, 'Live' dot). Matches the brief exactly.",
+      "Primary action: the solid blue 'Upload & Process' button is the only strong CTA (confirmed as primaryAction in metrics); at row level the yellow Retry buttons on failed rows are the obvious next action. Both readings are correct.",
+      "What needs attention: the red FAILED 3 card, three red Failed badges sorted to the top of the table, and red failure reasons ('Worker ran out of memory at 1.8 GB') each with an adjacent Retry — precisely the 'deal with failed jobs' half of the brief, obvious at a glance."
+    ]
+  },
+  "f1Inventory": [
+    {
+      "item": "job status per row",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "job progress",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "queue-level counts",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "failure reason",
+      "classification": "text only"
+    }
+  ],
+  "f2Redundant": [],
+  "f3Issues": [
+    "Success toast reads 'Job job_xxxxxx created' ('Job ' + jobId): the word 'Job' duplicates the 'job_' prefix already inside the id — minor filler/redundancy in a transient toast."
+  ],
+  "f4TaskDriven": [
+    "Failed-first row sort (failed → running → queued → succeeded) putting all failed jobs with reasons and Retry at the top of the table",
+    "Status-contingent row actions: Retry only on failed rows, Cancel only on running/queued rows, Download link with row count only on succeeded rows",
+    "Five summary cards mapping one-to-one onto the job status model, color-coded to match the badges (red FAILED, blue RUNNING, green SUCCEEDED, purple QUEUED)",
+    "Filter tabs mirroring the status vocabulary including a dedicated Failed tab",
+    "Failure reason surfaced inline in a DETAILS column with a title-attribute tooltip for truncated strings",
+    "'Live' polling indicator plus a connection banner ('Connection issue — retrying automatically' with 'Retry now') aimed at an admin watching state",
+    "Monospace styling for job ids (`code` elements)",
+    "Result column shows processed row counts ('(2,713 rows)') next to Download",
+    "Upload panel hidden behind the header 'Upload & Process' toggle so the monitoring table owns the idle screen"
+  ],
+  "f4Template": [
+    "Inter from Google Fonts with the standard light-SaaS palette: white rounded cards on a #f6f7f9 gray background",
+    "Solid blue pill primary button top-right — the default dashboard CTA treatment",
+    "Stat-card row + pill filter tabs + data table is the stock admin-dashboard layout, reusable for any brief",
+    "Bottom-right auto-dismissing toast notifications",
+    "Dashed-border drag-and-drop dropzone with upload-arrow icon and 'Drop a file or browse' — the generic uploader pattern"
+  ]
+}

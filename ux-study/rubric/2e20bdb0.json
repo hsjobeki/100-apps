@@ -1,0 +1,82 @@
+{
+  "id": "2e20bdb0",
+  "f1": {
+    "score": 5,
+    "observations": [
+      "Onboarding progress is rendered graphically three ways at once: an SVG progress ring (#ringFill, stroke-dasharray animated over circumference 119.4) with '0/3' text inside it, a 3-segment .segbar whose segments turn green ('on') or red ('err') per step, and per-step .mark circles that swap the numeral for a spinner (saving), a check SVG (done), or a warning-triangle SVG (error) — each backed by supporting text ('Nothing saved yet', '1 of 3 saved', 'Saved 01:32 PM', 'Not saved').",
+      "The empty state is a bespoke inline SVG illustration (viewBox 0 0 250 132, aria-label 'An empty project board') showing dashed placeholder project cards with one highlighted teal '+' card, above the 'No projects yet' heading — graphical with text supporting.",
+      "Metrics corroborate: desktop graphical total is 23 (9 svg, 14 badges), against only 64 visible viewport words.",
+      "Raw ratio: 2/2 inventory items are graphical+text; 0 text-only, 0 missing."
+    ]
+  },
+  "f2": {
+    "score": 4,
+    "observations": [
+      "Measured desktop viewportWords is 64 and pageWords 64 — the entire idle page fits in 64 visible words; helperWords is 15 and longLeafWords is 0 with no long leaves.",
+      "Button labels: 7 labels, meanWords 2.29, and the only 'long label' the harness flags ('1\\nName your workspace', 4 words) is a measurement artifact of the step-head button concatenating the step numeral with its title; actual action labels are 'Save', 'Save again', 'Finish setup', 'Check again', 'Retry', 'Refresh', 'Open setup' — all ≤2 words.",
+      "One redundancy exists in the saving state: the inline note 'Waiting for the server…' appears next to a button that already reads 'Saving…' with a spinner, while the step meta shows 'Saving…' and the topbar shows a 'Saving' chip — four simultaneous restatements of the same pending state (visible in the loading_desktop screenshot).",
+      "Everything else earns its place: 'Three steps and your workspace is ready.' sets scope, 'This list mirrors your account on the server.' explains why 'Check again' exists, and the error copy 'Nothing was saved. Your entries are still here.' carries consequence information the UI does not otherwise show."
+    ]
+  },
+  "f3": {
+    "score": 4,
+    "observations": [
+      "Terminology is otherwise consistent: 'workspace', 'setup' ('Finish setup', 'Setup saved', 'Setup progress'), and the Save/Saving…/Saved verb family are used uniformly across steps, topbar chip, and Account panel.",
+      "Copy matches verified behavior: 'Nothing was saved. Your entries are still here.' was confirmed true by the async rater (item 6: retry preserved entries), and 'Server confirmed at [time].' matches the item-10 finding that 'Saved' only appears after promise resolution.",
+      "One genuine inconsistency: the same refresh timestamp (state.checkedAt) is labeled 'Checked 01:32 PM' in the Projects empty state but 'Updated [time]' in the Account panel note — two names for the same event.",
+      "One borderline tense slip: the finish dialog says 'Your account is marked as set up.' before the user confirms and before any server call — at the moment it is shown, nothing is marked yet; 'will be marked' is what actually happens.",
+      "No marketing tone, no filler paragraphs, no leftover placeholder text; the default input value 'My workspace' is replaced by a getUser-driven prefill ('Alex's workspace')."
+    ]
+  },
+  "f4": {
+    "score": 5,
+    "observations": [
+      "The layout is built around the brief's exact job: a 3-step accordion checklist ('Name your workspace', 'Set preferences', 'Finish setup') with a progress ring, segmented bar, per-step saved timestamps, and auto-advance to the next unsaved step after a successful save (advanceFrom()).",
+      "The empty state is a custom-drawn SVG of an empty project board with a dashed teal '+' card — a direct visual metaphor for a project management app with zero projects — paired with an honest 'This list mirrors your account on the server.' and a 'Check again' refresh affordance.",
+      "First-run personalization is real: the hero reads 'Welcome, Alex.' from getUser(), the workspace-name field is prefilled to 'Alex's workspace' from the user's first name (prefillName), and the hero subtitle changes to 'Setup saved. Your projects appear here as they are created.' once all three steps complete.",
+      "Type and color are a deliberate identity, not a default: Fraunces display serif for headings paired with Inter for UI, a warm cream background (#FDFCFA family), deep teal primary (#0F6F63), and a tick-mark ruler ornament under the hero echoing the step-progress motif.",
+      "Template residue is limited to standard app chrome: the topbar (brand + Get started/Account tabs + avatar) and the card/two-column grid are conventional patterns, but their content is entirely brief-specific."
+    ]
+  },
+  "hierarchy": {
+    "score": 5,
+    "observations": [
+      "From the idle desktop screenshot alone, the page's purpose read immediately as first-run workspace setup: 'Welcome, Alex.', 'Three steps and your workspace is ready.', a 'Set up your workspace' 3-step checklist, and a 'No projects yet' panel — exactly the B4 brief.",
+      "The primary action was unambiguous: the solid teal 'Save' button inside expanded step 1 is the only filled button on the page; all other buttons ('Check again', tabs) are ghost/outline.",
+      "What needs attention was correctly signaled: step 1 'Name your workspace' is the only expanded step, and the '0/3' ring plus 'Nothing saved yet' label mark the work remaining.",
+      "All three pre-source answers checked out against the brief and the HTML; nothing misled."
+    ]
+  },
+  "f1Inventory": [
+    {
+      "item": "onboarding progress",
+      "classification": "graphical+text"
+    },
+    {
+      "item": "empty state",
+      "classification": "graphical+text"
+    }
+  ],
+  "f2Redundant": [
+    "'Waiting for the server…' — inline note shown next to a button that already reads 'Saving…' with a spinner, while the step meta shows 'Saving…' and the topbar shows a 'Saving' chip; it restates pending state the UI already shows three times."
+  ],
+  "f3Issues": [
+    "Inconsistent naming for the same refresh timestamp: 'Checked 01:32 PM' in the Projects empty state vs 'Updated [time]' in the Account panel, both rendered from the same state.checkedAt value.",
+    "Finish-setup dialog copy 'Your account is marked as set up.' uses present tense before the user confirms and before updateSettings({ hasCompletedOnboarding: true }) is called; at display time nothing has been marked (borderline copy/behavior mismatch)."
+  ],
+  "f4TaskDriven": [
+    "3-step onboarding accordion ('Name your workspace' / 'Set preferences' / 'Finish setup') with SVG progress ring, 3-segment bar, per-step status marks, and auto-advance to the next unsaved step after save",
+    "Custom SVG empty-project-board illustration with a dashed teal '+' card in the Projects panel, matching the zero-projects first-run condition",
+    "Personalized hero 'Welcome, Alex.' and workspace-name prefill 'Alex's workspace' derived from api.getUser()",
+    "Hero subtitle that changes to 'Setup saved. Your projects appear here as they are created.' once all steps are done",
+    "Server-honest empty-state copy ('This list mirrors your account on the server.') with 'Check again' + last-checked timestamp",
+    "Confirmation dialog gating the irreversible-feeling 'Finish setup' action, with summary chips of what was saved",
+    "Fraunces serif + Inter pairing, cream paper background, deep teal #0F6F63 accent, and a tick-ruler ornament echoing the step-progress motif"
+  ],
+  "f4Template": [
+    "Topbar app chrome: brand mark + 'Get started'/'Account' tab pair + avatar with plan badge",
+    "Card-based two-column grid (main checklist card + aside Projects card)",
+    "Accordion/collapsible-section pattern for the steps",
+    "Skeleton-shimmer loading placeholders for name/count while getUser resolves"
+  ]
+}
